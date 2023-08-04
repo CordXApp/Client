@@ -40,7 +40,7 @@ module.exports.setClientPresence = async (client, presence) => {
    * @type idle
    * @type online
    * @type dnd
-   * @type offline
+   * @type invisible
    */
   client.user.setStatus("idle");
 
@@ -52,5 +52,5 @@ module.exports.setClientPresence = async (client, presence) => {
       type: presence.type,
       url: presence.url ? presence.url : "",
     });
-  }, 1000);
+  }, 10000);
 };
