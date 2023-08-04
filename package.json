@@ -1,0 +1,35 @@
+{
+    "name": "@cordx/client",
+    "version": "2.0.0",
+    "author": "Toxic Dev",
+    "main": "src/handlers/client/index.js",
+
+    "scripts": {
+        "dev": "nodemon src/handlers/client/index.js",
+        "start": "node src/handlers/client/index.js"
+    },
+
+    "dependencies": {
+        "chalk": "^4.1.2",
+        "dotenv": "^16.0.3",
+        "discord.js": "^14.12.1",
+        "module-alias": "^2.2.3",
+        "moment": "^2.29.4",
+        "moment-duration-format": "^2.3.2",
+        "mysql": "2.18.1",
+        "parse-ms": "^3.0.0",
+        "snekfetch": "^4.0.4"
+    },
+
+    "devDependencies": {
+        "nodemon": "^2.0.20"
+    },
+
+    "_moduleAliases": {
+        "@root": ".",
+        "@functions": "./src/functions",
+        "@handlers": "./src/handlers",
+        "@plugins": "./src/plugins",
+        "@configs": "./src/configs"
+    }
+}
