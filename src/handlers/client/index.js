@@ -65,5 +65,5 @@ process.on('unhandledRejection', (err) => {
     return log(`${err.stack}`, { header: 'UNHANDLED_REJECTION', type: 'error' });
 });
 
-//client.login(config.Discord.Tokens.main)
-client.login(config.Discord.Tokens.dev);
+client.login(config.Discord.Tokens.main)
+//client.login(config.Discord.Tokens.dev);
