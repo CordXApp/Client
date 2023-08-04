@@ -24,6 +24,8 @@ module.exports = {
         let reason = await client.interaction.options.getString('reason');
         let mod_log = await client.interaction.guild.channels.cache.find((c) => c.id === '871275213013262397');
 
+        if (!client.interaction.guild.id === '871204257649557604') return;
+
         if (member == client.interaction.member) return client.interaction.reply({ embeds: [
             new client.Gateway.EmbedBuilder()
             .setTitle('ERROR: Invalid User')
