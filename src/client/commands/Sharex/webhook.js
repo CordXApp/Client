@@ -108,7 +108,7 @@ module.exports = {
                         .setTitle('ERROR: Message Failed')
                         .setColor(client.color)
                         .setThumbnail(client.logo)
-                        .setDescription('Failed to send your secret via DMs. Please make sure you are allowing DMs from guild members or use the ephemeral method which will send it via a private message!')
+                        .setDescription('Failed to send your webhook via DMs. Please make sure you are allowing DMs from guild members or use the ephemeral method which will send it via a private message!')
                         .setTimestamp()
                         .setFooter({
                             text: client.footer,
