@@ -1,29 +1,35 @@
 const { configCheck } = require("@functions/configCheck");
 
 module.exports = {
-  name: "ready",
-  once: true,
+    name: "ready",
+    once: true,
 
-  async execute(client) {
-    await configCheck({ client: client });
+    async execute(client) {
+        try {
+            await configCheck({ client });
 
-    await client.logger("Connecting to the discord api...", {
-      header: "CLIENT_START",
-      type: "start",
-    });
+            const startMessage = "Connecting to the Discord API...";
+            const connectedMessage = "Connected to the Discord API!";
+            const errorMessage = "An error occurred during connection.";
 
-    try {
-      await client.utils.setClientPresence(client);
+            await client.logger(startMessage, {
+                header: "CLIENT_START",
+                type: "start",
+            });
 
-      return client.logger("Connected to the discord api!", {
-        header: "CLIENT_START",
-        type: "ready",
-      });
-    } catch (e) {
-      return client.logger(`${e.stack}`, {
-        header: "CONNECTION_FAILURE",
-        type: "error",
-      });
-    }
-  },
+            await client.utils.setClientPresence(client);
+
+            await client.logger(connectedMessage, {
+                header: "CLIENT_START",
+                type: "ready",
+            });
+        } catch (error) {
+            const errorStack = error.stack || error.message || "Unknown error";
+
+            await client.logger(errorStack, {
+                header: "CONNECTION_FAILURE",
+                type: "error",
+            });
+        }
+    },
 };

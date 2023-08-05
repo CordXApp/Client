@@ -1,70 +1,58 @@
 module.exports = {
-  name: "guildMemberAdd",
+    name: "guildMemberAdd",
 
-  async execute(member, client) {
-    if (!member.guild.id === "871204257649557604") return; // Ignore the event if triggering guild is not the support guild
+    async execute(member, client) {
+        if (member.guild.id !== "871204257649557604") return; // Only process events in the specific guild
 
-    try {
-      /**
-       * @default m_role Define the role to add to new users
-       * @default b_role Define the role to add to new bots
-       * @default l_chan Define the channel to send logs to
-       */
-      let m_role = await member.guild.roles.cache.get("871275762601299988");
-      let b_role = await member.guild.roles.cache.get("871278093199884288");
-      let l_chan = await member.guild.channels.cache.find(
-        (c) => c.id === "871275187377688628",
-      );
+        try {
+            const mRoleId = "871275762601299988";
+            const bRoleId = "871278093199884288";
+            const lChannelId = "871275187377688628";
 
-      /**
-       * @default username Check if the user is using discord's new or old username's
-       */
-      let username = member.user.globalName
-        ? member.user.globalName
-        : member.user.username;
+            const mRole = member.guild.roles.cache.get(mRoleId);
+            const bRole = member.guild.roles.cache.get(bRoleId);
+            const lChannel = member.guild.channels.cache.get(lChannelId);
 
-      if (!member.user.bot) {
-        await member.roles.add(m_role);
+            const username = member.user.globalName || member.user.username;
 
-        await client.logger(`Role added to: ${member.user.id}`);
+            if (!member.user.bot) {
+                await member.roles.add(mRole);
 
-        return l_chan.send({
-          embeds: [
-            new client.Gateway.EmbedBuilder()
-              .setTitle("A new user has spawned")
-              .setColor(client.color)
-              .setThumbnail(client.logo)
-              .setDescription(`${username} has slid into the server`)
-              .setTimestamp()
-              .setFooter({
-                text: client.footer,
-                iconURL: client.logo,
-              }),
-          ],
-        });
-      } else {
-        await member.roles.add(b_role);
+                await client.logger(`Role added to: ${member.user.id}`);
 
-        return l_chan.send({
-          embeds: [
-            new client.Gateway.EmbedBuilder()
-              .setTitle("A new bot has spawned")
-              .setColor(client.color)
-              .setThumbnail(client.logo)
-              .setDescription(`${username} has slid into the server!`)
-              .setTimestamp()
-              .setFooter({
-                text: client.footer,
-                iconURL: client.logo,
-              }),
-          ],
-        });
-      }
-    } catch (e) {
-      return client.logger(`${err.stack}`, {
-        header: "GUILD_MEMBER_ADD",
-        type: "error",
-      });
-    }
-  },
+                const userEmbed = new client.Gateway.EmbedBuilder()
+                    .setTitle("A new user has joined")
+                    .setColor(client.color)
+                    .setThumbnail(client.logo)
+                    .setDescription(`${username} has joined the server`)
+                    .setTimestamp()
+                    .setFooter({
+                        text: client.footer,
+                        iconURL: client.logo,
+                    });
+
+                return lChannel.send({ embeds: [userEmbed] });
+            } else {
+                await member.roles.add(bRole);
+
+                const botEmbed = new client.Gateway.EmbedBuilder()
+                    .setTitle("A new bot has joined")
+                    .setColor(client.color)
+                    .setThumbnail(client.logo)
+                    .setDescription(`${username} has joined the server`)
+                    .setTimestamp()
+                    .setFooter({
+                        text: client.footer,
+                        iconURL: client.logo,
+                    });
+
+                return lChannel.send({ embeds: [botEmbed] });
+            }
+        } catch (error) {
+            await client.logger(`${error.stack}`, {
+                header: "GUILD_MEMBER_ADD",
+                type: "error",
+            });
+        }
+    },
 };
