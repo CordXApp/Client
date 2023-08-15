@@ -1,128 +1,94 @@
-const { sqlConnection } = require('@functions/sqlConnection');
-
 module.exports = {
     name: 'profile',
     category: 'Sharex',
     description: 'View your cordx profile/information',
     userPerms: [''],
     basePerms: [''],
+    options: [
+        {
+            name: 'user',
+            description: 'Leave empty to fetch your own profile.',
+            required: false,
+            type: 6
+        }
+    ],
 
     run: async (client) => {
 
-        let sql = await sqlConnection({
-            host: client.config.Database.host,
-            user: client.config.Database.user,
-            pass: client.config.Database.pass,
-            name: client.config.Database.name
-        })
+        let member = await client.interaction.options.getMember('user') || client.interaction.user;
+        
+        await fetch(`${client.config.Cordx.Domains.beta}api/user/stats?userId=${member.id}`)
+        .then(res => res.json())
+        .then(data => {
 
-        let username = client.interaction.user.globalName ? client.interaction.user.globalName : client.interaction.user.username;
+            let remains = 2000 - data.used;
+            let images = data.images;
+            let downloads = data.downloads;
+            let videos = data.videos;
 
-        await sql.query(`SELECT * FROM users WHERE folder="${client.interaction.user.id}"`, async(err, row) => {
-
-            if (err) return client.interaction.reply({ embeds: [
-                new client.Gateway.EmbedBuilder()
-                .setTitle('ERROR: Database Query Failed')
-                .setColor(client.color)
-                .setThumbnail(client.logo)
-                .setDescription('Whoops, something went wrong with the Database Query')
-                .addFields({
-                    name: 'Error',
-                    value: `${err.message}`,
-                    inline: false
-                })
-                .setTimestamp()
-                .setFooter({
-                    text: client.footer,
-                    iconURL: client.logo
-                })
-            ], ephemeral: true})
-
-            let user = row[0];
-
-            await sql.query(`SELECT * FROM images WHERE userid="${client.interaction.user.id}"`, async (err, row) => {
-
-                if (err) return client.interaction.reply({ embeds: [
+            return client.interaction.reply({
+                embeds: [
                     new client.Gateway.EmbedBuilder()
-                    .setTitle('ERROR: Database Query Failed')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
-                    .setDescription('Whoops, something went wrong with the Database Query')
+                    .setTitle(`Profile for: ${member.globalName ? member.globalName : member.user.globalName}`)
+                    .setColor(client.colors.base)
+                    .setThumbnail(member.displayAvatarURL({ dynamic: true }))
+                    .setDescription(`You can view the profile [here](https://dev.cordx.lol/${member.id})`)
                     .addFields({
-                        name: 'Error',
-                        value: `${err.message}`,
-                        inline: false
+                        name: 'Stored Images',
+                        value: `${images ? images : 0} total`,
+                        inline: true
+                    },{
+                        name: 'Stored Downloads',
+                        value: `${downloads ? downloads : 0} total`,
+                        inline: true
+                    },{
+                        name: 'Stored Videos',
+                        value: `${videos ? videos : 0} total`,
+                        inline: true
+                    },{
+                        name: 'Storage Limit',
+                        value: `2,000MB`,
+                        inline: true
+                    },{
+                        name: 'Storage Used',
+                        value: `${data.used.toLocaleString()}MB`,
+                        inline: true
+                    }, {
+                        name: 'Storage Available',
+                        value: `${remains.toLocaleString()}MB`,
+                        inline: true
                     })
                     .setTimestamp()
                     .setFooter({
                         text: client.footer,
                         iconURL: client.logo
                     })
-                ], ephemeral: true})
+                ]
+            })
+        })
+        .catch((e) => {
 
-                let images = row.length || 0;
-
-                await sql.query(`SELECT * FROM downloads WHERE user="${client.interaction.user.id}"`, async (err, row) => {
-
-                    if (err) return client.interaction.reply({ embeds: [
-                        new client.Gateway.EmbedBuilder()
-                        .setTitle('ERROR: Database Query Failed')
-                        .setColor(client.color)
-                        .setThumbnail(client.logo)
-                        .setDescription('Whoops, something went wrong with the Database Query')
-                        .addFields({
-                            name: 'Error',
-                            value: `${err.message}`,
-                            inline: false
-                        })
-                        .setTimestamp()
-                        .setFooter({
-                            text: client.footer,
-                            iconURL: client.logo
-                        })
-                    ], ephemeral: true})
-
-                    let downloads = row.length || 0;
-
-
-                    return client.interaction.reply({ embeds: [
-                        new client.Gateway.EmbedBuilder()
-                        .setTitle(`${username}'s Profile`)
-                        .setColor(client.color)
-                        .setThumbnail(client.interaction.user.avatarURL({ dynamic: true }))
-                        .setDescription('NOTE: This only includes public information')
-                        .addFields({
-                            name: 'Profile',
-                            value: `[View Profile](https://dev.cordx.lol/${user.userid})`,
-                            inline: false
-                        },{
-                            name: 'Secret',
-                            value: 'Use the ``/secret`` command to view',
-                            inline: false
-                        },{
-                            name: 'Cookie',
-                            value: 'Use the ``/cookie`` command to view',
-                            inline: false
-                        },{
-                            name: 'Webhook',
-                            value: 'Use the ``/webhook`` command to view',
-                            inline: false
-                        },{
-                            name: 'Images',
-                            value: `${images} total`,
-                            inline: false
-                        },{
-                            name: 'Downloads',
-                            value: `${downloads} total`,
-                            inline: false
-                        })
-                        .setTimestamp()
-                        .setFooter({
-                            text: client.footer,
-                            iconURL: client.logo
-                        })
-                    ]})
-                })
+            return client.interaction.reply({
+                embeds: [
+                    new client.Gateway.EmbedBuilder()
+                    .setTitle('Error: api unavailable')
+                    .setColor(client.colors.error)
+                    .setThumbnail(client.logo)
+                    .setDescription('Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below')
+                    .addFields({
+                        name: 'Error',
+                        value: `${e.message}`,
+                        inline: true,
+                    },{
+                        name: 'View Our Status',
+                        value: `[click me](https://beta.cordx.lol/status) or run the "/status" command.`
+                    })
+                    .setTimestamp()
+                    .setFooter({
+                        text: client.footer,
+                        iconURL: client.logo
+                    })
+                ]
             })
         })
     }

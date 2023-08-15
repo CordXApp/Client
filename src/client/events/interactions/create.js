@@ -27,7 +27,7 @@ module.exports = {
         if (!customCmdPermCheck && !command.userPerms.includes('')) return interaction.reply({ embeds: [
             new client.Gateway.EmbedBuilder()
             .setTitle('ERROR: Invalid permissions')
-            .setColor(client.color)
+            .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription('Hold up chief, you do not have the necessary permissions for this command')
             .addFields({
@@ -45,7 +45,7 @@ module.exports = {
         if (!baseCmdPermCheck && !command.basePerms.includes('')) return interaction.reply({ embeds: [
             new client.Gateway.EmbedBuilder()
             .setTitle('ERROR: Invalid permissions')
-            .setColor(client.color)
+            .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription('Hold up chief, you do not have the necessary permissions for this command')
             .addFields(
@@ -91,7 +91,7 @@ module.exports = {
             return interaction.reply({ embeds: [
                 new client.Gateway.EmbedBuilder()
                 .setTitle('FATAL: Internal Error')
-                .setColor(client.color)
+                .setColor(client.colors.error)
                 .setThumbnail(client.logo)
                 .setDescription(`Hold up, something just ain't right here!`)
                 .addFields({

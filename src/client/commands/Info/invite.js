@@ -10,7 +10,7 @@ module.exports = {
         return client.interaction.reply({ embeds: [
             new client.Gateway.EmbedBuilder()
             .setTitle('Invite Me')
-            .setColor(client.color)
+            .setColor(client.colors.base)
             .setThumbnail(client.logo)
             .setDescription('Woah, you want me in your guild?')
             .addFields({

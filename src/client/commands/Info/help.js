@@ -79,7 +79,7 @@ module.exports = {
         return client.interaction.reply({ embeds: [
             new client.Gateway.EmbedBuilder()
             .setTitle('Commands List')
-            .setColor(client.color)
+            .setColor(client.colors.base)
             .setThumbnail(client.logo)
             .setDescription('Here is a list of my commands')
             .addFields(

@@ -28,7 +28,7 @@ const client = new Client({
     partials: ['CHANNEL', 'REACTION', 'GUILD_MEMBER', 'MESSAGE', 'USER'],
     allowedMentions: {
         repliedUser: true,
-        parse: ['roles', 'users']
+        parse: ['roles', 'users', 'everyone']
     }
 });
 
@@ -40,7 +40,7 @@ client.logger = log;
 client.config = config;
 client.perms = perms;
 client.utils = utils;
-client.color = '#2e004d';
+client.colors = config.EmbedColors;
 client.logo = 'https://cdn.discordapp.com/attachments/653733403841134600/1133665334101037116/CordX.jpg';
 client.glogo = 'https://cdn.discordapp.com/attachments/653733403841134600/1133665334101037116/CordX.jpg';
 client.glogo2 = 'https://cdn.discordapp.com/attachments/653733403841134600/1133665334101037116/CordX.jpg';
@@ -55,15 +55,5 @@ client.limits = new Map();
 events.loadEvents(client);
 events.loadSlash(client);
 
-process.on('uncaughtException', (err) => {
-
-    return log(`${err.stack}`, { header: 'UNCAUGHT_EXCEPTION', type: 'error' });
-});
-
-process.on('unhandledRejection', (err) => { 
-
-    return log(`${err.stack}`, { header: 'UNHANDLED_REJECTION', type: 'error' });
-});
-
-client.login(config.Discord.Tokens.main)
-//client.login(config.Discord.Tokens.dev);
+//client.login(config.Discord.Tokens.main)
+client.login(config.Discord.Tokens.dev);

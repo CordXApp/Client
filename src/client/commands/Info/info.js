@@ -12,7 +12,7 @@ module.exports = {
         return client.interaction.reply({ embeds: [
             new client.Gateway.EmbedBuilder()
             .setTitle('Bot Information')
-            .setColor(client.color)
+            .setColor(client.colors.base)
             .setDescription('Why do you care?')
             .addFields({
                 name: 'Bot Version',

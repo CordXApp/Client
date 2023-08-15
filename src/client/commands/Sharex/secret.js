@@ -1,9 +1,7 @@
-const { sqlConnection } = require('@functions/sqlConnection');
-
 module.exports = {
     name: 'secret',
     category: 'Sharex',
-    description: 'View your upload/sharex config secret',
+    description: 'View your cordx upload server secret',
     userPerms: [''],
     basePerms: [''],
     options: [
@@ -26,150 +24,173 @@ module.exports = {
     ],
 
     run: async (client) => {
+
         let method = await client.interaction.options.get('method')?.value;
 
-        let sql = await sqlConnection({
-            host: client.config.Database.host,
-            user: client.config.Database.user,
-            pass: client.config.Database.pass,
-            name: client.config.Database.name
-        })
+        switch(method) {
 
-        if (method === 'direct_message') {
+            case "private_message":
 
-            await sql.query(`SELECT * FROM users WHERE folder="${client.interaction.user.id}"`, async (err, row) => {
+                await fetch(`${client.config.API.domain}users/profile/${client.interaction.user.id}/${client.config.API.secret}`)
+                .then(res => res.json())
+                .then(user => {
 
-                if (err) return client.interaction.reply({ embeds: [
-                    new client.Gateway.EmbedBuilder()
-                    .setTitle('ERROR: Database Query Failed')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
-                    .setDescription('Whoops, something went wrong with the Database Query')
-                    .addFields({
-                        name: 'Error',
-                        value: `${err.message}`,
-                        inline: false
+                    return client.interaction.reply({
+                        ephemeral: true,
+                        embeds: [
+                            new client.Gateway.EmbedBuilder()
+                            .setTitle('Action: view secret')
+                            .setColor(client.colors.base)
+                            .setThumbnail(client.logo)
+                            .setDescription('Here is your secret. Please make sure you do not share it')
+                            .addFields({
+                                name: 'Your Secret',
+                                value: `${user.secret}`,
+                                inline: false
+                            })
+                            .setTimestamp()
+                            .setFooter({
+                                text: client.footer,
+                                iconURL: client.logo
+                            })
+                        ]
                     })
-                    .setTimestamp()
-                    .setFooter({
-                        text: client.footer,
-                        iconURL: client.logo
-                    })
-                ], ephemeral: true})
-
-                if (!row[0]) return client.interaction.reply({ embeds: [
-                    new client.Gateway.EmbedBuilder()
-                    .setTitle('ERROR: Query Not Found')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
-                    .setDescription('Database query returned a 404 not found. Have you logged in/created an account?')
-                    .setTimestamp()
-                    .setFooter({
-                        text: client.footer,
-                        iconURL: client.logo
-                    })
-                ], ephemeral: true}) 
-
-                await client.interaction.user.send({ embeds: [
-                    new client.Gateway.EmbedBuilder()
-                    .setTitle('Action: View Secret')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
-                    .setDescription('Here is your upload/sharex secret. It goes into your sharex config which can be downloaded from our website!')
-                    .addFields({
-                        name: 'Secret',
-                        value: `${row[0].secret}`,
-                        inline: false
-                    })
-                    .setTimestamp()
-                    .setFooter({
-                        text: client.footer,
-                        iconURL: client.logo
-                    }) 
-                ]}).then(() => {
-
-                    return client.interaction.reply({ embeds: [
-                        new client.Gateway.EmbedBuilder()
-                        .setTitle('SUCCESS: DM Sent')
-                        .setColor(client.color)
-                        .setThumbnail(client.logo)
-                        .setDescription('I have sent you your sharex secret via direct message')
-                        .setTimestamp()
-                        .setFooter({
-                            text: client.footer,
-                            iconURL: client.logo
-                        })
-                    ]})
-
-                }).catch(() => {
-
-                    return client.interaction.reply({ embeds: [
-                        new client.Gateway.EmbedBuilder()
-                        .setTitle('ERROR: Message Failed')
-                        .setColor(client.color)
-                        .setThumbnail(client.logo)
-                        .setDescription('Failed to send your secret via DMs. Please make sure you are allowing DMs from guild members or use the ephemeral method which will send it via a private message!')
-                        .setTimestamp()
-                        .setFooter({
-                            text: client.footer,
-                            iconURL: client.logo
-                        })
-                    ]})
+    
+    
                 })
-            })
+                .catch((e) => {
 
-        } else if (method === 'private_message') {
-
-            await sql.query(`SELECT * FROM users WHERE folder="${client.interaction.user.id}"`, async (err, row) => {
-
-                if (err) return client.interaction.reply({ embeds: [
-                    new client.Gateway.EmbedBuilder()
-                    .setTitle('ERROR: Database Query Failed')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
-                    .setDescription('Whoops, something went wrong with the Database Query')
-                    .addFields({
-                        name: 'Error',
-                        value: `${err.message}`,
-                        inline: false
+                    return client.interaction.reply({
+                        embeds: [
+                            new client.Gateway.EmbedBuilder()
+                            .setTitle('Error: unable to fetch')
+                            .setColor(client.colors.error)
+                            .setThumbnail(client.logo)
+                            .setDescription('Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below')
+                            .addFields({
+                                name: 'Error',
+                                value: `${e.message}`,
+                                inline: true,
+                            },{
+                                name: 'Our Status',
+                                value: `[view status](https://beta.cordx.lol/status) or run the "/status" command.`
+                            })
+                            .setTimestamp()
+                            .setFooter({
+                                text: client.footer,
+                                iconURL: client.logo
+                            })
+                        ]
                     })
+                })
+
+            break;
+
+            case "direct_message":
+
+                await fetch(`${client.config.API.domain}users/profile/${client.interaction.user.id}/${client.config.API.secret}`)
+                .then(res => res.json())
+                .then(async user => {
+
+                    await client.interaction.user.send({
+                        embeds: [
+                            new client.Gateway.EmbedBuilder()
+                            .setTitle('Action: view secret')
+                            .setColor(client.colors.base)
+                            .setThumbnail(client.logo)
+                            .setDescription('Here is your secret. Please make sure you do not share it')
+                            .addFields({
+                                name: 'Your Secret',
+                                value: `${user.secret}`,
+                                inline: false
+                            })
+                            .setTimestamp()
+                            .setFooter({
+                                text: client.footer,
+                                iconURL: client.logo
+                            })
+                        ]
+                    })
+                    .then(() => {
+
+                        return client.interaction.reply({
+                            embeds: [
+                                new client.Gateway.EmbedBuilder()
+                                .setTitle('Success: message sent')
+                                .setColor(client.colors.base)
+                                .setThumbnail(client.logo)
+                                .setDescription('I have sent your secret to you, please check your DM\'s')
+                                .setTimestamp()
+                                .setFooter({
+                                    text: client.footer,
+                                    iconURL: client.logo
+                                })
+                            ]
+                        })
+                    })
+                    .catch(() => {
+
+                        return client.interaction.reply({
+                            embeds: [
+                                new client.Gateway.EmbedBuilder()
+                                .setTitle('Error: message failed')
+                                .setColor(client.colors.error)
+                                .setThumbnail(client.logo)
+                                .setDescription('Whoops, i was unable to send you a direct message, please make sure you are allowing DM\'s from server members or run the command again using the "ephemeral" params to send it in a private message')
+                                .setTimestamp()
+                                .setFooter({
+                                    text: client.footer,
+                                    iconURL: client.logo
+                                })
+                            ]
+                        })
+                    })
+                })
+                .catch(async (e) => {
+
+                    await client.logger(`${e.stack}`, { header: 'SECRET_FETCH', type: 'error' })
+
+                    return client.interaction.reply({
+                        embeds: [
+                            new client.Gateway.EmbedBuilder()
+                            .setTitle('Error: unable to fetch')
+                            .setColor(client.colors.error)
+                            .setThumbnail(client.logo)
+                            .setDescription('Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below')
+                            .addFields({
+                                name: 'Error',
+                                value: `${e.message}`,
+                                inline: true,
+                            },{
+                                name: 'Our Status',
+                                value: `[view status](https://beta.cordx.lol/status) or run the "/status" command.`
+                            })
+                            .setTimestamp()
+                            .setFooter({
+                                text: client.footer,
+                                iconURL: client.logo
+                            })
+                        ]
+                    })
+                })
+
+            break;
+
+            default:
+
+            return client.interaction.reply({
+                embeds: [
+                    new client.Gateway.EmbedBuilder()
+                    .setTitle('Error: invalid params')
+                    .setColor(client.colors.base)
+                    .setThumbnail(client.logo)
+                    .setDescription('Please provide some valid command params')
                     .setTimestamp()
                     .setFooter({
                         text: client.footer,
                         iconURL: client.logo
                     })
-                ], ephemeral: true})
-
-                if (!row[0]) return client.interaction.reply({ embeds: [
-                    new client.Gateway.EmbedBuilder()
-                    .setTitle('ERROR: Query Not Found')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
-                    .setDescription('Database query returned a 404 not found. Have you logged in/created an account?')
-                    .setTimestamp()
-                    .setFooter({
-                        text: client.footer,
-                        iconURL: client.logo
-                    })
-                ], ephemeral: true}) 
-
-                return client.interaction.reply({ embeds: [
-                    new client.Gateway.EmbedBuilder()
-                    .setTitle('Action: View Secret')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
-                    .setDescription('Here is your upload/sharex secret. It goes into your sharex config which can be downloaded from our website!')
-                    .addFields({
-                        name: 'Secret',
-                        value: `${row[0].secret}`,
-                        inline: false
-                    })
-                    .setTimestamp()
-                    .setFooter({
-                        text: client.footer,
-                        iconURL: client.logo
-                    })
-                ], ephemeral: true})
+                ]
             })
         }
     }

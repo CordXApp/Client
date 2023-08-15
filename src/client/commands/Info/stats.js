@@ -1,5 +1,3 @@
-const { sqlConnection } = require('@functions/sqlConnection');
-
 module.exports = {
     name: 'stats',
     category: 'Info',
@@ -29,131 +27,121 @@ module.exports = {
 
         let method = await client.interaction.options.get('type')?.value;
 
-        let sql = await sqlConnection({
-            host: client.config.Database.host,
-            user: client.config.Database.user,
-            pass: client.config.Database.pass,
-            name: client.config.Database.name
-        });
+        switch (method) {
 
-        if (method == 'bot_stats') {
+            case "bot_stats":
 
-            return client.interaction.reply({ embeds: [
-                new client.Gateway.EmbedBuilder()
-                .setTitle('Bot Statistics')
-                .setColor(client.color)
-                .setThumbnail(client.logo)
-                .setDescription('Here is my statistics')
-                .addFields({
-                    name: 'User Count',
-                    value: `${client.users.cache.size}`,
-                    inline: false
-                },{
-                    name: 'Channel Count',
-                    value: `${client.channels.cache.size}`,
-                    inline: false
-                },{
-                    name: 'Guild Count',
-                    value: `${client.guilds.cache.size}`,
-                    inline: false
-                })
-                .setTimestamp()
-                .setFooter({
-                    text: client.footer,
-                    iconURL: client.logo
-                })
-            ]})
-        
-        } else if (method == 'website_stats') {
-
-            await sql.query(`SELECT * FROM images`, async (err, row) => {
-
-                if (err) return client.interaction.reply({ embeds: [
-                    new client.Gateway.EmbedBuilder()
-                    .setTitle('ERROR: SQL Query Failed')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
-                    .setDescription('Woah, something went wrong with the database query!')
-                    .addFields({
-                        name: 'Error',
-                        value: `${err.message}`,
-                        inline: false
-                    })
-                    .setTimestamp()
-                    .setFooter({
-                        text: client.footer,
-                        iconURL: client.logo
-                    })
-                ]})
-
-                let c = row.length || 0
-
-                await sql.query(`SELECT * FROM users`, async (err, row) => {
-
-                    if (err) return client.interaction.reply({ embeds: [
+                return client.interaction.reply({
+                    embeds: [
                         new client.Gateway.EmbedBuilder()
-                        .setTitle('ERROR: SQL Query Failed')
-                        .setColor(client.color)
+                        .setTitle('Bot statistics')
+                        .setColor(client.colors.base)
                         .setThumbnail(client.logo)
-                        .setDescription('Woah, something went wrong with the database query!')
-                        .addFields({
-                            name: 'Error',
-                            value: `${err.message}`,
-                            inline: false
-                        })
+                        .setDescription('Here are my stats chief!')
+                        .addFields(
+                            {
+                                name: 'User Count',
+                                value: `${client.users.cache.size} users`,
+                                inline: true
+                            },
+                            {
+                                name: 'Channel Count',
+                                value: `${client.channels.cache.size} channels`,
+                                inline: true
+                            },
+                            {
+                                name: 'Guild Count',
+                                value: `${client.guilds.cache.size}`,
+                                inline: true
+                            }
+                        )
                         .setTimestamp()
                         .setFooter({
                             text: client.footer,
                             iconURL: client.logo
                         })
-                    ]})
+                    ]
+                });
 
-                    let u = row.length || 0;
+            case "website_stats":
 
-                    await sql.query(`SELECT * FROM downloads`, async (err, row) => {
+                await fetch(`${client.config.API.domain}system/stats`)
+                .then(res => res.json())
+                .then(stats => {
 
-                        if (err) return client.interaction.reply({ embeds: [
+                    return client.interaction.reply({
+                        embeds: [
                             new client.Gateway.EmbedBuilder()
-                            .setTitle('ERROR: SQL Query Failed')
-                            .setColor(client.color)
+                            .setTitle('Website statistics')
+                            .setColor(client.colors.base)
                             .setThumbnail(client.logo)
-                            .setDescription('Woah, something went wrong with the database query!')
+                            .setDescription('Here is our website stats!')
                             .addFields({
-                                name: 'Error',
-                                value: `${err.message}`,
-                                inline: false
+                                name: 'User Count',
+                                value: `${stats.users} total users`,
+                                inline: true
+                            },{
+                                name: 'Stored Images',
+                                value: `${stats.images} total images`,
+                                inline: true
+                            },{
+                                name: 'Download Count',
+                                value: `${stats.downloads} total downloads`,
+                                inline: true
                             })
                             .setTimestamp()
                             .setFooter({
                                 text: client.footer,
                                 iconURL: client.logo
                             })
-                        ]})
-
-                        let d = row.length || 0;
-
-                        return client.interaction.reply({ embeds: [
-                            new client.Gateway.EmbedBuilder()
-                            .setTitle('Website Statistics')
-                            .setColor(client.color)
-                            .setThumbnail(client.logo)
-                            .setDescription('Our [website](https://dev.cordx.lol) statistics')
-                            .addFields({
-                                name: 'Stored Images',
-                                value: `${c} total`,
-                                inline: true
-                            }, {
-                                name: 'Stored Downloads',
-                                value: `${d} total`,
-                                inline: false
-                            }, {
-                                name: 'Registered Users',
-                                value: `${u} total`
-                            })
-                        ]})
+                        ]
                     })
                 })
-            })
+                .catch((e) => {
+
+                    return client.interaction.reply({
+                        embeds: [
+                            new client.Gateway.EmbedBuilder()
+                            .setTitle('Error: api unavailable')
+                            .setColor(client.colors.error)
+                            .setThumbnail(client.logo)
+                            .setDescription('Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below')
+                            .addFields({
+                                name: 'Error',
+                                value: `${e.message}`,
+                                inline: true,
+                            },{
+                                name: 'View Our Status',
+                                value: `[click me](https://beta.cordx.lol/status) or run the "/status" command.`
+                            })
+                            .setTimestamp()
+                            .setFooter({
+                                text: client.footer,
+                                iconURL: client.logo
+                            })
+                        ]
+                    })
+                })
+
+            break;
+
+            default: 
+
+                return client.interaction.reply({
+                    ephemeral: true,
+                    embeds: [
+                        new client.Gateway.EmbedBuilder()
+                        .setTitle('Error: invalid params')
+                        .setColor(client.colors.error)
+                        .setThumbnail(client.logo)
+                        .setDescription('Please provide some valid command params')
+                        .setTimestamp()
+                        .setFooter({
+                            text: client.footer,
+                            iconURL: client.logo
+                        })
+                    ]
+                })
         }
     }
 }

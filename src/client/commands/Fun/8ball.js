@@ -1,3 +1,5 @@
+const responses = require('@json/8ball');
+
 module.exports = {
     name: '8ball',
     category: 'Fun',
@@ -17,31 +19,10 @@ module.exports = {
 
         let q = await client.interaction.options.getString('question');
 
-        let r = [
-            "It is certain.",
-            "No doubt about it.",
-            "No chance.",
-            "Maybe, only time will tell.",
-            "No way.",
-            "Concentrate and try again.",
-            "As I see it, yes",
-            "Outlook good",
-            "Most likely",
-            "Better not tell you now",
-            "My sources say yes",
-            "Signs point to yes",
-            "Yes definitely",
-            "It is decidedly so",
-            "As I see it, no",
-            "My sources say no",
-            "Outlook not so good",
-            "Very doubtful",
-        ];
-
         return client.interaction.reply({ embeds: [
             new client.Gateway.EmbedBuilder()
             .setTitle('Magic 8Ball')
-            .setColor(client.color)
+            .setColor(client.colors.base)
             .setThumbnail(client.ballLogo)
             .setDescription('Here are your results')
             .addFields(
@@ -52,7 +33,7 @@ module.exports = {
                 },
                 {
                     name: '8Ball says',
-                    value: `${r[Math.floor(Math.random() * r.length)]}`,
+                    value: `${responses[Math.floor(Math.random() * responses.length)]}`,
                     inline: false
                 }
             )

@@ -10,7 +10,7 @@ module.exports = {
         return client.interaction.reply({ embeds: [
             new client.Gateway.EmbedBuilder()
             .setTitle('🏓 Ping - Pong')
-            .setColor(client.color)
+            .setColor(client.colors.base)
             .setDescription('Is it bad?')
             .addFields(
                 {

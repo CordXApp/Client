@@ -30,8 +30,8 @@ module.exports = {
                 return l_chan.send({ embeds: [
                     new client.Gateway.EmbedBuilder()
                     .setTitle('A new user has spawned')
-                    .setColor(client.color)
-                    .setThumbnail(client.logo)
+                    .setColor(client.colors.base)
+                    .setThumbnail(member.user.avatarURL({ dynamic: true }))
                     .setDescription(`${username} has slid into the server`)
                     .setTimestamp()
                     .setFooter({
@@ -47,7 +47,7 @@ module.exports = {
                 return l_chan.send({ embeds: [
                     new client.Gateway.EmbedBuilder()
                     .setTitle('A new bot has spawned')
-                    .setColor(client.color)
+                    .setColor(client.colors.base)
                     .setThumbnail(client.logo)
                     .setDescription(`${username} has slid into the server!`)
                     .setTimestamp()
