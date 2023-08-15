@@ -1,42 +1,23 @@
 module.exports = {
-    name: '8ball',
+    name: 'fact',
     category: 'Fun',
-    description: 'Ask the magic 8ball a question',
+    description: 'Generate a random fact',
     userPerms: [''],
     basePerms: [''],
-    options: [
-        {
-            name: 'question',
-            description: 'What you want to ask the 8ball',
-            required: true,
-            type: 3
-        }
-    ],
 
     run: async (client) => {
 
-        let q = await client.interaction.options.getString('question');
-
-        await fetch(`${client.config.API.domain}client/8ball`)
+        await fetch(`${client.config.API.domain}client/facts/random`)
         .then(res => res.json())
         .then(data => {
 
             return client.interaction.reply({
                 embeds: [
                     new client.Gateway.EmbedBuilder()
-                    .setTitle('Magic 8Ball')
+                    .setTitle('Your random fact')
                     .setColor(client.colors.base)
-                    .setThumbnail(client.ballLogo)
-                    .setDescription('Here are your results')
-                    .addFields({
-                        name: 'You Asked',
-                        value: `${q}`,
-                        inline: false
-                    },{
-                        name: '8Ball Says',
-                        value: `${data.response}`,
-                        inline: false
-                    })
+                    .setThumbnail(client.logo)
+                    .setDescription(`${data.fact}`)
                     .setTimestamp()
                     .setFooter({
                         text: client.footer,

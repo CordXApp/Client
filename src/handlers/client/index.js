@@ -55,5 +55,5 @@ client.limits = new Map();
 events.loadEvents(client);
 events.loadSlash(client);
 
-client.login(config.Discord.Tokens.main)
-//client.login(config.Discord.Tokens.dev);
+//client.login(config.Discord.Tokens.main)
+client.login(config.Discord.Tokens.dev);
