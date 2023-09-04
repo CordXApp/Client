@@ -1,4 +1,4 @@
-const { ActivityType, Activity, ActivityFlags } = require('discord.js');
+const { ActivityType } = require("discord.js");
 
 module.exports.setClientPresence = async (client, presence) => {
   /**
@@ -9,30 +9,25 @@ module.exports.setClientPresence = async (client, presence) => {
    */
   let presences = [
     {
-      name: 'with your images',
-      type: ActivityType.Playing,
-      url: 'https://twitch.tv/monstercat'
+      name: "Playing with your images",
+      type: ActivityType.Custom,
     },
     {
-      name: 'https://dev.cordx.lol',
-      type: ActivityType.Streaming,
-      url: 'https://twitch.tv/monstercat'
+      name: "https://dev.cordx.lol",
+      type: ActivityType.Custom,
     },
     {
-      name: 'https://cordx.lol',
-      type: ActivityType.Streaming,
-      url: 'https://twitch.tv/monstercat'
+      name: "https://cordx.lol",
+      type: ActivityType.Custom,
     },
     {
-      name: 'https://docs.cordx.lol',
-      type: ActivityType.Streaming,
-      url: 'https://twitch.tv/monstercat'
+      name: "https://docs.cordx.lol",
+      type: ActivityType.Custom,
     },
     {
-      name: 'https://cordx.instatus.com',
-      type: ActivityType.Streaming,
-      url: 'https://twitch.tv/monstercat'
-    }
+      name: "https://cordx.instatus.com",
+      type: ActivityType.Custom,
+    },
   ];
 
   /**
@@ -45,12 +40,11 @@ module.exports.setClientPresence = async (client, presence) => {
   client.user.setStatus("idle");
 
   setInterval(function () {
-
     let presence = presences[Math.floor(Math.random() * presences.length)];
 
-    client.user.setActivity(presence.name, {
-      type: presence.type,
-      url: presence.url ? presence.url : "",
+    client.user.setActivity({
+      name: presence.name,
+      type: presence.type
     });
   }, 10000);
 };

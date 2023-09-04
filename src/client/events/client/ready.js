@@ -1,24 +1,31 @@
-const { configCheck } = require('@functions/configCheck');
+const { configCheck } = require("@functions/configCheck");
 
 module.exports = {
-    name: 'ready',
-    once: true,
+  name: "ready",
+  once: true,
 
-    async execute(client) {
+  async execute(client) {
 
-        await configCheck({ client: client });
+    await configCheck({ client: client });
+    const ticketInit = client.channels.cache.get(client.config.Tickets.ticketChan);
 
-        await client.logger('Connecting to the discord api...', { header: 'CLIENT_START', type: 'start' });
+    await client.logger("Connecting to the discord api...", {
+      header: "CLIENT_START",
+      type: "start",
+    });
 
-        try {
+    try {
+      await client.utils.setClientPresence(client);
 
-            await client.utils.setClientPresence(client);
-
-            return client.logger('Connected to the discord api!', { header: 'CLIENT_START', type: 'ready' });
-        
-        } catch (e) {
-
-            return client.logger(`${e.stack}`, { header: 'CONNECTION_FAILURE', type: 'error' });
-        }
+      return client.logger("Connected to the discord api!", {
+        header: "CLIENT_START",
+        type: "ready",
+      });
+    } catch (e) {
+      return client.logger(`${e.stack}`, {
+        header: "CONNECTION_FAILURE",
+        type: "error",
+      });
     }
-}
+  },
+};

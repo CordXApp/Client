@@ -10,6 +10,10 @@
     },
 
     "dependencies": {
+        "@cordxapp/pastes": "^0.0.6",
+        "@cordxapp/request": "^0.0.6",
+        "axios": "^1.4.0",
+        "body-parser": "1.20.2",
         "chalk": "^4.1.2",
         "dotenv": "^16.0.3",
         "discord.js": "^14.12.1",
