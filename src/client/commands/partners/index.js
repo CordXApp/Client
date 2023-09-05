@@ -3,7 +3,7 @@ const bodyParser = require("body-parser");
 
 module.exports = {
   name: "partners",
-  category: "Info",
+  category: "Partners",
   description: "List or manage our partners",
   userPerms: [""],
   basePerms: [""],

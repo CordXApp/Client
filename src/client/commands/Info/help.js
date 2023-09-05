@@ -111,6 +111,14 @@ module.exports = {
             {
               name: "ShareX Commands",
               value: await filterSlash({ client: client, category: "Sharex" }),
+            },
+            {
+              name: "Partner Commands",
+              value: await filterSlash({ client: client, category: "Partners" }), 
+            },
+            {
+              name: "Status Commands",
+              value: await filterSlash({ client: client, category: "Status" }), 
             }
           )
           .setTimestamp()

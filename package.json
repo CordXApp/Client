@@ -10,6 +10,7 @@
     },
 
     "dependencies": {
+        "@infinitylist/uptime": "0.1.7-alpha.6",
         "@cordxapp/pastes": "^0.0.6",
         "@cordxapp/request": "^0.0.6",
         "axios": "^1.4.0",

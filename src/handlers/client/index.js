@@ -49,6 +49,7 @@ client.glogo2 =
   "https://cdn.discordapp.com/attachments/653733403841134600/1133665334101037116/CordX.jpg";
 client.ballLogo =
   "https://cdn.discordapp.com/attachments/653733403841134600/1088241600133607515/ezgifcom-gif-maker_8.7b86d9b5eefc.gif";
+client.loading = 'https://mir-s3-cdn-cf.behance.net/project_modules/disp/35771931234507.564a1d2403b3a.gif'
 client.footer = "© Copyright 2023 - CordX";
 
 client.slash = new Collection();

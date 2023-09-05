@@ -1,4 +1,5 @@
 const { configCheck } = require("@functions/configCheck");
+const { startProdSiteMonitor } = require('@plugins/monitors/cordx.lol');
 
 module.exports = {
   name: "ready",
@@ -16,6 +17,8 @@ module.exports = {
 
     try {
       await client.utils.setClientPresence(client);
+
+      await startProdSiteMonitor({ client: client });
 
       return client.logger("Connected to the discord api!", {
         header: "CLIENT_START",
