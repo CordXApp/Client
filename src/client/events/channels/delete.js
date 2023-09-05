@@ -29,7 +29,7 @@ module.exports = {
               name: "Channel Type",
               value: `${channel.type}`,
               inline: true,
-            }
+            },
           )
           .setTimestamp()
           .setFooter({

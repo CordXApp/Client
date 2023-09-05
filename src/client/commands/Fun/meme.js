@@ -73,7 +73,7 @@ module.exports = {
                 .setColor(client.colors.base)
                 .setThumbnail(client.logo)
                 .setDescription(
-                  "Whoops, we caught a bad one chief. Run the command again to continue!"
+                  "Whoops, we caught a bad one chief. Run the command again to continue!",
                 )
                 .addFields({
                   name: "Error",
@@ -117,7 +117,7 @@ module.exports = {
                   name: "💬 Comments",
                   value: `• ${meme.comments}`,
                   inline: true,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -140,7 +140,7 @@ module.exports = {
               .setColor(client.colors.error)
               .setThumbnail(client.logo)
               .setDescription(
-                "Whoops, looks like i am unable to contact the api"
+                "Whoops, looks like i am unable to contact the api",
               )
               .addFields({
                 name: "Error",

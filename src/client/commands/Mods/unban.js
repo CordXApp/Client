@@ -23,7 +23,7 @@ module.exports = {
     let member = await client.interaction.options.getString("userid");
     let reason = await client.interaction.options.getString("reason");
     let mod_log = await client.interaction.guild.channels.cache.find(
-      (c) => c.id === "871275213013262397"
+      (c) => c.id === "871275213013262397",
     );
     let modname = client.interaction.user.globalName
       ? client.interaction.user.globalName
@@ -43,7 +43,7 @@ module.exports = {
               .setColor(client.colors.success)
               .setThumbnail(banned.displayAvatarURL({ dynamic: true }))
               .setDescription(
-                "Wow, someone has got another chance, hopefully they don't mess it up!"
+                "Wow, someone has got another chance, hopefully they don't mess it up!",
               )
               .addFields(
                 {
@@ -67,7 +67,7 @@ module.exports = {
                   name: "Reason",
                   value: `${reason}`,
                   inline: false,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -84,7 +84,7 @@ module.exports = {
               .setColor(client.colors.success)
               .setThumbnail(banned.displayAvatarURL({ dynamic: true }))
               .setDescription(
-                "Wow, someone has got another chance, hopefully they don't mess it up!"
+                "Wow, someone has got another chance, hopefully they don't mess it up!",
               )
               .addFields(
                 {
@@ -108,7 +108,7 @@ module.exports = {
                   name: "Reason",
                   value: `${reason}`,
                   inline: false,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -132,7 +132,7 @@ module.exports = {
               .setColor(client.colors.error)
               .setThumbnail(client.logo)
               .setDescription(
-                "Unable to unban the provided user, are you sure they are banned?"
+                "Unable to unban the provided user, are you sure they are banned?",
               )
               .setTimestamp()
               .setFooter({

@@ -7,7 +7,7 @@ module.exports.configCheck = async function ({ client }) {
       {
         header: "INVALID_CONFIG",
         type: "error",
-      }
+      },
     );
 
     return process.exit(1);

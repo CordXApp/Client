@@ -20,7 +20,7 @@ module.exports = {
               .setColor(client.colors.base)
               .setThumbnail(client.logo)
               .setDescription(
-                "Here is the current, newest and stable versions of our systems"
+                "Here is the current, newest and stable versions of our systems",
               )
               .addFields(
                 {
@@ -37,7 +37,7 @@ module.exports = {
                   name: "Stable",
                   value: `• API: ${stable.api}\n• Client: ${stable.client}\n• Website: ${stable.website}`,
                   inline: true,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -65,7 +65,7 @@ module.exports = {
                 {
                   name: "View Our Status",
                   value: `[click me](https://beta.cordx.lol/status) or run the "/status" command.`,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({

@@ -1,14 +1,15 @@
 const { configCheck } = require("@functions/configCheck");
-const { startProdSiteMonitor } = require('@plugins/monitors/cordx.lol');
+const { startProdSiteMonitor } = require("@plugins/monitors/cordx.lol");
 
 module.exports = {
   name: "ready",
   once: true,
 
   async execute(client) {
-
     await configCheck({ client: client });
-    const ticketInit = client.channels.cache.get(client.config.Tickets.ticketChan);
+    const ticketInit = client.channels.cache.get(
+      client.config.Tickets.ticketChan,
+    );
 
     await client.logger("Connecting to the discord api...", {
       header: "CLIENT_START",

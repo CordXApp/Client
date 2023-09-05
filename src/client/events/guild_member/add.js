@@ -13,7 +13,7 @@ module.exports = {
       let m_role = await member.guild.roles.cache.get("871275762601299988");
       let b_role = await member.guild.roles.cache.get("871278093199884288");
       let l_chan = await member.guild.channels.cache.find(
-        (c) => c.id === "871275187377688628"
+        (c) => c.id === "871275187377688628",
       );
 
       /**

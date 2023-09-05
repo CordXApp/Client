@@ -44,7 +44,7 @@ module.exports.setClientPresence = async (client, presence) => {
 
     client.user.setActivity({
       name: presence.name,
-      type: presence.type
+      type: presence.type,
     });
   }, 10000);
 };

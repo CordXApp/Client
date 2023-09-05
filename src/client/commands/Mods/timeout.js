@@ -39,7 +39,7 @@ module.exports = {
     let duration = await client.interaction.options.get("duration")?.value;
     let update = await client.interaction.options.get("update")?.value;
     let mod_log = await client.interaction.guild.channels.cache.find(
-      (c) => c.id === "871275213013262397"
+      (c) => c.id === "871275213013262397",
     );
     let username = member?.user?.globalName
       ? member?.user?.globalName
@@ -82,7 +82,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "Whoops, looks like the user you are trying to timeout has a role that is equal to or higher then your's."
+              "Whoops, looks like the user you are trying to timeout has a role that is equal to or higher then your's.",
             )
             .setTimestamp()
             .setFooter({
@@ -103,7 +103,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "Whoops, looks like the user you are trying to timeout has a role that is equal to or higher then mine"
+              "Whoops, looks like the user you are trying to timeout has a role that is equal to or higher then mine",
             )
             .setTimestamp()
             .setFooter({
@@ -144,7 +144,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "Whoops, the duration for a timeout can not be less then 5 seconds or more then 28 days"
+              "Whoops, the duration for a timeout can not be less then 5 seconds or more then 28 days",
             )
             .setTimestamp()
             .setFooter({
@@ -163,7 +163,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              'The user you provided is already timed out if you want to update their timeout duration please re-run this command and set the "update" params to true'
+              'The user you provided is already timed out if you want to update their timeout duration please re-run this command and set the "update" params to true',
             )
             .setTimestamp()
             .setFooter({
@@ -209,7 +209,7 @@ module.exports = {
                   name: "Duration",
                   value: `${prettyMs(ms_duration, { verbose: true })}`,
                   inline: false,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -228,8 +228,8 @@ module.exports = {
               .setDescription(
                 `${username}\'s timeout duration has been updated by: ${prettyMs(
                   ms_duration,
-                  { verbose: true }
-                )}`
+                  { verbose: true },
+                )}`,
               )
               .setTimestamp()
               .setFooter({
@@ -271,7 +271,7 @@ module.exports = {
                   name: "Duration",
                   value: `${prettyMs(ms_duration, { verbose: true })}`,
                   inline: false,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -290,7 +290,7 @@ module.exports = {
               .setDescription(
                 `${username} has been timed out for: ${prettyMs(ms_duration, {
                   verbose: true,
-                })}`
+                })}`,
               )
               .setTimestamp()
               .setFooter({

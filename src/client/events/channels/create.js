@@ -44,7 +44,7 @@ module.exports = {
               name: "Is Manageable",
               value: `${channel.manageable}`,
               inline: true,
-            }
+            },
           )
           .setTimestamp()
           .setFooter({

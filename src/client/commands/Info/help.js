@@ -26,7 +26,7 @@ module.exports = {
             .setColor(client.color)
             .setThumbnail(client.logo)
             .setDescription(
-              "Hold up chief, the command you are looking for does not exist"
+              "Hold up chief, the command you are looking for does not exist",
             )
             .setTimestamp()
             .setFooter({
@@ -75,7 +75,7 @@ module.exports = {
                     : "No user permissions required"
                 }`,
                 inline: false,
-              }
+              },
             )
             .setTimestamp()
             .setFooter({
@@ -114,12 +114,15 @@ module.exports = {
             },
             {
               name: "Partner Commands",
-              value: await filterSlash({ client: client, category: "Partners" }), 
+              value: await filterSlash({
+                client: client,
+                category: "Partners",
+              }),
             },
             {
               name: "Status Commands",
-              value: await filterSlash({ client: client, category: "Status" }), 
-            }
+              value: await filterSlash({ client: client, category: "Status" }),
+            },
           )
           .setTimestamp()
           .setFooter({

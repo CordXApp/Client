@@ -29,7 +29,7 @@ module.exports = {
     switch (method) {
       case "private_message":
         await fetch(
-          `${client.config.API.domain}users/profile/${client.interaction.user.id}/${client.config.API.secret}`
+          `${client.config.API.domain}users/profile/${client.interaction.user.id}/${client.config.API.secret}`,
         )
           .then((res) => res.json())
           .then((user) => {
@@ -41,7 +41,7 @@ module.exports = {
                   .setColor(client.colors.base)
                   .setThumbnail(client.logo)
                   .setDescription(
-                    "Here is your secret. Please make sure you do not share it"
+                    "Here is your secret. Please make sure you do not share it",
                   )
                   .addFields({
                     name: "Your Secret",
@@ -64,7 +64,7 @@ module.exports = {
                   .setColor(client.colors.error)
                   .setThumbnail(client.logo)
                   .setDescription(
-                    "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below"
+                    "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below",
                   )
                   .addFields(
                     {
@@ -75,7 +75,7 @@ module.exports = {
                     {
                       name: "Our Status",
                       value: `[view status](https://beta.cordx.lol/status) or run the "/status" command.`,
-                    }
+                    },
                   )
                   .setTimestamp()
                   .setFooter({
@@ -90,7 +90,7 @@ module.exports = {
 
       case "direct_message":
         await fetch(
-          `${client.config.API.domain}users/profile/${client.interaction.user.id}/${client.config.API.secret}`
+          `${client.config.API.domain}users/profile/${client.interaction.user.id}/${client.config.API.secret}`,
         )
           .then((res) => res.json())
           .then(async (user) => {
@@ -102,7 +102,7 @@ module.exports = {
                     .setColor(client.colors.base)
                     .setThumbnail(client.logo)
                     .setDescription(
-                      "Here is your secret. Please make sure you do not share it"
+                      "Here is your secret. Please make sure you do not share it",
                     )
                     .addFields({
                       name: "Your Secret",
@@ -124,7 +124,7 @@ module.exports = {
                       .setColor(client.colors.base)
                       .setThumbnail(client.logo)
                       .setDescription(
-                        "I have sent your secret to you, please check your DM's"
+                        "I have sent your secret to you, please check your DM's",
                       )
                       .setTimestamp()
                       .setFooter({
@@ -142,7 +142,7 @@ module.exports = {
                       .setColor(client.colors.error)
                       .setThumbnail(client.logo)
                       .setDescription(
-                        'Whoops, i was unable to send you a direct message, please make sure you are allowing DM\'s from server members or run the command again using the "ephemeral" params to send it in a private message'
+                        'Whoops, i was unable to send you a direct message, please make sure you are allowing DM\'s from server members or run the command again using the "ephemeral" params to send it in a private message',
                       )
                       .setTimestamp()
                       .setFooter({
@@ -166,7 +166,7 @@ module.exports = {
                   .setColor(client.colors.error)
                   .setThumbnail(client.logo)
                   .setDescription(
-                    "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below"
+                    "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below",
                   )
                   .addFields(
                     {
@@ -177,7 +177,7 @@ module.exports = {
                     {
                       name: "Our Status",
                       value: `[view status](https://beta.cordx.lol/status) or run the "/status" command.`,
-                    }
+                    },
                   )
                   .setTimestamp()
                   .setFooter({
