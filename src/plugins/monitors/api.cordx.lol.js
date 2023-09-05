@@ -4,9 +4,9 @@ const moment = require('moment');
 module.exports.startProdSiteMonitor = async ({ client }) => {
 
     const guild = await client.guilds.cache.get('871204257649557604');
-    const chan = await guild.channels.cache.find((c) => c.id == '1148416632079777802');
+    const chan = await guild.channels.cache.find((c) => c.id == '1148439680099037184');
     
-    const uptime = new UptimeClient('https://cordx.lol', {  
+    const uptime = new UptimeClient('https://api.cordx.lol', {  
         interval: 900000,
         retries: 3
     });
