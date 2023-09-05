@@ -37,7 +37,7 @@ module.exports = {
               .setColor(client.colors.error)
               .setThumbnail(client.logo)
               .setDescription(
-                "Whoops, looks like i am unable to contact the api"
+                "Whoops, looks like i am unable to contact the api",
               )
               .addFields({
                 name: "Error",

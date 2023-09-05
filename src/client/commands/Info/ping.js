@@ -24,7 +24,7 @@ module.exports = {
                 Date.now() - client.interaction.createdTimestamp
               }ms\``,
               inline: true,
-            }
+            },
           )
           .setTimestamp()
           .setFooter({

@@ -50,7 +50,7 @@ module.exports = {
                   name: "Guild Count",
                   value: `${client.guilds.cache.size}`,
                   inline: true,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -86,7 +86,7 @@ module.exports = {
                       name: "Download Count",
                       value: `${stats.downloads} total downloads`,
                       inline: true,
-                    }
+                    },
                   )
                   .setTimestamp()
                   .setFooter({
@@ -104,7 +104,7 @@ module.exports = {
                   .setColor(client.colors.error)
                   .setThumbnail(client.logo)
                   .setDescription(
-                    "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below"
+                    "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below",
                   )
                   .addFields(
                     {
@@ -115,7 +115,7 @@ module.exports = {
                     {
                       name: "View Our Status",
                       value: `[click me](https://beta.cordx.lol/status) or run the "/status" command.`,
-                    }
+                    },
                   )
                   .setTimestamp()
                   .setFooter({

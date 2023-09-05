@@ -29,7 +29,7 @@ module.exports = {
               name: "Made With",
               value: `Discord.js v${require("discord.js").version}`,
               inline: false,
-            }
+            },
           )
           .setTimestamp()
           .setFooter({

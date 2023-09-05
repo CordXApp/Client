@@ -180,7 +180,7 @@ module.exports = {
                 .setColor(client.colors.error)
                 .setThumbnail(client.logo)
                 .setDescription(
-                  "You are not authorized to execute this command"
+                  "You are not authorized to execute this command",
                 )
                 .setTimestamp()
                 .setFooter({
@@ -206,7 +206,7 @@ module.exports = {
               "content-type": "application/x-www-form-urlencoded",
               "cache-control": "no-cache",
             },
-          }
+          },
         )
           .then((res) => {
             if (res.status === 200)
@@ -237,7 +237,7 @@ module.exports = {
                         name: "Social",
                         value: `${social}`,
                         inline: true,
-                      }
+                      },
                     )
                     .setTimestamp()
                     .setFooter({
@@ -276,7 +276,7 @@ module.exports = {
                         name: "Status Code",
                         value: `${e.response.data.status}`,
                         inline: false,
-                      }
+                      },
                     )
                     .setTimestamp()
                     .setFooter({
@@ -301,7 +301,7 @@ module.exports = {
                 .setColor(client.colors.error)
                 .setThumbnail(client.logo)
                 .setDescription(
-                  "You are not authorized to execute this command"
+                  "You are not authorized to execute this command",
                 )
                 .setTimestamp()
                 .setFooter({
@@ -323,7 +323,7 @@ module.exports = {
               "content-type": "application/x-www-form-urlencoded",
               "cache-control": "no-cache",
             },
-          }
+          },
         )
           .then((res) => {
             if (res.status === 200)
@@ -334,7 +334,7 @@ module.exports = {
                     .setColor(client.colors.base)
                     .setThumbnail(client.logo)
                     .setDescription(
-                      `${name} has been removed from our partners`
+                      `${name} has been removed from our partners`,
                     )
                     .setTimestamp()
                     .setFooter({
@@ -373,7 +373,7 @@ module.exports = {
                         name: "Status Code",
                         value: `${e.response.data.status}`,
                         inline: false,
-                      }
+                      },
                     )
                     .setTimestamp()
                     .setFooter({

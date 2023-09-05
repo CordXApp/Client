@@ -23,7 +23,7 @@ module.exports = {
     let member = await client.interaction.options.getMember("user");
     let reason = await client.interaction.options.getString("reason");
     let mod_log = await client.interaction.guild.channels.cache.find(
-      (c) => c.id === "871275213013262397"
+      (c) => c.id === "871275213013262397",
     );
     let modname = client.interaction.user.globalName
       ? client.interaction.user.globalName
@@ -40,7 +40,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "Hold up chief, this user is higher in the role hierarchy then i am or they are the guild owner."
+              "Hold up chief, this user is higher in the role hierarchy then i am or they are the guild owner.",
             )
             .setTimestamp()
             .setFooter({
@@ -59,7 +59,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "User is unable to be banned as i am unable to moderate them!"
+              "User is unable to be banned as i am unable to moderate them!",
             )
             .setTimestamp()
             .setFooter({
@@ -81,7 +81,7 @@ module.exports = {
               .setColor(client.colors.error)
               .setThumbnail(banned.displayAvatarURL({ dynamic: true }))
               .setDescription(
-                "Whoops, someone messed up and got the ban hammer!"
+                "Whoops, someone messed up and got the ban hammer!",
               )
               .addFields(
                 {
@@ -105,7 +105,7 @@ module.exports = {
                   name: "Reason",
                   value: `${reason}`,
                   inline: false,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -122,7 +122,7 @@ module.exports = {
               .setColor(client.colors.success)
               .setThumbnail(banned.displayAvatarURL({ dynamic: true }))
               .setDescription(
-                "Whoops, someone messed up and got the ban hammer!"
+                "Whoops, someone messed up and got the ban hammer!",
               )
               .addFields(
                 {
@@ -146,7 +146,7 @@ module.exports = {
                   name: "Reason",
                   value: `${reason}`,
                   inline: false,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({

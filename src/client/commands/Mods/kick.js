@@ -23,7 +23,7 @@ module.exports = {
     let member = await client.interaction.options.getMember("user");
     let reason = await client.interaction.options.getString("reason");
     let mod_log = await client.interaction.guild.channels.cache.find(
-      (c) => c.id === "871275213013262397"
+      (c) => c.id === "871275213013262397",
     );
 
     if (!client.interaction.guild.id === "871204257649557604") return;
@@ -50,7 +50,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "Whoops, looks like the user you are trying to kick has a role that is equal to or higher then your's."
+              "Whoops, looks like the user you are trying to kick has a role that is equal to or higher then your's.",
             )
             .setTimestamp()
             .setFooter({
@@ -69,7 +69,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "Whoops, looks like the user you are trying to kick has a role that is equal to or higher then mine"
+              "Whoops, looks like the user you are trying to kick has a role that is equal to or higher then mine",
             )
             .setTimestamp()
             .setFooter({
@@ -109,7 +109,7 @@ module.exports = {
                   name: "Reason",
                   value: `${reason}`,
                   inline: true,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -136,7 +136,7 @@ module.exports = {
                   name: "Reason",
                   value: `${reason}`,
                   inline: false,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({

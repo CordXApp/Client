@@ -2,7 +2,7 @@ const {
   customCommandPermCheck,
   baseCommandPermCheck,
 } = require("@functions/permCheck");
-const { PasteClient } = require('@cordxapp/pastes')
+const { PasteClient } = require("@cordxapp/pastes");
 const paste = new PasteClient();
 
 module.exports = {
@@ -36,7 +36,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "Hold up chief, you do not have the necessary permissions for this command"
+              "Hold up chief, you do not have the necessary permissions for this command",
             )
             .addFields({
               name: "Required Permissions",
@@ -60,7 +60,7 @@ module.exports = {
             .setColor(client.colors.error)
             .setThumbnail(client.logo)
             .setDescription(
-              "Hold up chief, you do not have the necessary permissions for this command"
+              "Hold up chief, you do not have the necessary permissions for this command",
             )
             .addFields({
               name: "Required Permissions",
@@ -113,7 +113,7 @@ module.exports = {
                 name: "Report Issues",
                 value: `[https://github.com/CordXApp/Client/issues](https://github.com/CordXApp/Client/issues)`,
                 inline: false,
-              }
+              },
             )
             .setFooter({
               text: client.footer,

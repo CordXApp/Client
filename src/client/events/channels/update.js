@@ -30,7 +30,7 @@ module.exports = {
                 name: "Channel ID",
                 value: `${newChannel.id}`,
                 inline: false,
-              }
+              },
             )
             .setTimestamp()
             .setFooter({
@@ -47,7 +47,7 @@ module.exports = {
             .setColor(client.colors.base)
             .setThumbnail(client.logo)
             .setDescription(
-              "A channel's age restriction settings has been updated"
+              "A channel's age restriction settings has been updated",
             )
             .addFields(
               {
@@ -77,7 +77,7 @@ module.exports = {
                     : "Channel is not age restricted"
                 }`,
                 inline: false,
-              }
+              },
             )
             .setTimestamp()
             .setFooter({
@@ -114,7 +114,7 @@ module.exports = {
                 name: "Old Type",
                 value: `${oldChannel.type}`,
                 inline: false,
-              }
+              },
             )
             .setTimestamp()
             .setFooter({
@@ -151,7 +151,7 @@ module.exports = {
                 name: "Old Position",
                 value: `${oldChannel.position}`,
                 inline: false,
-              }
+              },
             )
             .setTimestamp()
             .setFooter({

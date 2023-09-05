@@ -19,7 +19,7 @@ module.exports = {
       client.interaction.user;
 
     await fetch(
-      `${client.config.Cordx.Domains.beta}api/user/stats?userId=${member.id}`
+      `${client.config.Cordx.Domains.beta}api/user/stats?userId=${member.id}`,
     )
       .then((res) => res.json())
       .then((data) => {
@@ -34,12 +34,12 @@ module.exports = {
               .setTitle(
                 `Profile for: ${
                   member.globalName ? member.globalName : member.user.globalName
-                }`
+                }`,
               )
               .setColor(client.colors.base)
               .setThumbnail(member.displayAvatarURL({ dynamic: true }))
               .setDescription(
-                `You can view the profile [here](https://dev.cordx.lol/${member.id})`
+                `You can view the profile [here](https://dev.cordx.lol/${member.id})`,
               )
               .addFields(
                 {
@@ -71,7 +71,7 @@ module.exports = {
                   name: "Storage Available",
                   value: `${remains.toLocaleString()}MB`,
                   inline: true,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
@@ -89,7 +89,7 @@ module.exports = {
               .setColor(client.colors.error)
               .setThumbnail(client.logo)
               .setDescription(
-                "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below"
+                "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below",
               )
               .addFields(
                 {
@@ -100,7 +100,7 @@ module.exports = {
                 {
                   name: "View Our Status",
                   value: `[click me](https://beta.cordx.lol/status) or run the "/status" command.`,
-                }
+                },
               )
               .setTimestamp()
               .setFooter({
