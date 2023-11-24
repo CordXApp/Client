@@ -3,7 +3,7 @@ const {
   baseCommandPermCheck,
 } = require("@functions/permCheck");
 const { PasteClient } = require("@cordxapp/pastes");
-const wait = require('node:timers/promises').setTimeout;
+const wait = require("node:timers/promises").setTimeout;
 const paste = new PasteClient();
 
 module.exports = {

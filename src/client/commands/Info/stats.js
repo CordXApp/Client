@@ -61,7 +61,6 @@ module.exports = {
         });
 
       case "website_stats":
-
         const stats = await client.System.Statistics();
 
         return client.interaction.reply({
