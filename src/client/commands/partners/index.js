@@ -1,5 +1,4 @@
 const Axios = require("axios");
-const bodyParser = require("body-parser");
 
 module.exports = {
   name: "partners",

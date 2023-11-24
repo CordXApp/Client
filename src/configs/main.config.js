@@ -7,7 +7,7 @@ module.exports = {
     Domains: {
       prod: "https://cordx/lol/",
       beta: "https://beta.cordx.lol/",
-      dev: "https://dev.cordx.lol/",
+      dev: "https://dev.cordx.lol/"
     },
   },
   Discord: {
@@ -15,12 +15,6 @@ module.exports = {
       main: process.env.PROD_TOKEN,
       dev: process.env.DEVS_TOKEN,
     },
-  },
-  Database: {
-    user: process.env.SQL_USER,
-    host: process.env.SQL_HOST,
-    pass: process.env.SQL_PASS,
-    name: process.env.SQL_NAME,
   },
   EmbedColors: {
     base: "#2e004d",
