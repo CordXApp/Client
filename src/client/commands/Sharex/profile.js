@@ -18,15 +18,18 @@ module.exports = {
       (await client.interaction.options.getMember("user")) ||
       client.interaction.user;
 
-    await fetch(
-      `${client.config.Cordx.Domains.beta}api/user/stats?userId=${member.id}`,
-    )
+    await fetch(`${client.config.API.domain}users/${member.id}/stats`)
       .then((res) => res.json())
       .then((data) => {
-        let remains = 2000 - data.used;
-        let images = data.images;
-        let downloads = data.downloads;
-        let videos = data.videos;
+        let images = data.files.images;
+        let downloads = data.files.downloads;
+        let videos = data.files.mp4;
+        let storeRemaining = data.storage.remains;
+        let storeUsed = data.storage.used;
+
+        let png = data.files.png;
+        let gif = data.files.gif;
+        let other = data.files.other;
 
         return client.interaction.reply({
           embeds: [
@@ -38,39 +41,31 @@ module.exports = {
               )
               .setColor(client.colors.base)
               .setThumbnail(member.displayAvatarURL({ dynamic: true }))
-              .setDescription(
-                `You can view the profile [here](https://dev.cordx.lol/${member.id})`,
-              )
               .addFields(
                 {
                   name: "Stored Images",
                   value: `${images ? images : 0} total`,
-                  inline: true,
+                  inline: false,
                 },
                 {
                   name: "Stored Downloads",
                   value: `${downloads ? downloads : 0} total`,
-                  inline: true,
+                  inline: false,
                 },
                 {
                   name: "Stored Videos",
                   value: `${videos ? videos : 0} total`,
-                  inline: true,
+                  inline: false,
                 },
                 {
-                  name: "Storage Limit",
-                  value: `2,000MB`,
-                  inline: true,
+                  name: "Storage Info",
+                  value: `Using: ${storeUsed}/${storeRemaining}`,
+                  inline: false,
                 },
                 {
-                  name: "Storage Used",
-                  value: `${data.used.toLocaleString()}MB`,
-                  inline: true,
-                },
-                {
-                  name: "Storage Available",
-                  value: `${remains.toLocaleString()}MB`,
-                  inline: true,
+                  name: "File Stats",
+                  value: `• 🖼️ PNG\'s: ${png}\n• 🎞️ GIF\'s: ${gif}\n• ❔ Other: ${other}`,
+                  inline: false,
                 },
               )
               .setTimestamp()
@@ -89,7 +84,7 @@ module.exports = {
               .setColor(client.colors.error)
               .setThumbnail(client.logo)
               .setDescription(
-                "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below",
+                "Hold up chief, we either don't have any data on you or something is wrong with our API. Have you logged into/created an account on our [beta site](https://beta.cordx.lol)?",
               )
               .addFields(
                 {
@@ -98,8 +93,10 @@ module.exports = {
                   inline: true,
                 },
                 {
-                  name: "View Our Status",
-                  value: `[click me](https://beta.cordx.lol/status) or run the "/status" command.`,
+                  name: "Status",
+                  value:
+                    "[beta.cordx.lol/status](https://beta.cordx.lol/status)",
+                  inline: true,
                 },
               )
               .setTimestamp()

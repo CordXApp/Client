@@ -16,12 +16,6 @@ module.exports = {
       dev: process.env.DEVS_TOKEN,
     },
   },
-  Database: {
-    user: process.env.SQL_USER,
-    host: process.env.SQL_HOST,
-    pass: process.env.SQL_PASS,
-    name: process.env.SQL_NAME,
-  },
   EmbedColors: {
     base: "#2e004d",
     error: "#FF0000",

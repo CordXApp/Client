@@ -1,27 +1,68 @@
 const { UptimeClient } = require("@infinitylist/uptime");
 const moment = require("moment");
 
-module.exports.startProdSiteMonitor = async ({ client }) => {
-  const guild = await client.guilds.cache.get("871204257649557604");
-  const chan = await guild.channels.cache.find(
-    (c) => c.id == "1148439680099037184",
-  );
+module.exports.websiteMonitor = async ({
+  client,
+  domain,
+  interval,
+  retries,
+  logChannelId,
+}) => {
+  if (!client)
+    return console.log(
+      "[ERROR - client]: please provide a valid monitor client",
+    );
+  if (!domain)
+    return console.log(
+      "[ERROR - domain]: please provide a valid monitor domain",
+    );
+  if (!interval)
+    return console.log(
+      "[ERROR - interval]: please provide a valid monitor interval",
+    );
+  if (!retries)
+    return console.log(
+      "[ERROR - retries]: please provide a valid number of monitor retries",
+    );
+  if (!logChannelId)
+    return console.log(
+      "[ERROR - logChannelId]: please provide a discord channel id",
+    );
 
-  const uptime = new UptimeClient("https://api.cordx.lol", {
-    interval: 900000,
-    retries: 3,
+  if (interval < 900000)
+    return console.log(
+      "[ERROR]: monitor interval should be greater then 900000",
+    );
+  if (retries > 3)
+    return console.log(
+      "[ERROR]: maximum amount of retries should be 3 or less",
+    );
+
+  const guild = await client.guilds.cache.get("871204257649557604");
+  const chan = await guild.channels.cache.find((c) => c.id === logChannelId);
+
+  if (!chan)
+    return console.log(
+      "[ERROR - logChannelId]: please provide a valid discord channel id",
+    );
+
+  const uptime = new UptimeClient(domain, {
+    interval: interval,
+    retries: retries,
   });
 
-  uptime._start();
+  await uptime._start();
 
+  /**
+   * ONLINE RESPONSE
+   */
   uptime.on("up", async (up) => {
-    console.log(up);
-
     function dhms(t) {
       (d = Math.floor(t / (1000 * 60 * 60 * 24))),
         (h = Math.floor((t % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))),
         (m = Math.floor((t % (1000 * 60 * 60)) / (1000 * 60))),
         (s = Math.floor((t % (1000 * 60)) / 1000));
+
       return (
         d + " Day(s) " + h + " Hour(s) " + m + " Minute(s) " + s + " Second(s)"
       );
@@ -48,6 +89,7 @@ module.exports.startProdSiteMonitor = async ({ client }) => {
             {
               name: "Ping",
               value: `${up.ping + "ms"}`,
+              inline: false,
             },
           )
           .setTimestamp()
@@ -59,6 +101,9 @@ module.exports.startProdSiteMonitor = async ({ client }) => {
     });
   });
 
+  /**
+   * OFFLINE RESPONSE
+   */
   uptime.on("outage", async (outage) => {
     if (outage.statusCode || !outage.includes("monitor failure"))
       await chan.send({
@@ -94,6 +139,9 @@ module.exports.startProdSiteMonitor = async ({ client }) => {
       });
   });
 
+  /**
+   * ERROR RESPONSE
+   */
   uptime.on("error", async (error) => {
     await console.error(error);
 

@@ -11,8 +11,9 @@
 
     "dependencies": {
         "@infinitylist/uptime": "0.1.7-alpha.6",
-        "@cordxapp/pastes": "^0.0.6",
-        "@cordxapp/request": "^0.0.6",
+        "@cordxapp/pastes": "^0.2.0",
+        "@cordxapp/request": "^0.2.0",
+        "@cordxapp/client": "^0.2.0",
         "axios": "^1.4.0",
         "body-parser": "1.20.2",
         "chalk": "^4.1.2",
