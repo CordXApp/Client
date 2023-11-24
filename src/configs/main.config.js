@@ -7,7 +7,7 @@ module.exports = {
     Domains: {
       prod: "https://cordx/lol/",
       beta: "https://beta.cordx.lol/",
-      dev: "https://dev.cordx.lol/"
+      dev: "https://dev.cordx.lol/",
     },
   },
   Discord: {
