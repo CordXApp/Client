@@ -23,7 +23,7 @@ module.exports = {
         client: client, 
         domain: 'https://cordx.lol',
         interval: 900000,
-        retries: 4,
+        retries: 3,
         logChannelId: '1148416632079777802'
       });
 

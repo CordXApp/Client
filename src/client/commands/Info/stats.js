@@ -61,72 +61,40 @@ module.exports = {
         });
 
       case "website_stats":
-        await fetch(`${client.config.API.domain}system/stats`)
-          .then((res) => res.json())
-          .then((stats) => {
-            return client.interaction.reply({
-              embeds: [
-                new client.Gateway.EmbedBuilder()
-                  .setTitle("Website statistics")
-                  .setColor(client.colors.base)
-                  .setThumbnail(client.logo)
-                  .setDescription("Here is our website stats!")
-                  .addFields(
-                    {
-                      name: "User Count",
-                      value: `${stats.users} total users`,
-                      inline: true,
-                    },
-                    {
-                      name: "Stored Images",
-                      value: `${stats.images} total images`,
-                      inline: true,
-                    },
-                    {
-                      name: "Download Count",
-                      value: `${stats.downloads} total downloads`,
-                      inline: true,
-                    },
-                  )
-                  .setTimestamp()
-                  .setFooter({
-                    text: client.footer,
-                    iconURL: client.logo,
-                  }),
-              ],
-            });
-          })
-          .catch((e) => {
-            return client.interaction.reply({
-              embeds: [
-                new client.Gateway.EmbedBuilder()
-                  .setTitle("Error: api unavailable")
-                  .setColor(client.colors.error)
-                  .setThumbnail(client.logo)
-                  .setDescription(
-                    "Hold up, either i was unable to locate your data or our API is down. Have you logged in or created an account? If you have you can check our status below",
-                  )
-                  .addFields(
-                    {
-                      name: "Error",
-                      value: `${e.message}`,
-                      inline: true,
-                    },
-                    {
-                      name: "View Our Status",
-                      value: `[click me](https://beta.cordx.lol/status) or run the "/status" command.`,
-                    },
-                  )
-                  .setTimestamp()
-                  .setFooter({
-                    text: client.footer,
-                    iconURL: client.logo,
-                  }),
-              ],
-            });
-          });
 
-        break;
+        const stats = await client.System.Statistics();
+
+        return client.interaction.reply({
+          embeds: [
+            new client.Gateway.EmbedBuilder()
+              .setTitle("Website statistics")
+              .setColor(client.colors.base)
+              .setThumbnail(client.logo)
+              .setDescription("Here is our website stats!")
+              .addFields(
+                {
+                  name: "User Count",
+                  value: `${stats.users} total users`,
+                  inline: true,
+                },
+                {
+                  name: "Stored Images",
+                  value: `${stats.images} total images`,
+                  inline: true,
+                },
+                {
+                  name: "Download Count",
+                  value: `${stats.downloads} total downloads`,
+                  inline: true,
+                },
+              )
+              .setTimestamp()
+              .setFooter({
+                text: client.footer,
+                iconURL: client.logo,
+              }),
+          ],
+        });
 
       default:
         return client.interaction.reply({
