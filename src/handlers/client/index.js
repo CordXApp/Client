@@ -3,6 +3,7 @@ require("dotenv").config();
 
 const Discord = require("discord.js");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
+const { CordXSystem } = require('@cordxapp/client');
 
 const { log } = require("@plugins/logger/index");
 const events = require("@handlers/events/index");
@@ -52,6 +53,8 @@ client.ballLogo =
 client.loading =
   "https://mir-s3-cdn-cf.behance.net/project_modules/disp/35771931234507.564a1d2403b3a.gif";
 client.footer = "© Copyright 2023 - CordX";
+
+client.System = new CordXSystem();
 
 client.slash = new Collection();
 client.aliases = new Collection();
