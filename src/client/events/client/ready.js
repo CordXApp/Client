@@ -1,5 +1,5 @@
 const { configCheck } = require("@functions/configCheck");
-const { websiteMonitor } = require('@plugins/monitors/index');
+const { websiteMonitor } = require("@plugins/monitors/index");
 
 module.exports = {
   name: "ready",
@@ -19,30 +19,29 @@ module.exports = {
       /**
        * MONITORS HERE
        */
-      await websiteMonitor({ 
-        client: client, 
-        domain: 'https://cordx.lol',
+      await websiteMonitor({
+        client: client,
+        domain: "https://cordx.lol",
         interval: 900000,
         retries: 3,
-        logChannelId: '1148416632079777802'
+        logChannelId: "1148416632079777802",
       });
 
-      await websiteMonitor({ 
-        client: client, 
-        domain: 'https://beta.cordx.lol',
+      await websiteMonitor({
+        client: client,
+        domain: "https://beta.cordx.lol",
         interval: 900000,
         retries: 3,
-        logChannelId: '1148439450569953280'
+        logChannelId: "1148439450569953280",
       });
 
-      await websiteMonitor({ 
-        client: client, 
-        domain: 'https://api.cordx.lol',
+      await websiteMonitor({
+        client: client,
+        domain: "https://api.cordx.lol",
         interval: 900000,
         retries: 3,
-        logChannelId: '1148439680099037184'
+        logChannelId: "1148439680099037184",
       });
-
 
       return client.logger("Connected to the discord api!", {
         header: "CLIENT_START",

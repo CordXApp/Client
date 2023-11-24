@@ -3,7 +3,7 @@ require("dotenv").config();
 
 const Discord = require("discord.js");
 const { Client, Collection, GatewayIntentBits } = require("discord.js");
-const { CordXSystem } = require('@cordxapp/client');
+const { CordXSystem } = require("@cordxapp/client");
 
 const { log } = require("@plugins/logger/index");
 const events = require("@handlers/events/index");
