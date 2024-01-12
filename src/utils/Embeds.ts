@@ -9,12 +9,12 @@ export class CordxEmbed extends EmbedBuilder {
      * @param {string} description - Embed's description
      * @param {string} color - Embed's color
      */
-    constructor(data: { title: string, description: string, color: HexColorString, fields?: EmbedField[] }) {
+    constructor(data: { title: string, description: string, thumbnail?: string, color: HexColorString, fields?: EmbedField[] }) {
         super();
     
         this.setTitle(data.title);
         this.setDescription(data.description);
-        this.setThumbnail('https://cordx.lol/assets/loggo.png');
+        this.setThumbnail(data.thumbnail ? data.thumbnail : 'https://cordx.lol/assets/loggo.png');
         this.setColor(data.color);
         if (data.fields) this.setFields(data.fields);
         this.setTimestamp();

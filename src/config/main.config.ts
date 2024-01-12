@@ -9,6 +9,9 @@ const config: IConfig = {
         domain: 'https://cordx.lol',
         docs:  'https://help.cordx.lol'
     },
+    Icons: {
+        loading: 'https://mir-s3-cdn-cf.behance.net/project_modules/disp/35771931234507.564a1d2403b3a.gif'
+    },
     Discord: {
         mainToken: `${process.env.PROD_TOKEN}`,
         devToken: `${process.env.DEV_TOKEN}`

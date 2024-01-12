@@ -27,6 +27,9 @@ import type {
       domain: 'https://cordx.lol',
       docs: 'https://help.cordx.lol'
     }
+    Icons: {
+      loading: string
+    }
     Discord: {
       mainToken: string,
       devToken: string

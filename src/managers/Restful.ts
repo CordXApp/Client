@@ -52,16 +52,16 @@ class RestManager {
 
   public async registerPrivateCommands(): Promise<void> {
     try {
-      this.logger.info('Initializing guild only application commands.');
+      this.logger.info('Initializing guild only commands.');
 
-      if (!this.client.user?.id) throw new Error('Client user was not resolved while initializing guild only application commands.');
+      if (!this.client.user?.id) throw new Error('Client user was not resolved while initializing guild only commands.');
       await this.DiscordRest.put(Routes.applicationGuildCommands(this.client.user.id, '871204257649557604'), {
         body: this.client.private.all.map((command: ISlashCommand) => command.props)
       });
 
-      this.logger.ready(`${this.client.private.all.size} application commands are registered!`);
+      this.logger.ready(`${this.client.private.all.size} guild only commands are registered!`);
     } catch (e: unknown) {
-      this.logger.error(`Error while registering slash commands: ${e}`);
+      this.logger.error(`Error while registering guild only commands: ${e}`);
     }
   }
 
