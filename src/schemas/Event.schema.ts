@@ -1,11 +1,11 @@
-import type { IEventBaseProps } from 'src/types/utils.interface';
+import type { IEventBaseProps } from "src/types/utilities"
 
 class EventBase {
-  public props: IEventBaseProps;
+    public props: IEventBaseProps
 
-  constructor(props: IEventBaseProps) {
-    this.props = props;
-  }
+    constructor(props: IEventBaseProps) {
+        this.props = props
+    }
 }
 
-export default EventBase;
+export default EventBase

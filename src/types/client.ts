@@ -1,0 +1,27 @@
+import type { BitFieldResolvable, GatewayIntentsString } from "discord.js"
+
+export interface IConfig {
+    intents: BitFieldResolvable<GatewayIntentsString, number>
+    restVersion: "10" | "9"
+    API: {
+        domain: "https://api.cordx.lol/v3/"
+        secret: string
+    }
+    Cordx: {
+        domain: "https://cordx.lol"
+        docs: "https://help.cordx.lol"
+    }
+    Icons: {
+        loading: string
+    }
+    Discord: {
+        mainToken: string
+        devToken: string
+    }
+    EmbedColors: {
+        base: "#2e004d"
+        error: "#FF0000"
+        success: "#2BBF00"
+        warning: "#D4F30E"
+    }
+}

@@ -5,36 +5,37 @@
     "author": "Toxic Dev",
     "license": "UNLICENSED",
     "scripts": {
-      "build": "tsc",
-      "format": "prettier -w .",
-      "format:check": "prettier -c .",
-      "dev": "nodemon src/app.ts",
-      "dev:build": "nodemon build/app.js",
-      "start:build": "node build/app.js",
-      "start": "ts-node src/app.ts",
-      "lint": "eslint ."
+        "build": "tsc",
+        "format": "prettier -w .",
+        "format:check": "prettier -c .",
+        "dev": "nodemon src/app.ts",
+        "dev:build": "nodemon build/app.js",
+        "start:build": "node build/app.js",
+        "start": "ts-node src/app.ts",
+        "lint": "eslint ."
     },
     "dependencies": {
-      "axios": "^1.5.1",
-      "chalk": "^5.3.0",
-      "discord.js": "^14.14.1",
-      "dotenv": "^16.3.1",
-      "moment": "^2.29.4",
-      "glob": "^10.3.10",
-      "mongoose": "^8.0.3"
+        "axios": "^1.5.1",
+        "chalk": "^5.3.0",
+        "discord.js": "^14.14.1",
+        "dotenv": "^16.3.1",
+        "moment": "^2.29.4",
+        "node-fetch": "^2.6.1",
+        "glob": "^10.3.10",
+        "mongoose": "^8.0.3"
     },
     "devDependencies": {
-      "@cordxapp/client": "0.2.0",
-      "@cordxapp/instatus": "0.2.0",
-      "@cordxapp/pastes": "0.2.0",
-      "@types/node": "^20.5.9",
-      "@typescript-eslint/eslint-plugin": "^5.44.0",
-      "@typescript-eslint/parser": "^5.44.0",
-      "@infinitylist/uptime": "0.1.7-alpha.7",
-      "eslint": "^8.28.0",
-      "nodemon": "^3.0.1",
-      "prettier": "^3.0.3",
-      "ts-node": "^10.9.1",
-      "typescript": "5.2.2"
+        "@cordxapp/client": "0.2.0",
+        "@cordxapp/instatus": "0.2.0",
+        "@cordxapp/pastes": "0.2.0",
+        "@types/node": "^20.5.9",
+        "@typescript-eslint/eslint-plugin": "^5.44.0",
+        "@typescript-eslint/parser": "^5.44.0",
+        "@infinitylist/uptime": "0.1.7-alpha.7",
+        "eslint": "^8.28.0",
+        "nodemon": "^3.0.1",
+        "prettier": "^3.0.3",
+        "ts-node": "^10.9.1",
+        "typescript": "5.2.2"
     }
-  }
+}

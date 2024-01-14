@@ -1,9 +1,9 @@
-import { ISlashCommandProps } from 'src/types/utils.interface';
+import { ISlashCommandProps } from "src/types/commands"
 
 export class SlashBase {
-  public props: ISlashCommandProps;
+    public props: ISlashCommandProps
 
-  constructor(props: ISlashCommandProps) {
-    this.props = props;
-  }
+    constructor(props: ISlashCommandProps) {
+        this.props = props
+    }
 }
