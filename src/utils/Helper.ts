@@ -1,4 +1,15 @@
-export class HelperUtilities {
+import type CordX from "../client/CordX"
+import Logger from "./Logger"
+
+export class ClientUtils {
+    public client: CordX
+    public logs: Logger;
+
+    constructor(client: CordX) {
+        this.client = client
+        this.logs = new Logger('ClientUtils')
+    }
+
     public formatBytes(bytes: number, decimals = 2): string {
         if (bytes === 0) return "0 Bytes"
         const k = 1024
@@ -69,5 +80,36 @@ export class HelperUtilities {
         return number > 999999
             ? `${(number / 1000000).toFixed(1)}m`
             : number.toString()
+    }
+
+    public async purgeMessages(channel: string, amount: number): Promise<any> {
+
+        let c: any = await this.client.channels.cache.get(channel);
+
+        if (amount > 99 || amount <= 2) return { success: false, message: 'Amount should be less then 100 but greater then 2' }
+        if (!c?.isTextBased()) return { success: false, message: 'Channel should be a text channel!' }
+        if (!c) return { success: false, message: 'Channel was not found, did you provide the right ID?' } 
+
+        let messages = (await c.messages.fetch({ limit: amount })).filter((m: any) => m.createdAt.getTime() > Date.now() - 1209600000);
+        messages = messages.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
+
+        const length = await messages.size;
+
+        for (const message of messages.values()) {
+            
+            await message.delete().catch(async (err: Error) => {
+                await this.logs.error(`Failed to delete message ${message.id} in ${c?.id}!`)
+                return { success: false, message: `Failed to delete message ${message.id} in ${c?.id}!` }
+            });
+        }
+
+        return { 
+            success: true, 
+            message: `Successfully deleted \`${length}\` messages from the \`${c?.name}\` channel!` 
+        }
+    }
+
+    public async getTopFiveUsers(): Promise<any> {
+        
     }
 }

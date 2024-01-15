@@ -115,7 +115,7 @@ export default class Sync extends SlashBase {
 
             case 'guild': {
 
-                let cmd_exists = await client.commands.get(cmd as string);
+                let cmd_exists = await client.private.get(cmd as string);
 
                 if (!cmd_exists) return interaction.reply({
                     ephemeral: false,

@@ -41,6 +41,35 @@ class RestManager {
         }
     }
 
+    public async getPrivateCommandID(name: string): Promise<string> {
+        try {
+            this.logger.info(`Getting private command ID for ${name}.`)
+
+            if (!this.client.user?.id)
+                throw new Error(
+                    "Client user was not resolved while getting private command ID.",
+                )
+            const commands = (await this.DiscordRest.get(
+                Routes.applicationGuildCommands(
+                    this.client.user.id,
+                    "871204257649557604",
+                ),
+            )) as ApplicationCommand[]
+            const command = commands.find(
+                (cmd: ApplicationCommand) => cmd.name === name,
+            )
+
+            if (!command) throw new Error(`Command ${name} was not found.`)
+
+            return command?.id
+        } catch (e: unknown) {
+            this.logger.error(
+                `Error while getting private command ID for ${name}: ${e}`,
+            )
+            throw e
+        }
+    }
+
     /**
      * Register slash commands against the Discord API
      */
@@ -177,7 +206,7 @@ class RestManager {
         try {
             this.logger.info(`Refreshing private command "${name}".`)
 
-            let cmd = await this.getCommandID(name)
+            let cmd = await this.getPrivateCommandID(name)
 
             this.logger.info("Command ID: " + cmd)
 
@@ -187,7 +216,7 @@ class RestManager {
                 )
             else {
                 await this.DiscordRest.patch(
-                    Routes.applicationGuildCommand(this.client.user.id, cmd, "871204257649557604"),
+                    Routes.applicationGuildCommand(this.client.user.id, "871204257649557604", cmd),
                     {
                         body: this.client.private.get(name)?.props,
                     },

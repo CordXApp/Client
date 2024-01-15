@@ -26,14 +26,24 @@ export default class About extends SlashBase {
                 new client.Embeds({
                     title: "Invite Me!",
                     description:
-                        "Woah, you want me in your server? That's awesome!",
+                        "Woah, you want me in your server? That's awesome! Select one of the options below to invite me!",
                     color: client.config.EmbedColors.base,
                     fields: [
                         {
-                            name: "Invite Link",
+                            name: "Recommended",
                             value: `[Click Here](https://discord.com/api/oauth2/authorize?client_id=${client?.user?.id}&permissions=50550288547649&scope=bot%20applications.commands)`,
                             inline: true,
                         },
+                        {
+                            name : 'Administrator',
+                            value : `[Click Here](https://discord.com/api/oauth2/authorize?client_id=${client?.user?.id}&permissions=8&scope=bot%20applications.commands)`,
+                            inline: true,
+                        },
+                        {
+                            name: 'No Permissions',
+                            value: `[Click Here](https://discord.com/api/oauth2/authorize?client_id=${client?.user?.id}&permissions=0&scope=bot%20applications.commands)`,
+                            inline: true,
+                        }
                     ],
                 }),
             ],

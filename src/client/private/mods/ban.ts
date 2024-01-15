@@ -23,7 +23,7 @@ export default class Sync extends SlashBase {
                 {
                     name: 'reason',
                     description: 'The reason for the ban',
-                    required: false,
+                    required: true,
                     type: SubCommandOptions.String
                 }
             ]
@@ -34,7 +34,7 @@ export default class Sync extends SlashBase {
 
         const member = await interaction.options.getUser('user');
         let reason = await interaction.options.getString('reason');
-        const perms = await client.perms.checkPermissions(interaction?.guild?.id as string, interaction?.member?.user.id as string, ['BAN_MEMBERS']);
+        const perms = await client.perms.checkPermissions(interaction?.guild?.id as string, interaction?.member?.user.id as string, ['MODERATE_MEMBERS']);
         const logs: any = await interaction?.guild?.channels.cache.find((c) => c.id === '871275213013262397')
 
         if (member?.id === interaction?.member?.user.id) return interaction.reply({
@@ -66,15 +66,13 @@ export default class Sync extends SlashBase {
                     fields: [
                         {
                             name: "Required Permissions",
-                            value: `\`BAN_MEMBERS\``,
+                            value: `\`MODERATE_MEMBERS\``,
                             inline: true
                         }
                     ]
                 })
             ]
         })
-
-        if (!reason) reason = "No reason provided";
 
         let modname = interaction?.member?.user?.username as string;
         let user = await interaction?.guild?.members?.cache.get(member?.id as string);
@@ -99,25 +97,36 @@ export default class Sync extends SlashBase {
             ]
         })
 
-        await interaction?.guild?.bans?.create(member?.id as string, { reason: reason as string  })
-        .then(async (banned) => {
+        await interaction?.guild?.bans?.create(member?.id as string, { reason: reason as string, deleteMessageSeconds: 86400 })
+        .then(async (banned: any) => {
 
             await logs?.send({
                 embeds: [
                     new client.Embeds({
-                        title: "User Banned",
-                        description: `${member?.username} has been banned!`,
+                        title: "🔨 User Banned",
+                        description: 'Whoops, someone has been naughty! here are the details:',
+                        thumbnail: banned.displayAvatarURL(),
                         color: client.config.EmbedColors.success,
                         fields: [
                             {
-                                name: "Reason",
-                                value: reason,
+                                name: 'User',
+                                value: `${banned?.globalName ? member?.globalName : member?.username}`,
+                                inline: true
+                            },
+                            {
+                                name: 'User ID',
+                                value: `${member?.id}`,
                                 inline: true
                             },
                             {
                                 name: 'Moderator',
                                 value: modname,
                                 inline: true
+                            },
+                            {
+                                name: 'Reason',
+                                value: reason,
+                                inline: false
                             }
                         ]
                     })
@@ -127,16 +136,9 @@ export default class Sync extends SlashBase {
             return interaction.reply({
                 embeds: [
                     new client.Embeds({
-                        title: "User Banned",
-                        description: `${member?.username} has been banned by ${modname}!`,
+                        title: "🔨 User Banned",
+                        description: `Damn, someone was naughty and got the ban hammer. If you are a moderator/admin you can view more details in: <#${logs?.id}>`,
                         color: client.config.EmbedColors.success,
-                        fields: [
-                            {
-                                name: "Reason",
-                                value: reason,
-                                inline: true
-                            }
-                        ]
                     })
                 ]
             })

@@ -17,7 +17,10 @@ export class API {
 
         let url = `${this.domain}${endpoint}`
 
-        const response = await fetch(url, { method, headers: { 'Content-Type': 'application/json' } });
+        const response = await fetch(url, { 
+            method, 
+            headers: { 'Content-Type': 'application/json' } 
+        });
 
         if (response.status !== 200) return { error: true, status: response.status, message: response.statusText };
 

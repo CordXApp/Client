@@ -8,28 +8,26 @@ export default class InteractionCreate extends EventBase {
         super({ name: "interactionCreate" })
     }
 
-    public execute(
+    public async execute(
         client: CordX,
         interaction: Interaction<CacheType>,
         int: BaseInteraction,
-    ): any {
+    ): Promise<any> {
         if (interaction.isCommand()) {
             const command = client.commands.get(interaction.commandName)
             const priv = client.private.get(interaction.commandName)
+
+            const perms = await client.perms.doesUserHaveRole(
+                interaction.guildId as string,
+                interaction?.member?.user?.id as string,
+                "871275407134040064",
+            )
 
             const cmd = command || priv
 
             if (!cmd) return
 
-            if (
-                cmd.props.ownerOnly &&
-                !client.perms.doesUserHaveRole(
-                    interaction.guildId as string,
-                    interaction.user.id,
-                    "871275407134040064",
-                )
-            )
-                return
+            if (cmd.props.ownerOnly && !perms) return interaction.reply({ content: 'You do not have permission to use this command!', ephemeral: true });
 
             if (cmd.props.cooldown) {
                 if (!client.cooldown.has(cmd.props.name)) {

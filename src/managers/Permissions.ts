@@ -47,6 +47,8 @@ export class PermissionsManager {
 
         if (!role) return false
 
-        return member.roles.cache.has(role.id)
+        if (!member.roles.cache.has(role.id)) return false
+
+        return true
     }
 }

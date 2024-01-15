@@ -1,11 +1,12 @@
 import { join } from "node:path"
 import Config from "../config/main.config"
 import { CordxEmbed } from "../utils/Embeds"
-import { HelperUtilities } from "../utils/Helper"
+import { ClientUtils } from "../utils/Helper"
 import { DatabaseManager } from "../managers/Database"
 import { PermissionsManager } from "../managers/Permissions"
 import { Client, ClientOptions, Collection } from "discord.js"
 import type { IConfig } from "../types/client"
+import { Sequelize } from "../managers/Sequelize"
 import PrivateManager from "../managers/Private"
 import CommandManager from "../managers/Commands"
 import EventManager from "../managers/Listeners"
@@ -14,17 +15,18 @@ import { API } from "../managers/API"
 import Logger from "../utils/Logger"
 
 class CordX extends Client {
-    public logs: Logger = new Logger("Client")
     public db: DatabaseManager = new DatabaseManager(this, process.env.DB_URI as string)
-    public perms: PermissionsManager = new PermissionsManager(this)
     public cooldown = new Collection<string, Collection<string, number>>()
-    public private: PrivateManager = new PrivateManager(this)
+    public perms: PermissionsManager = new PermissionsManager(this)
     public commands: CommandManager = new CommandManager(this)
+    public private: PrivateManager = new PrivateManager(this)
     public events: EventManager = new EventManager(this)
     public restApi: RestManager = new RestManager(this)
+    public utils: ClientUtils = new ClientUtils(this)
+    public sql: Sequelize = new Sequelize(this)
+    public logs: Logger = new Logger("Client")
     public api: API = new API(this)
     public Embeds: any = CordxEmbed
-    public utils: any = HelperUtilities
     public config: IConfig = Config
 
     constructor(options: ClientOptions) {

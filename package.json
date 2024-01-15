@@ -22,7 +22,8 @@
         "moment": "^2.29.4",
         "node-fetch": "^2.6.1",
         "glob": "^10.3.10",
-        "mongoose": "^8.0.3"
+        "mongoose": "^8.0.3",
+        "serverless-mysql": "^1.5.5"
     },
     "devDependencies": {
         "@cordxapp/client": "0.2.0",

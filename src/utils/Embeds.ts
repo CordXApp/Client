@@ -1,4 +1,4 @@
-import { EmbedBuilder, HexColorString, EmbedField } from "discord.js"
+import { EmbedBuilder, HexColorString, EmbedField, EmbedAuthorOptions, EmbedAuthorData } from "discord.js"
 
 /**
  * @file EmbedBuilder - EmbedBuilder class
@@ -12,14 +12,22 @@ export class CordxEmbed extends EmbedBuilder {
     constructor(data: {
         title: string
         description: string
+        image?: string
         thumbnail?: string
         color: HexColorString
         fields?: EmbedField[]
+        author?: EmbedAuthorOptions
     }) {
         super()
 
         this.setTitle(data.title)
         this.setDescription(data.description)
+        if (data.image) this.setImage(data.image)
+        if (data.author) this.setAuthor({
+            name: data.author.name,
+            iconURL: data.author.iconURL,
+            url: data.author.url
+        })
         this.setThumbnail(
             data.thumbnail
                 ? data.thumbnail
