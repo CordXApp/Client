@@ -1,6 +1,6 @@
 import { GuildMember } from "discord.js"
-import EventBase from "../../schemas/Event.schema"
-import type CordX from "../../client/CordX"
+import EventBase from "../../../schemas/Event.schema"
+import type CordX from "../../CordX"
 
 export default class GuildMemberAdd extends EventBase {
     constructor() {

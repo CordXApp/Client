@@ -1,5 +1,5 @@
 import { readdirSync } from "node:fs"
-import { join } from "node:path"
+import { join, sep } from "node:path"
 import type CordX from "../client/CordX"
 import type { IEvent } from "../types/utilities"
 
@@ -11,20 +11,24 @@ class EventManager {
     }
 
     public load(dir: string): void {
-        readdirSync(dir).forEach(async (file: string): Promise<void> => {
-            const eventInstance = await import(join(dir, file))
-            const event: IEvent = new eventInstance.default()
+        readdirSync(dir).forEach(async (subDir: string): Promise<void> => {
+            const events = readdirSync(`${dir}${sep}${subDir}${sep}`)
 
-            if (event.props.once) {
-                this.client.once(event.props.name, (...args) =>
+            for (const file of events) {
+                const eventInstance = await import(join(dir, subDir, file))
+                const event: IEvent = new eventInstance.default()
+
+                if (event.props.once) {
+                    this.client.once(event.props.name, (...args) => 
+                       event.execute(this.client, ...args),
+                    )
+                    return
+                }
+
+                this.client.on(event.props.name, (...args) =>
                     event.execute(this.client, ...args),
                 )
-                return
             }
-
-            this.client.on(event.props.name, (...args) =>
-                event.execute(this.client, ...args),
-            )
         })
     }
 }

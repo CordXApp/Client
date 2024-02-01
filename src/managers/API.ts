@@ -1,6 +1,8 @@
 import type CordX from "../client/CordX"
+import { UserConfig } from "../types/user/config";
 import Logger from "../utils/Logger"
 import fetch from 'node-fetch';
+import fs from 'node:fs';
 
 export class API {
     public client: CordX
@@ -9,7 +11,7 @@ export class API {
 
     constructor(client: CordX) {
         this.client = client
-        this.logs = new Logger("Custom Domains")
+        this.logs = new Logger("API_MANAGER")
         this.domain = 'https://api.cordx.lol/v3/'
     }
 
@@ -27,6 +29,52 @@ export class API {
         const data = await response.json() || response.text();
 
         return { error: false, data: data };
+    }
+
+    public async downloadBaseUserConfig(id: string, secret: string): Promise<any> {
+        const config: UserConfig = {
+            Version: '14.1.0',
+            Name: 'CordX',
+            DestinationType: 'ImageUploader, FileUploader',
+            RequestMethod: 'POST',
+            RequestURL: `https://cordx.lol/api/upload/sharex`,
+            Headers: {
+                userid: id,
+                secret: secret
+            },
+            Body: 'MultipartFormData',
+            FileFormName: 'sharex',
+            URL: '{json:url}'
+        }
+
+        return config;
+    }
+
+    public async uploadFile(user: string, secret: string, file: any): Promise<any> {
+        const response = await fetch(`https://cordx.lol/api/upload/sharex`, {
+            method: 'POST',
+            headers: {
+                userid: user,
+                secret: secret
+            },
+            body: file,
+        })
+    }
+
+    public async eightBall(question: string): Promise<string> {
+        const response = await this.request('GET', 'client/8ball');
+
+        if (response.error) return response.error.message;
+
+        return response.data.response;
+    };
+
+    public async generateAdvice(): Promise<string> {
+        const response = await this.request('GET', 'client/advice/random');
+
+        if (response.error) return response.error.message;
+
+        return response.data.advice;
     }
 }
 

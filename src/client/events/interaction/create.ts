@@ -1,7 +1,7 @@
 import { Collection, ApplicationCommandOptionType } from "discord.js"
 import type { CacheType, Interaction, BaseInteraction } from "discord.js"
-import EventBase from "../../schemas/Event.schema"
-import type CordX from "../../client/CordX"
+import EventBase from "../../../schemas/Event.schema"
+import type CordX from "../../CordX"
 
 export default class InteractionCreate extends EventBase {
     constructor() {
@@ -74,12 +74,12 @@ export default class InteractionCreate extends EventBase {
             }
 
             try {
-                cmd.execute(client, interaction, args)
+              cmd.execute(client, interaction, args)
             } catch (err: any) {
                 client.logs.error(
                     `Error while executing command ${cmd.props.name}: ${err.stack}`,
                 )
-                interaction.reply({
+                return interaction.reply({
                     content: "There was an error while executing this command!",
                     ephemeral: true,
                 })

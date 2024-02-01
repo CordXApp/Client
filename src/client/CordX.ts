@@ -5,6 +5,7 @@ import { ClientUtils } from "../utils/Helper"
 import { DatabaseManager } from "../managers/Database"
 import { PermissionsManager } from "../managers/Permissions"
 import { Client, ClientOptions, Collection } from "discord.js"
+import { CordXSystem } from "@cordxapp/client"
 import type { IConfig } from "../types/client"
 import { Sequelize } from "../managers/Sequelize"
 import PrivateManager from "../managers/Private"
@@ -25,6 +26,7 @@ class CordX extends Client {
     public utils: ClientUtils = new ClientUtils(this)
     public sql: Sequelize = new Sequelize(this)
     public logs: Logger = new Logger("Client")
+    public System: CordXSystem = new CordXSystem()
     public api: API = new API(this)
     public Embeds: any = CordxEmbed
     public config: IConfig = Config
@@ -48,7 +50,7 @@ class CordX extends Client {
     private init(): void {
         this.private.load(join(__dirname, "./private/"))
         this.commands.load(join(__dirname, "./commands/"))
-        this.events.load(join(__dirname, "./events"))
+        this.events.load(join(__dirname, "./events/"))
     }
 }
 

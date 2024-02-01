@@ -13,6 +13,7 @@ export interface IConfig {
     }
     Icons: {
         loading: string
+        eightBall: string;
     }
     Discord: {
         mainToken: string

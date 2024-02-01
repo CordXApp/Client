@@ -1,7 +1,7 @@
 import { ActivityType } from "discord.js"
-import EventBase from "../../schemas/Event.schema"
-import { UptimeMonitor } from "../../utils/Monitors"
-import type CordX from "../../client/CordX"
+import EventBase from "../../../schemas/Event.schema"
+import { UptimeMonitor } from "../../../utils/Monitors"
+import type CordX from "../../CordX"
 
 export default class Ready extends EventBase {
     constructor() {

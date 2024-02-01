@@ -29,9 +29,10 @@ export class Sequelize {
         }
     }
 
-    public async topFiveUploaders() {
+    public async getTopUploaders({ amount }: SQLTypes.TopUploaders): Promise<any> {
 
-        this.logger.info("Fetching top 5 uploaders...");
+        if (amount > 5) return { success: false, data: 'Amount of users to list cannot be greater than 5' };
+        if (amount < 1) return { success: false, data: 'Amount of users to list cannot be less than 1' };
 
         const leaderboard: any = await this.query({
             query: `
@@ -39,7 +40,7 @@ export class Sequelize {
             FROM images
             GROUP BY userid
             ORDER BY imageCount DESC
-            LIMIT 5
+            LIMIT ${amount}
         `}).catch((err: Error) => {
             this.logger.error(err.stack as string)
             return { success: false, data: err.message }

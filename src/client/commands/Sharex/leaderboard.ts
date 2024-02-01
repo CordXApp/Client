@@ -1,6 +1,6 @@
 import type { CacheType, ChatInputCommandInteraction } from "discord.js"
 import { SlashBase } from "../../../schemas/Command.schema"
-import mysql from 'serverless-mysql';
+import { SubCommandOptions } from "../../../types/utilities";
 import type CordX from "../../CordX"
 
 export default class Leaderboard extends SlashBase {
@@ -15,6 +15,14 @@ export default class Leaderboard extends SlashBase {
             ownerOnly: false,
             userPermissions: [],
             clientPermissions: [],
+            options: [
+                {
+                    name: 'amount',
+                    description: 'Amount of users to show',
+                    type: SubCommandOptions.Integer, 
+                    required: false,
+                }
+            ]
         })
     }
 
@@ -22,8 +30,8 @@ export default class Leaderboard extends SlashBase {
         client: CordX,
         interaction: ChatInputCommandInteraction<CacheType>,
     ): Promise<any> {
-
-        const leaderboard: any = await client.sql.topFiveUploaders();
+        const amount = interaction.options.getInteger('amount') || 5;
+        const leaderboard: any = await client.sql.getTopUploaders({ amount});
 
         await interaction.reply({
             embeds: [
@@ -37,7 +45,7 @@ export default class Leaderboard extends SlashBase {
         })
 
         setTimeout(() => {
-            if (!leaderboard.success) return interaction.reply({
+            if (!leaderboard.success) return interaction.editReply({
                 embeds: [
                     new client.Embeds({
                         title: 'Upload Leaderboard',
@@ -55,22 +63,31 @@ export default class Leaderboard extends SlashBase {
     
             const fields = leaderboard.data.map((r: any) => {
                 return {
-                    name: `${r.position} - ${r.username || r.globalName}`,
+                    name: `${r.position} - ${r.globalName || r.username}`,
                     value: `Total Uploads: \`${r.imageCount}\``,
                     inline: false
                 }
             });
+
+            let title = ''
+
+            if (amount == 1) title = 'Here is our top user based on their upload count!'
+            else if (amount == 2) title = 'Here is our top 2 users based on their upload count!'
+            else if (amount == 3) title = 'Here is our top 3 users based on their upload count!'
+            else if (amount == 4) title = 'Here is our top 4 users based on their upload count!'
+            else if (amount == 5) title = 'Here is our top 5 users based on their upload count!'
+
     
-            return interaction.reply({
+            return interaction.editReply({
                 embeds: [
                     new client.Embeds({
                         title: 'Upload Leaderboard',
-                        description: 'Here is our top 5 users based on their upload count!',
+                        description: title,
                         color: client.config.EmbedColors.base,
                         fields: [...fields]
                     })
                 ]
             })
-        }, 5000)
+        }, 3000)
     }
 }
