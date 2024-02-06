@@ -1,21 +1,15 @@
 # CordX Client
 
-Official discord bot for managing our discord server and allowing users to manage their profiles and settings
-without the need for visiting our website :D
+Welcome to the official Discord bot for managing our Discord server. With CordX Client, users can manage their profiles and settings directly from Discord, without the need to visit our website.
 
 ---
 
 ## Self Hosting
 
-This bot is mainly open-source for transparency and to allow user/community contributions, it is based heavily
-around our services and would require a ton of modifications to self host or use for your own purposes for this
-reason we highly recommend you don't.
+While CordX Client is open-source for transparency and to encourage community contributions, it is heavily integrated with our services. As such, self-hosting or repurposing the bot would require significant modifications. For this reason, we strongly recommend against self-hosting.
 
 ---
 
 ## Contributions
 
-We welcome any and all contributions to this client, when pushing any changes you made please make sure you respect
-our branch locks, create a pull request with your changes and we will look at it as soon as possible!
-
----
+We welcome contributions from the community. If you've made changes that you'd like to share, please respect our branch locks and create a pull request. We'll review your changes as soon as possible.

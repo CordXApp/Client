@@ -7,7 +7,7 @@ export default class Leaderboard extends SlashBase {
     constructor() {
         super({
             name: "leaderboard",
-            description: "View our top 5 uploaders!",
+            description: "View our top uploaders.",
             usage: "/leaderboard",
             example: "/leaderboard",
             category: "Sharex",
@@ -19,7 +19,7 @@ export default class Leaderboard extends SlashBase {
                 {
                     name: 'amount',
                     description: 'Amount of users to show',
-                    type: SubCommandOptions.Integer, 
+                    type: SubCommandOptions.Integer,
                     required: false,
                 }
             ]
@@ -31,7 +31,7 @@ export default class Leaderboard extends SlashBase {
         interaction: ChatInputCommandInteraction<CacheType>,
     ): Promise<any> {
         const amount = interaction.options.getInteger('amount') || 5;
-        const leaderboard: any = await client.sql.getTopUploaders({ amount});
+        const leaderboard: any = await client.sql.getTopUploaders({ amount });
 
         await interaction.reply({
             embeds: [
@@ -60,7 +60,7 @@ export default class Leaderboard extends SlashBase {
                     })
                 ]
             })
-    
+
             const fields = leaderboard.data.map((r: any) => {
                 return {
                     name: `${r.position} - ${r.globalName || r.username}`,
@@ -77,7 +77,7 @@ export default class Leaderboard extends SlashBase {
             else if (amount == 4) title = 'Here is our top 4 users based on their upload count!'
             else if (amount == 5) title = 'Here is our top 5 users based on their upload count!'
 
-    
+
             return interaction.editReply({
                 embeds: [
                     new client.Embeds({

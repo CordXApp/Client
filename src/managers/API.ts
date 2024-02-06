@@ -19,9 +19,9 @@ export class API {
 
         let url = `${this.domain}${endpoint}`
 
-        const response = await fetch(url, { 
-            method, 
-            headers: { 'Content-Type': 'application/json' } 
+        const response = await fetch(url, {
+            method,
+            headers: { 'Content-Type': 'application/json' }
         });
 
         if (response.status !== 200) return { error: true, status: response.status, message: response.statusText };
@@ -31,13 +31,13 @@ export class API {
         return { error: false, data: data };
     }
 
-    public async downloadBaseUserConfig(id: string, secret: string): Promise<any> {
+    public async downloadBaseUserConfig(id: string, secret: string, domain?: string): Promise<any> {
         const config: UserConfig = {
             Version: '14.1.0',
-            Name: 'CordX',
+            Name: domain ? `${domain}` : 'cordx.lol',
             DestinationType: 'ImageUploader, FileUploader',
             RequestMethod: 'POST',
-            RequestURL: `https://cordx.lol/api/upload/sharex`,
+            RequestURL: domain ? `https://${domain}/api/upload/sharex` : 'https://cordx.lol/api/upload/sharex',
             Headers: {
                 userid: id,
                 secret: secret

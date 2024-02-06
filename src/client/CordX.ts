@@ -1,12 +1,13 @@
 import { join } from "node:path"
 import Config from "../config/main.config"
+import helpConfig from "../config/help.config"
 import { CordxEmbed } from "../utils/Embeds"
 import { ClientUtils } from "../utils/Helper"
 import { DatabaseManager } from "../managers/Database"
 import { PermissionsManager } from "../managers/Permissions"
 import { Client, ClientOptions, Collection } from "discord.js"
 import { CordXSystem } from "@cordxapp/client"
-import type { IConfig } from "../types/client"
+import type { IConfig, IHelpConfig } from "../types/client"
 import { Sequelize } from "../managers/Sequelize"
 import PrivateManager from "../managers/Private"
 import CommandManager from "../managers/Commands"
@@ -30,6 +31,7 @@ class CordX extends Client {
     public api: API = new API(this)
     public Embeds: any = CordxEmbed
     public config: IConfig = Config
+    public help: IHelpConfig = helpConfig
 
     constructor(options: ClientOptions) {
         super(options)

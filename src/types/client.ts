@@ -26,3 +26,11 @@ export interface IConfig {
         warning: "#D4F30E"
     }
 }
+
+export interface IHelpConfig {
+    prefix: string
+    images: {
+        domValidation: string;
+    }
+    spellCheck: string[]
+}

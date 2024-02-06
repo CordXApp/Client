@@ -30,12 +30,32 @@ export default class Profile extends SlashBase {
                     example: '/config stats',
                     type: SubCommandOptions.SubCommand,
                     required: false,
+                    options: [
+                        {
+                            name: 'domain',
+                            description: 'Use a custom domain with the config.',
+                            usage: '/config view domain <domain>',
+                            example: '/config view domain cordx.lol',
+                            type: SubCommandOptions.String,
+                            required: false
+                        }
+                    ]
                 },
                 {
                     name: 'download',
                     description: 'Download your CordX/ShareX config.',
                     example: '/config download',
                     type: SubCommandOptions.SubCommand,
+                    options: [
+                        {
+                            name: 'domain',
+                            description: 'Use a custom domain with the config.',
+                            usage: '/config download domain <domain>',
+                            example: '/config download domain cordx.lol',
+                            type: SubCommandOptions.String,
+                            required: false
+                        }
+                    ]
                 }
             ]
         })
@@ -88,8 +108,9 @@ export default class Profile extends SlashBase {
             }
 
             case 'view': {
-                
+
                 const user = await client.api.request('GET', `users/profile/${interaction?.user?.id}/${process.env.API_SECRET}`)
+                const domain = interaction.options.getString('domain') as string;
 
                 if (user.error) return interaction.reply({
                     embeds: [
@@ -112,30 +133,64 @@ export default class Profile extends SlashBase {
                         })
                     ]
                 })
+
+                if (domain.includes('http://') || domain.includes('https://')) return interaction.reply({
+                    content: 'Error: Please provide a valid domain without the protocol, we will add it for you internally.',
+                    ephemeral: true
+                })
+
+                if (domain) {
+                    const check = await client.db.getOneUserDomain(interaction?.user?.id, domain);
+
+                    if (!check.success) return interaction.reply({
+                        content: `Error: ${check.message}`,
+                        ephemeral: true
+                    })
+
+                    return interaction.reply({
+                        ephemeral: true,
+                        content: `\`\`\`json
+                        {
+                            "Version": "14.1.0",
+                            "Name": "${domain}",
+                            "DestinationType": "ImageUploader, FileUploader",
+                            "RequestMethod": "POST",
+                            "RequestURL": "https://${domain}/api/upload/sharex",
+                            "Headers": {
+                               "userid": "${interaction?.user?.id}",
+                               "secret": "${user?.data?.secret}"
+                            },
+                            "Body": "MultipartFormData",
+                            "FileFormName": "sharex",
+                            "URL": "{json:url}"
+                        }\`\`\``
+                    })
+                }
 
                 return interaction.reply({
                     ephemeral: true,
                     content: `\`\`\`json
                     {
                         "Version": "14.1.0",
-                        "Name": "CordX",
+                        "Name": "cordx.lol",
                         "DestinationType": "ImageUploader, FileUploader",
                         "RequestMethod": "POST",
                         "RequestURL": "https://cordx.lol/api/upload/sharex",
                         "Headers": {
                            "userid": "${interaction?.user?.id}",
-                           "secret": "you can find this using the /profile command."
+                           "secret": "${user?.data?.secret}"
                         },
                         "Body": "MultipartFormData",
                         "FileFormName": "sharex",
                         "URL": "{json:url}"
                     }\`\`\``,
-                }); 
+                });
             }
 
             case 'download': {
 
                 const user = await client.api.request('GET', `users/profile/${interaction?.user?.id}/${process.env.API_SECRET}`)
+                const domain = interaction.options.getString('domain') as string;
 
                 if (user.error) return interaction.reply({
                     embeds: [
@@ -158,6 +213,41 @@ export default class Profile extends SlashBase {
                         })
                     ]
                 })
+
+                if (domain.includes('http://') || domain.includes('https://')) return interaction.reply({
+                    content: 'Error: Please provide a valid domain without the protocol, we will add it for you internally.',
+                    ephemeral: true
+                })
+
+                if (domain) {
+                    const check = await client.db.getOneUserDomain(interaction?.user?.id, domain);
+
+                    console.log(check)
+
+                    if (!check.success) return interaction.reply({
+                        content: `Error: ${check.message}`,
+                        ephemeral: true
+                    })
+
+                    const config = await client.api.downloadBaseUserConfig(interaction?.user?.id, user?.data?.secret, domain);
+
+                    if (!config) {
+                        return interaction.reply({
+                            ephemeral: true,
+                            content: 'No data received from the server.',
+                        });
+                    }
+
+                    const attachment = new AttachmentBuilder(Buffer.from(JSON.stringify(config)), {
+                        name: 'CordX.sxcu',
+                        description: 'Your CordX/ShareX config.'
+                    });
+
+                    return interaction.reply({
+                        ephemeral: true,
+                        files: [attachment]
+                    })
+                }
 
                 const config = await client.api.downloadBaseUserConfig(interaction?.user?.id, user?.data?.secret);
 

@@ -21,3 +21,14 @@ export const SubCommandOptions = {
     Number: 10,
     Attachment: 11,
 }
+
+export interface IStatusCommand {
+    success: boolean
+    response: {
+        available: boolean
+        started: string
+        ended: string
+        responseTime: number
+        roundTrip: number
+    }
+}

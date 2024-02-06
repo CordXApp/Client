@@ -23,3 +23,15 @@ export interface Responses {
     user?: User
     domain?: CustomDomains
 }
+
+export interface UserData {
+    id: string
+    owner: boolean
+    admin: boolean
+    moderator: boolean
+    banned: boolean
+    verified: boolean
+    beta: boolean
+    active_domain: string
+    domains: any[]
+}

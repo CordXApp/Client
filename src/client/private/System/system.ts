@@ -78,6 +78,13 @@ export default class System extends SlashBase {
                             ]
                         }
                     ]
+                },
+                {
+                    name: 'rules',
+                    description: 'Send our server rules message.',
+                    example: '/system rules',
+                    required: false,
+                    type: SubCommandOptions.SubCommand
                 }
             ],
         })
@@ -88,7 +95,7 @@ export default class System extends SlashBase {
         interaction: ChatInputCommandInteraction<CacheType>,
     ): Promise<any> {
 
-        switch(interaction.options.getSubcommand()) {
+        switch (interaction.options.getSubcommand()) {
 
             case 'help': {
 
@@ -211,7 +218,7 @@ export default class System extends SlashBase {
                 }
             }
 
-            break;
+                break;
 
             case 'versions': {
 
@@ -228,8 +235,8 @@ export default class System extends SlashBase {
                 const proxy = "https://github.com/CordXApp/Proxy";
                 const web = "https://cordx.lol";
 
-                switch(interaction.options.get('branch')?.value) {
-                    
+                switch (interaction.options.get('branch')?.value) {
+
                     case 'current': {
                         return interaction.reply({
                             embeds: [
@@ -364,7 +371,117 @@ export default class System extends SlashBase {
                 }
             }
 
-            break;
+                break;
+
+            case 'rules': {
+
+                const member = await interaction.guild?.members.cache.get(interaction.user.id);
+
+                if (!member?.permissions.has('ManageGuild')) return interaction.reply({
+                    embeds: [
+                        new client.Embeds({
+                            title: 'CordX: System',
+                            description: 'You do not have the required permissions to run this command.',
+                            color: client.config.EmbedColors.error,
+                        })
+                    ]
+                })
+
+                const admins = await interaction.guild?.roles.fetch('871275518794801193');
+                const mods = await interaction.guild?.roles.fetch('1136100365243260959');
+
+                return interaction.reply({
+                    embeds: [
+                        new client.Embeds({
+                            title: 'Server Rules',
+                            description: 'Here are the rules for our server, please make sure to follow them.',
+                            color: client.config.EmbedColors.base,
+                            fields: [
+                                {
+                                    name: '1️⃣. Support',
+                                    value: 'Please do not mention or DM any of our server, staff or support team members unless you have a valid reason to do so. If you need help, please open a ticket in the <#1201632969845112912> channel or ask the community for help in <#1134399965150597240>',
+                                    inline: false
+                                },
+                                {
+                                    name: '2️⃣. Spamming',
+                                    value: 'Please do not spam in any of the channels, this includes sending multiple messages in a short period of time or sending the same message multiple times.',
+                                    inline: false
+                                },
+                                {
+                                    name: '3️⃣. NSFW Content',
+                                    value: 'Please do not send any NSFW content in any of the channels, this includes images, videos, links or text.',
+                                    inline: false
+                                },
+                                {
+                                    name: '4️⃣. Advertising',
+                                    value: 'Please do not advertise any other Discord servers, websites, products or services in any of the channels.',
+                                    inline: false
+                                },
+                                {
+                                    name: '5️⃣. Respect',
+                                    value: 'Treat others in this server with respect, everyone here is equal and no one is worth less than another. If you got a problem with someone, either report them to our moderation team or take it to dm\'s.Violation of this rule will result in a 24 hour ban from the server, violating the rule again afterwards will result in a permanent ban from the server.',
+                                    inline: false
+                                },
+                                {
+                                    name: '6️⃣. Language',
+                                    value: 'Please keep the language in the server to English only, this is to ensure that everyone can understand each other.',
+                                    inline: false
+                                },
+                                {
+                                    name: '7️⃣. Bots',
+                                    value: 'Please do not spam commands in any of the channels, this includes commands for any of the bots in the server.',
+                                    inline: false
+                                },
+                                {
+                                    name: '8️⃣. Moderation',
+                                    value: `Please do not argue with the moderation team, if you have a problem with a moderation action, please report it to a ${admins} team member and they will look into it.`,
+                                    inline: false
+                                },
+                                {
+                                    name: '9️⃣. Alt Accounts',
+                                    value: 'We do not allow alt accounts in our server as a way to evade bans or mutes. If they’re being used in a respectful manor to communicate in our server however is totally fine',
+                                    inline: false
+                                },
+                                {
+                                    name: '🔟. Rule Loopholes',
+                                    value: 'Please do not try to find loopholes in the rules, if you are caught doing so, you will be punished accordingly.',
+                                    inline: false
+                                },
+                                {
+                                    name: '🔁. Punishments',
+                                    value: 'If you violate any of the rules, you will be punished accordingly. This can range from a warning to a permanent ban from the server.',
+                                    inline: false
+                                },
+                                {
+                                    name: '🔢. Reporting',
+                                    value: `If you see someone breaking the rules, please report them to a member of the ${admins} or ${mods} team and they will look into it.`,
+                                    inline: false
+                                },
+                                {
+                                    name: '🔡. Appeals',
+                                    value: 'If you feel like you have been punished unfairly, you can appeal your punishment in the <#1201632969845112912> channel.',
+                                    inline: false
+                                },
+                                {
+                                    name: '🔠. Staff',
+                                    value: 'Please do not ask to become a staff member, we will reach out to you if we feel like you would be a good fit for our team.',
+                                    inline: false
+                                },
+                                {
+                                    name: '🔡. Info',
+                                    value: '***We may add new rules, remove existing ones or change existing ones at any given time when we feel necessary. Please check back here regularly to stay up-to-date to the rules.***',
+                                    inline: false
+                                },
+                                {
+                                    name: '🔚. Conclusion',
+                                    value: 'Please make sure to follow the rules and have a great time in our server.',
+                                    inline: false
+                                }
+                            ]
+                        })
+                    ]
+                })
+            }
 
             default: {
                 return interaction.reply({
