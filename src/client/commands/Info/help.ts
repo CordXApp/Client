@@ -78,6 +78,62 @@ export default class About extends SlashBase {
                                 .join(" ")}`,
                             inline: true,
                         },
+                        {
+                            name: "Fun Commands",
+                            value: `${client.commands
+                                .category('Fun')
+                                .map((cmd: any) => `\`${cmd.props.name}\``)
+                                .join(" ")}`,
+                            inline: true,
+                        },
+                        {
+                            name: 'Report Commands',
+                            value: `${client.commands
+                                .category('Reports')
+                                .map((cmd: any) => `\`${cmd.props.name}\``)
+                                .join(" ")}`,
+                            inline: true,
+                        },
+                        {
+                            name: 'ShareX Commands',
+                            value: `${client.commands
+                                .category('Sharex')
+                                .map((cmd: any) => `\`${cmd.props.name}\``)
+                                .join(" ")}`,
+                            inline: true,
+                        },
+                        {
+                            name: 'Users Commands',
+                            value: `${client.commands
+                                .category('Users')
+                                .map((cmd: any) => `\`${cmd.props.name}\``)
+                                .join(" ")}`,
+                            inline: true,
+                        },
+                        {
+                            name: 'Moderation Commands',
+                            value: `${client.private
+                                .category('Moderators')
+                                .map((cmd: any) => `\`${cmd.props.name}\``)
+                                .join(" ")}`,
+                            inline: true,
+                        },
+                        {
+                            name: 'Dev Commands',
+                            value: `${client.private
+                                .category('Developers')
+                                .map((cmd: any) => `\`${cmd.props.name}\``)
+                                .join(" ")}`,
+                            inline: true,
+                        },
+                        {
+                            name: 'System Commands',
+                            value: `${client.private
+                                .category('System')
+                                .map((cmd: any) => `\`${cmd.props.name}\``)
+                                .join(" ")}`,
+                            inline: true,
+                        }
                     ],
                 }),
             ],

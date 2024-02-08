@@ -27,7 +27,7 @@ export default class Profile extends SlashBase {
                 {
                     name: 'view',
                     description: 'View your CordX/ShareX config.',
-                    example: '/config stats',
+                    example: '/config view',
                     type: SubCommandOptions.SubCommand,
                     required: false,
                     options: [
@@ -116,20 +116,8 @@ export default class Profile extends SlashBase {
                     embeds: [
                         new client.Embeds({
                             title: 'Error: request failed',
-                            description: 'There was an error while fetching your profile/data.',
+                            description: 'There was an error while fetching your profile/data, you should login to our website to create your account and resolve this error.',
                             color: client.config.EmbedColors.error,
-                            fields: [
-                                {
-                                    name: 'Status',
-                                    value: `\`${user?.status}\``,
-                                    inline: false
-                                },
-                                {
-                                    name: 'Message',
-                                    value: `\`${user?.message}\``,
-                                    inline: false
-                                }
-                            ]
                         })
                     ]
                 })
@@ -197,7 +185,7 @@ export default class Profile extends SlashBase {
                     embeds: [
                         new client.Embeds({
                             title: 'Error: request failed',
-                            description: 'There was an error while fetching your profile/data.',
+                            description: 'There was an error while fetching your profile/data, you should login to our website to create your account and resolve this error.',
                             color: client.config.EmbedColors.error,
                             fields: [
                                 {
