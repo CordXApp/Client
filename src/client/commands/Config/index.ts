@@ -134,12 +134,13 @@ export default class Profile extends SlashBase {
                     ]
                 })
 
-                if (domain.includes('http://') || domain.includes('https://')) return interaction.reply({
-                    content: 'Error: Please provide a valid domain without the protocol, we will add it for you internally.',
-                    ephemeral: true
-                })
-
                 if (domain) {
+
+                    if (domain.includes('http://') || domain.includes('https://')) return interaction.reply({
+                        content: 'Error: Please provide a valid domain without the protocol, we will add it for you internally.',
+                        ephemeral: true
+                    })
+
                     const check = await client.db.getOneUserDomain(interaction?.user?.id, domain);
 
                     if (!check.success) return interaction.reply({
@@ -214,12 +215,13 @@ export default class Profile extends SlashBase {
                     ]
                 })
 
-                if (domain.includes('http://') || domain.includes('https://')) return interaction.reply({
-                    content: 'Error: Please provide a valid domain without the protocol, we will add it for you internally.',
-                    ephemeral: true
-                })
-
                 if (domain) {
+
+                    if (domain.includes('http://') || domain.includes('https://')) return interaction.reply({
+                        content: 'Error: Please provide a valid domain without the protocol, we will add it for you internally.',
+                        ephemeral: true
+                    })
+
                     const check = await client.db.getOneUserDomain(interaction?.user?.id, domain);
 
                     console.log(check)

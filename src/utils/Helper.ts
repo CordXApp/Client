@@ -1,4 +1,5 @@
 const { UptimeClient } = require("@infinitylist/uptime")
+import { CordXSnowflake } from "@cordxapp/snowflake";
 import { IStatusCommand } from "src/types/utilities";
 import type CordX from "../client/CordX"
 import Logger from "./Logger"
@@ -160,5 +161,34 @@ export class ClientUtils {
         }
 
         return url.protocol === "http:" || url.protocol === "https:";
+    }
+
+    public async generateId(): Promise<string> {
+
+        this.logs.info('Generating a new Report ID');
+
+        const snowflake = new CordXSnowflake({
+            workerId: 1,
+            processId: 1,
+            sequence: 5n,
+            increment: 1,
+            epoch: 1609459200000,
+            debug: true
+        });
+
+        const id = snowflake.generate();
+
+        const exists = await this.client.db.mongo.models.reports?.findOne({ id: id });
+
+        this.logs.info(`Report ID exists: ${exists}`);
+
+        if (exists) {
+            this.logs.info('ID already exists, generating a new one');
+            return await this.generateId();
+        }
+
+        this.logs.info(`Generated new ID: ${id}`);
+
+        return id;
     }
 }

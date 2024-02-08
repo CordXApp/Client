@@ -136,9 +136,21 @@ export default class MessageCreate extends EventBase {
                 `${author} to help keep everyone safe and on the same page, we ask that you keep all support related questions in the public channels and do not communicate via DMs. This allows everyone to see the questions and answers and can help others with similar issues.`,
         })
 
+        if (message.content.startsWith(prefix + 'uploadfailed') || message.content.startsWith(prefix + 'uf')) return message.channel.send({
+            content: message.type === MessageType.Reply ?
+                `${message.mentions.repliedUser} The ***[UPLOAD_FAILED]*** error could happen for a number of reasons:\n\`- you aborted the request\`\n\`- your internet connection is weak\`\n\`- you are using an incorrect config\`\n\nIf you are experiencing issues with uploading please ensure that you are using the correct config and that you have followed the setup process correctly. If you are still experiencing issues please provide a ***FULL SCREENSHOT OR VIDEO*** of your issue or error message, this will help us to better understand and assist you.` :
+                `The ***[UPLOAD_FAILED]*** error could happen for a number of reasons:\n\`- you canceled the upload request\`\n\`- your internet connection is weak\`\n\`- you are using an incorrect config\`\n\nIf you are experiencing issues with uploading please ensure that you are using the correct config and that you have followed the setup process correctly. If you are still experiencing issues please provide a ***FULL SCREENSHOT OR VIDEO*** of your issue or error message, this will help us to better understand and assist you.`,
+        });
+
+        if (message.content.startsWith(prefix + 'insecuressl') || message.content.startsWith(prefix + 'issl')) return message.channel.send({
+            content: message.type === MessageType.Reply ?
+                `${message.mentions.repliedUser} If you are receiving the \`Could not create SSL/TLS secure channel.\` error in ShareX do not panic, the fix is pretty simple:\n\n## 👉 How to fix\n- 1️⃣ Head over to [dotnet.microsoft.com/en-us/download](https://dotnet.microsoft.com/en-us/download)\n- 2️⃣ Download the latest version for windows.\n- 3️⃣ Once the download is complete open/run the new file and follow the install process.\n- 4️⃣ Once the latest version of the \`.NET\` framework is installed you can try your upload again\n\n## 📷 Helpful Images\n- [Insecure SSL Error](<https://cordximg.host/users/510065483693817867/hNhKeXdm.webp>)\n- [Latest Version](<https://cordximg.host/users/510065483693817867/xcAmtoUS.png>)\n- [Install File](<https://cordximg.host/users/510065483693817867/jClN9Val.png>)` :
+                `If you are receiving the \`Could not create SSL/TLS secure channel.\` error in ShareX do not panic, the fix is pretty simple:\n\n## 👉 How to fix\n- 1️⃣ Head over to [dotnet.microsoft.com/en-us/download](<https://dotnet.microsoft.com/en-us/download>)\n- 2️⃣ Download the latest version for windows.\n- 3️⃣ Once the download is complete open/run the new file and follow the install process.\n- 4️⃣ Once the latest version of the \`.NET\` framework is installed you can try your upload again\n\n## 📷 Helpful Images\n- [Insecure SSL Error](<https://cordximg.host/users/510065483693817867/hNhKeXdm.webp>)\n- [Latest Version](<https://cordximg.host/users/510065483693817867/xcAmtoUS.png>)\n- [Install File](<https://cordximg.host/users/510065483693817867/jClN9Val.png>)`,
+        });
+
         if (message.content.startsWith(prefix + 'commands') || message.content.startsWith(prefix + 'cmds')) {
 
-            if (message.channel.id !== '871274622933418045') return message.reply(`You should probably use this command in the <#871204258232553504> channel.`);
+            if (message.channel.id !== '871274622933418045') return message.reply(`You should probably use this command in the <#871274622933418045> channel.`);
 
             return message.channel.send({
                 embeds: [

@@ -1,10 +1,12 @@
 import mongoose, { Schema, model } from 'mongoose';
 
 const UserSchema: Schema = new Schema({
-    id: { type: String, required: true },
+    id: { type: Number, required: true },
+    userId: { type: String, required: true },
     owner: { type: Boolean, required: false, default: false },
     admin: { type: Boolean, required: false, default: true },
     moderator: { type: Boolean, required: false, default: true },
+    developer: { type: Boolean, required: false, default: false },
     banned: { type: Boolean, required: false, default: false },
     verified: { type: Boolean, required: false, default: false },
     beta: { type: Boolean, required: false, default: false },
