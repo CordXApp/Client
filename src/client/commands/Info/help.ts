@@ -71,7 +71,7 @@ export default class About extends SlashBase {
                     color: client.config.EmbedColors.base,
                     fields: [
                         {
-                            name: "Info Commands",
+                            name: "Info",
                             value: `${client.commands
                                 .category("Info")
                                 .map((cmd: any) => `\`${cmd.props.name}\``)
@@ -79,7 +79,7 @@ export default class About extends SlashBase {
                             inline: true,
                         },
                         {
-                            name: "Fun Commands",
+                            name: "Fun",
                             value: `${client.commands
                                 .category('Fun')
                                 .map((cmd: any) => `\`${cmd.props.name}\``)
@@ -87,7 +87,7 @@ export default class About extends SlashBase {
                             inline: true,
                         },
                         {
-                            name: 'Report Commands',
+                            name: 'Reports',
                             value: `${client.commands
                                 .category('Reports')
                                 .map((cmd: any) => `\`${cmd.props.name}\``)
@@ -95,7 +95,7 @@ export default class About extends SlashBase {
                             inline: true,
                         },
                         {
-                            name: 'ShareX Commands',
+                            name: 'ShareX',
                             value: `${client.commands
                                 .category('Sharex')
                                 .map((cmd: any) => `\`${cmd.props.name}\``)
@@ -103,7 +103,7 @@ export default class About extends SlashBase {
                             inline: true,
                         },
                         {
-                            name: 'Users Commands',
+                            name: 'Users',
                             value: `${client.commands
                                 .category('Users')
                                 .map((cmd: any) => `\`${cmd.props.name}\``)
@@ -111,7 +111,7 @@ export default class About extends SlashBase {
                             inline: true,
                         },
                         {
-                            name: 'Moderation Commands',
+                            name: 'Moderation',
                             value: `${client.private
                                 .category('Moderators')
                                 .map((cmd: any) => `\`${cmd.props.name}\``)
@@ -119,7 +119,7 @@ export default class About extends SlashBase {
                             inline: true,
                         },
                         {
-                            name: 'Dev Commands',
+                            name: 'Devs',
                             value: `${client.private
                                 .category('Developers')
                                 .map((cmd: any) => `\`${cmd.props.name}\``)
@@ -127,7 +127,7 @@ export default class About extends SlashBase {
                             inline: true,
                         },
                         {
-                            name: 'System Commands',
+                            name: 'System',
                             value: `${client.private
                                 .category('System')
                                 .map((cmd: any) => `\`${cmd.props.name}\``)

@@ -30,19 +30,58 @@ export default class Ready extends EventBase {
 
         if (!members) return client.logs.error('Failed to fetch members!');
 
-        client.logs.info(`Please wait: verifying staff positions.`);
+        setInterval(async () => {
 
-        for (const member of members.values()) {
-            if (member.user.bot) continue;
-            if (member.roles.cache.has(owner)) await client.db.updateUserPosition(member.id, 'owner').catch((err) => client.logs.error(err.stack));
-            if (member.roles.cache.has(admin)) await client.db.updateUserPosition(member.id, 'admin').catch((err) => client.logs.error(err.stack));
-            if (member.roles.cache.has(moderator)) await client.db.updateUserPosition(member.id, 'mod').catch((err) => client.logs.error(err.stack));
-            if (member.roles.cache.has(support)) await client.db.updateUserPosition(member.id, 'support').catch((err) => client.logs.error(err.stack));
-            if (member.roles.cache.has(developer)) await client.db.updateUserPosition(member.id, 'developer').catch((err) => client.logs.error(err.stack));
-            if (member.roles.cache.has(beta)) await client.db.updateUserPosition(member.id, 'beta').catch((err) => client.logs.error(err.stack));
+            client.logs.info(`Automation: verifying guild users have the correct roles and positions in our system`);
+
+            for (const member of members.values()) {
+                if (member.user.bot) continue;
+                if (member.roles.cache.has(owner)) await client.db.addGuildRoles(member.id, 'owner').catch((err) => client.logs.error(err.message));
+                if (member.roles.cache.has(admin)) await client.db.addGuildRoles(member.id, 'admin').catch((err) => client.logs.error(err.message));
+                if (member.roles.cache.has(moderator)) await client.db.addGuildRoles(member.id, 'moderator').catch((err) => client.logs.error(err.message));
+                if (member.roles.cache.has(support)) await client.db.addGuildRoles(member.id, 'support').catch((err) => client.logs.error(err.message));
+                if (member.roles.cache.has(developer)) await client.db.addGuildRoles(member.id, 'developer').catch((err) => client.logs.error(err.message));
+                if (member.roles.cache.has(beta)) await client.db.addGuildRoles(member.id, 'beta').catch((err) => client.logs.error(err.message));
+
+                if (!member.roles.cache.has(owner)) await client.db.removeGuildRoles(member.id, 'owner').catch((err) => client.logs.error(err.message));
+                if (!member.roles.cache.has(admin)) await client.db.removeGuildRoles(member.id, 'admin').catch((err) => client.logs.error(err.message));
+                if (!member.roles.cache.has(moderator)) await client.db.removeGuildRoles(member.id, 'moderator').catch((err) => client.logs.error(err.message));
+                if (!member.roles.cache.has(support)) await client.db.removeGuildRoles(member.id, 'support').catch((err) => client.logs.error(err.message));
+                if (!member.roles.cache.has(developer)) await client.db.removeGuildRoles(member.id, 'developer').catch((err) => client.logs.error(err.message));
+                if (!member.roles.cache.has(beta)) await client.db.removeGuildRoles(member.id, 'beta').catch((err) => client.logs.error(err.message));
+
+                await client.db.verifyUserModel(member.id).catch((err) => client.logs.error(err.message));
+            }
+
+            client.logs.ready(`Automation: verification complete.`);
+        }, 3 * 60 * 60 * 1000) // runs every 3 hours
+
+        await client.db.correctIdentifiers();
+
+        /**client.logs.info(`Automation: validating all user models in the database`);
+
+        for (const guild of client.guilds.cache.values()) {
+            const members = await guild.members.fetch();
+
+            for (const member of members.values()) {
+                const user = member.user;
+                if (user.bot) continue;
+                await client.db.verifyUserModel(user.id).catch((err) => client.logs.error(err.message));
+            }
         }
 
-        client.logs.ready(`Success: all staff, verified and beta positions have been validated.`);
+        client.logs.ready(`Automation: successfully validated all user models.`);*/
+
+        /**setInterval(async () => {
+            client.logs.info(`Automation: validating all user models in the database`);
+
+            for (const user of client.users.cache.values()) {
+                if (user.bot) return;
+                await client.db.verifyUserModel(user.id).catch((err) => client.logs.error(err.message));
+            }
+
+            client.logs.ready(`Automation: validated all user models in the database`);
+        }, 60000)*/
 
         let presences = [
             {

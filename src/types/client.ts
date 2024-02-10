@@ -1,4 +1,5 @@
 import type { BitFieldResolvable, GatewayIntentsString } from "discord.js"
+import { Document } from "mongoose"
 
 export interface IConfig {
     intents: BitFieldResolvable<GatewayIntentsString, number>
@@ -14,6 +15,9 @@ export interface IConfig {
     Icons: {
         loading: string
         eightBall: string;
+        snaily: {
+            logo: string;
+        }
     }
     Discord: {
         mainToken: string
@@ -33,4 +37,18 @@ export interface IHelpConfig {
         domValidation: string;
     }
     spellCheck: string[]
+}
+
+export interface ErrorSchema extends Document {
+    state: 'OPEN' | 'INVESTIGATING' | 'RESOLVED' | 'IGNORED';
+    type: 'AUTH_FLOW' | 'API' | 'UPLOADS' | 'INTERNAL' | 'DATABASE' | 'CACHE' | 'UNKNOWN';
+    status: string;
+    info: string;
+    reportId: string;
+    reporter: string;
+    error: any;
+    createdAt: string;
+    updatedAt: string;
+    resolvedAt: string;
+    ignoredAt: string;
 }

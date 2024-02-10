@@ -1,5 +1,6 @@
 import mongo from "mongoose"
 import type CordX from "../client/CordX"
+import { CordXErrors } from "../utils/ErrorSchema"
 import { ReportModel } from "../utils/ReportSchema"
 import { UserModel } from "../utils/UserSchema"
 import Logger from "../utils/Logger"
@@ -11,6 +12,7 @@ export class DatabaseManager {
     public mongo: typeof mongo
     public reports: typeof ReportModel
     public users: typeof UserModel
+    public snaily: typeof CordXErrors
 
     constructor(client: CordX, url: string) {
         this.logs = new Logger("Database")
@@ -19,6 +21,7 @@ export class DatabaseManager {
         this.mongo = mongo
         this.reports = ReportModel
         this.users = UserModel
+        this.snaily = CordXErrors
     }
 
     public async init(): Promise<void> {
@@ -68,70 +71,196 @@ export class DatabaseManager {
         }
     }
 
-    public async updateUserPosition(id: string, position: 'owner' | 'admin' | 'mod' | 'support' | 'developer' | 'beta'): Promise<void> {
+    public async addGuildRoles(id: string, position: 'owner' | 'admin' | 'moderator' | 'support' | 'developer' | 'beta'): Promise<void> {
         try {
 
+            const name = this.client.users.cache.get(id as string)?.username ? this.client.users.cache.get(id as string)?.username : id;
             const user = await this.mongo.models.cordxUsers?.findOne({ id: Number(id) });
-
-            const name = this.client.users.cache.get(`${id}`)?.username ? this.client.users.cache.get(`${id}`)?.username : id;
 
             if (user == null || !user) return this.logs.info(`Unable to locate user: ${name}`);
 
-            if (position === 'owner') user.owner = true;
-            if (position === 'admin') user.admin = true;
-            if (position === 'mod') user.moderator = true;
-            if (position === 'support') user.support = true;
-            if (position === 'developer') user.developer = true;
-            if (position === 'beta') user.beta = true;
+            if (!user.userId) this.mongo.models.cordxUsers?.findOneAndUpdate({
+                id: Number(id)
+            }, {
+                $set: {
+                    userId: id as string
+                }
+            }, {
+                setDefaultsOnInsert: true
+            }).then(() => {
+                this.logs.info(`Updated user: ${name}, they were missing the userId field.`);
+            }).catch((error: Error) => {
+                this.logs.error(`Failed to update the "userId" field for user: ${name}`);
+                this.logs.error(error.message);
+                throw error
+            });
 
-            if (!user.userId) user.userId = id as string;
+            if (user[position]) return;
 
-            await user.save().catch((err: Error) => { throw err });
+            await this.mongo.models.cordxUsers?.findOneAndUpdate({
+                id: Number(id)
+            }, {
+                $set: {
+                    [position]: true
+                }
+            }, {
+                new: true,
+                setDefaultsOnInsert: true
+            }).then(() => {
+                this.logs.info(`Added user: ${name} to ${position}`);
+            }).catch((error: Error) => {
+                this.logs.error(`Failed to add user: ${name} to ${position}: ${error.message}`);
+                throw error;
+            });
 
-            const updatedUser = await this.mongo.models.cordxUsers?.findOne({ id: Number(id) });
+        } catch (error: any) { throw error }
+    }
 
-            if (position === 'admin' && updatedUser?.admin) return;
-            if (position === 'mod' && updatedUser?.moderator) return;
-            if (position === 'support' && updatedUser?.support) return;
+    public async removeGuildRoles(id: string, position: 'owner' | 'admin' | 'moderator' | 'support' | 'developer' | 'beta'): Promise<void> {
+        try {
 
-            this.client.logs.info(`Added user: ${name} to position: ${position}`);
+            const name = this.client.users.cache.get(id as string)?.username ? this.client.users.cache.get(id as string)?.username : id;
+            const user = await this.mongo.models.cordxUsers?.findOne({ id: Number(id) });
+
+            if (user == null || !user) return this.logs.info(`Unable to locate user: ${name}`);
+
+            if (!user[position]) return;
+
+            await this.mongo.models.cordxUsers?.findOneAndUpdate({
+                id: Number(id)
+            }, {
+                $set: {
+                    [position]: false
+                }
+            }, {
+                new: true,
+                setDefaultsOnInsert: true
+            }).then(() => {
+                this.logs.info(`Removed user: ${name} from ${position}`);
+            }).catch((error: Error) => {
+                this.logs.error(`Failed to remove user: ${name} from ${position}: ${error.message}`);
+                throw error;
+            });
 
         } catch (error: any) { throw error }
     }
 
     public async verifyUserModel(id: string): Promise<void> {
         try {
-            const user = await this.mongo.models.cordxUsers?.findOne({ id: id });
+            const user = await this.mongo.models.cordxUsers?.findOne({ id: Number(id) });
 
-            if (!user) {
+            const updates: any = {};
 
-                const newUser = new this.mongo.models.cordxUsers!({
-                    id: Number(id),
-                    userId: id as string,
-                    owner: false,
-                    admin: false,
-                    moderator: false,
-                    support: false,
-                    developer: false,
-                    banned: false,
-                    verified: false,
-                    beta: false,
-                    active_domain: 'none',
-                    domains: []
-                });
+            if (!user.userId) updates.userId = id as string;
+            if (user.owner === null || user.owner === undefined) updates.owner = false;
+            if (user.admin === null || user.admin === undefined) updates.admin = false;
+            if (user.moderator === null || user.moderator === undefined) updates.moderator = false;
+            if (user.support === null || user.support === undefined) updates.support = false;
+            if (user.developer === null || user.developer === undefined) updates.developer = false;
+            if (user.banned === null || user.banned === undefined) updates.banned = false;
+            if (user.verified === null || user.verified === undefined) updates.verified = false;
+            if (user.beta === null || user.beta === undefined) updates.beta = false;
+            if (!user.active_domain) updates.active_domain = 'none';
+            if (!user.domains) updates.domains = [];
 
-                await newUser.save().then(() => {
-                    this.logs.info(`Created user: ${id}`);
-                }).catch((error: Error) => { throw error; })
+            const response = await fetch(`https://discord.com/api/v9/users/${Number(id)}`, {
+                headers: {
+                    'Authorization': `Bot ${this.client.token}`,
+                }
+            });
+
+            if (!response.ok) return this.logs.error(`Failed to fetch user: ${Number(id).toString()} from Discord API`);
+
+            const duser: any = await response.json();
+            console.log(duser.username)
+
+            if (Object.keys(updates).length === 0) return;
+
+            this.logs.info(`Detected missing fields for user: ${Number(id)}`);
+
+            const originalUser = { ...user.toObject() };
+
+            for (const key in updates) {
+                user[key] = updates[key];
+                user.markModified(key);
             }
 
-            if (user && !user.userId) {
-                user.userId = id as string;
-                await user.save().then(() => {
-                    this.logs.info(`Updated user: ${id}, they were missing the userId field.`);
-                }).catch((error: Error) => { throw error; })
+            for (const key in updates) {
+                if (originalUser[key] === undefined || originalUser[key] === null || originalUser[key] === false || originalUser[key] !== user[key]) {
+                    this.logs.info(`Field ${key} changed from ${originalUser[key] === undefined ? 'undefined' : originalUser[key] === null ? 'null' : originalUser[key] === false ? 'false' : originalUser[key]} to ${user[key] === undefined ? 'undefined' : user[key] === null ? 'null' : user[key] === false ? 'false' : user[key]}`);
+                }
             }
 
+            await user.save().catch((error: Error) => this.logs.error(error.message));
+
+            this.logs.info(`Updated user: ${id} successfully.`);
+
+        } catch (error: any) { throw error };
+    }
+
+    public async correctIdentifiers(): Promise<void> {
+        const incorrect = await this.mongo.models.cordxUsers?.find();
+        const correct = await this.mongo.models.oauth?.find();
+
+        if (!incorrect || !correct) return;
+
+        for (const i of incorrect) {
+            for (const c of correct) {
+                if (Number(c.id) === i.id) {
+                    this.logs.info(`Match found for user: ${i.id} with correct identifier: ${c.id}`);
+                    i.userId = c.id as string;
+                    i.markModified('userId');
+                    await i.save().then(() => {
+                        this.logs.info(`Updated user: ${i.id} with correct identifier: ${c.id}`);
+                    }).catch((error: Error) => this.logs.error(error.message));
+                    break;
+                }
+            }
+        }
+    }
+
+    public async verifyAllUserModels(): Promise<void> {
+        try {
+            const users = await this.mongo.models.cordxUsers?.find();
+
+            if (!users) return this.logs.info("Bruhh, database go brrrrr!!!");
+
+            for (const user of users) {
+                const updates: any = {};
+
+                if (!user.userId) updates.userId = user.id as string;
+                if (user.owner === null || user.owner === undefined) updates.owner = false;
+                if (user.admin === null || user.admin === undefined) updates.admin = false;
+                if (user.moderator === null || user.moderator === undefined) updates.moderator = false;
+                if (user.support === null || user.support === undefined) updates.support = false;
+                if (user.developer === null || user.developer === undefined) updates.developer = false;
+                if (user.banned === null || user.banned === undefined) updates.banned = false;
+                if (user.verified === null || user.verified === undefined) updates.verified = false;
+                if (user.beta === null || user.beta === undefined) updates.beta = false;
+                if (!user.active_domain) updates.active_domain = 'none';
+                if (!user.domains) updates.domains = [];
+
+                if (Object.keys(updates).length === 0) continue;
+
+                this.logs.info(`Detected missing fields for user: ${Number(user.id)}`);
+
+                const originalUser = { ...user.toObject() };
+
+                for (const key in updates) {
+                    user[key] = updates[key];
+                    user.markModified(key);
+                }
+
+                for (const key in updates) {
+                    if (originalUser[key] === undefined || originalUser[key] === null || originalUser[key] === false || originalUser[key] !== user[key]) {
+                        this.logs.info(`Field ${key} changed from ${originalUser[key] === undefined ? 'undefined' : originalUser[key] === null ? 'null' : originalUser[key] === false ? 'false' : originalUser[key]} to ${user[key] === undefined ? 'undefined' : user[key] === null ? 'null' : user[key] === false ? 'false' : user[key]}`);
+                    }
+                }
+
+                await user.save().catch((error: Error) => this.logs.error(error.message));
+
+                this.logs.info(`Updated user: ${user.id} successfully.`);
+            }
         } catch (error: any) { throw error };
     }
 

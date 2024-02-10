@@ -12,6 +12,6 @@ const ReportSchema: Schema = new Schema({
     timestamps: true
 });
 
-const ReportModel = mongoose.models.reports || model('reports', ReportSchema);
+const ReportModel = mongoose.models.cordxReports || model('cordxReports', ReportSchema);
 
 export { ReportModel, ReportSchema }
