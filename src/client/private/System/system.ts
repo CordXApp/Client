@@ -85,6 +85,13 @@ export default class System extends SlashBase {
                     example: '/system rules',
                     required: false,
                     type: SubCommandOptions.SubCommand
+                },
+                {
+                    name: 'info',
+                    description: 'Send our server info message.',
+                    example: '/system info',
+                    required: false,
+                    type: SubCommandOptions.SubCommand
                 }
             ],
         })

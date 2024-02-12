@@ -15,9 +15,6 @@ export interface IConfig {
     Icons: {
         loading: string
         eightBall: string;
-        snaily: {
-            logo: string;
-        }
     }
     Discord: {
         mainToken: string

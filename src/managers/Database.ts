@@ -51,6 +51,61 @@ export class DatabaseManager {
         }
     }
 
+    public async monitorDomains(): Promise<void> {
+        try {
+            const users = await this.mongo.models.cordxUsers?.find();
+            if (!users) return this.logs.error("Failed to fetch users from database.");
+
+            this.logs.info("Monitoring domains to check for verification status.");
+
+            setInterval(async () => {
+
+                const thirtyDaysAgo = Date.now() - 30 * 24 * 60 * 60 * 1000;
+
+                for (const user of users) {
+                    if (!user.domains) continue;
+                    for (const domain of user.domains) {
+                        if (domain.createdAt < thirtyDaysAgo && !domain.verified) {
+                            this.logs.info(`Domain: ${domain.name} for user: ${user.id} was not verified within 30 days.`);
+                            user.domains = user.domains.filter((d: any) => d.name !== domain.name);
+                            await user.save().catch((error: Error) => this.logs.error(error.message));
+                        }
+                    }
+                }
+            }, 24 * 60 * 60 * 1000)
+        } catch (error: any) {
+            return this.logs.error(error.stack)
+        }
+    }
+
+    public async updateDomainSchema(): Promise<void> {
+        try {
+            const users = await this.mongo.models.cordxUsers?.find();
+            if (!users) return this.logs.error("Failed to fetch users from database.");
+
+            for (const user of users) {
+                if (!user.domains) continue;
+                for (const domain of user.domains) {
+                    if (domain.verified) continue;
+
+                    if (!domain.createdAt) {
+                        domain.createdAt = Date.now();
+                        this.logs.info(`Domain: ${domain.name} for user: ${user.id} has been updated.`)
+                        await user.save().catch((error: Error) => this.logs.error(error.message));
+                    }
+
+                    if (!domain.updatedAt) {
+                        domain.updatedAt = Date.now();
+                        this.logs.info(`Domain: ${domain.name} for user: ${user.id} has been updated.`)
+                        await user.save().catch((error: Error) => this.logs.error(error.message));
+                    }
+                }
+            }
+        } catch (error: any) {
+            return this.logs.error(error.stack)
+        }
+    }
+
     public async getUser(id: string): Promise<any> {
         try {
             const user = await this.mongo.models.cordxUsers?.findOne({ id: id });

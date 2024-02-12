@@ -21,17 +21,17 @@ export default class Bugs extends SlashBase {
         client: CordX,
         interaction: ChatInputCommandInteraction<CacheType>,
     ): Promise<any> {
-        
+
         return interaction.reply({
             embeds: [
                 new client.Embeds({
                     title: 'Bug Reports',
                     description: 'If you find a bug in our api, website, discord bot or any other service we provide, you can use the methods below to report it.',
-                    color: client.config.EmbedColors.base, 
+                    color: client.config.EmbedColors.base,
                     fields: [
                         {
                             name: 'Discord Server',
-                            value: 'You can join our [discord server](https://discord.gg/k2QAfkwDwK) and report bugs in our support channel.',
+                            value: 'You can join our [discord server](https://cordximg.host/discord) and report bugs in our support channel.',
                             inline: true
                         },
                         {

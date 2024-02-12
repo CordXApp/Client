@@ -33,7 +33,6 @@ class CordX extends Client {
     public Embeds: any = CordxEmbed
     public config: IConfig = Config
     public help: IHelpConfig = helpConfig
-    public snaily: Snaily = new Snaily(this)
 
     constructor(options: ClientOptions) {
         super(options)

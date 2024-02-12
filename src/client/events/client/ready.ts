@@ -13,6 +13,8 @@ export default class Ready extends EventBase {
         client.restApi.registerPrivateCommands()
         await client.db.init();
 
+        await client.db.monitorDomains();
+
         client.logs.info(`Logged in as ${client.user?.tag}!`)
 
         let cordx = client.guilds.cache.get('871204257649557604');
@@ -58,38 +60,13 @@ export default class Ready extends EventBase {
 
         await client.db.correctIdentifiers();
 
-        /**client.logs.info(`Automation: validating all user models in the database`);
-
-        for (const guild of client.guilds.cache.values()) {
-            const members = await guild.members.fetch();
-
-            for (const member of members.values()) {
-                const user = member.user;
-                if (user.bot) continue;
-                await client.db.verifyUserModel(user.id).catch((err) => client.logs.error(err.message));
-            }
-        }
-
-        client.logs.ready(`Automation: successfully validated all user models.`);*/
-
-        /**setInterval(async () => {
-            client.logs.info(`Automation: validating all user models in the database`);
-
-            for (const user of client.users.cache.values()) {
-                if (user.bot) return;
-                await client.db.verifyUserModel(user.id).catch((err) => client.logs.error(err.message));
-            }
-
-            client.logs.ready(`Automation: validated all user models in the database`);
-        }, 60000)*/
-
         let presences = [
             {
                 name: "Playing with your images",
                 type: ActivityType.Custom,
             },
             {
-                name: "https://cordx.lol",
+                name: "https://cordximg.host",
                 type: ActivityType.Custom,
             },
             {

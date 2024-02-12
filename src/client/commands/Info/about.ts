@@ -36,12 +36,12 @@ export default class About extends SlashBase {
                         },
                         {
                             name: 'Created By',
-                            value: `[CordX Team](https://cordx.lol/team)`,
+                            value: `[CordX Team](https://cordximg.host/team)`,
                             inline: true
                         },
                         {
                             name: 'Support Server',
-                            value: `[CordX Support](https://cordx.lol/discord)`,
+                            value: `[CordX Support](https://cordximg.host/discord)`,
                             inline: true
                         },
                         {
