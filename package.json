@@ -1,0 +1,45 @@
+{
+    "name": "@cordx/client",
+    "version": "4.0.0",
+    "main": "src/app.ts",
+    "author": "Toxic Dev",
+    "license": "UNLICENSED",
+    "scripts": {
+        "build": "tsc",
+        "db:init": "prisma init",
+        "db:create": "prisma generate",
+        "db:push": "prisma db push",
+        "dev": "nodemon src/app.ts",
+        "dev:build": "nodemon build/app.js",
+        "start:build": "node build/app.js",
+        "start": "ts-node src/app.ts"
+    },
+    "dependencies": {
+        "@aws-sdk/client-s3": "^3.556.0",
+        "@fastify/autoload": "^5.8.0",
+        "@fastify/cors": "^9.0.1",
+        "@prisma/client": "^5.12.1",
+        "axios": "^1.5.1",
+        "aws-sdk": "^2.1603.0",
+        "chalk": "^5.3.0",
+        "discord.js": "^14.14.1",
+        "discord-interactions": "^3.4.0",
+        "fastify": "^4.26.2",
+        "dotenv": "^16.3.1",
+        "moment": "^2.29.4",
+        "node-fetch": "^2.6.1",
+        "glob": "^10.3.10",
+        "prisma": "^5.12.1"
+    },
+    "devDependencies": {
+        "@cordxapp/client": "0.4.18",
+        "@cordxapp/instatus": "0.4.18",
+        "@cordxapp/pastes": "0.4.18",
+        "@cordxapp/snowflake": "0.4.18",
+        "@types/node": "^20.5.9",
+        "@infinitylist/uptime": "0.1.7-alpha.7",
+        "nodemon": "^3.0.1",
+        "ts-node": "^10.9.1",
+        "typescript": "5.2.2"
+    }
+}

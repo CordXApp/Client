@@ -1,0 +1,139 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MYSQL_URI")
+}
+
+model users {
+  id         String      @id @default(uuid())
+  avatar     String?
+  banner     String?
+  username   String?
+  globalName String?
+  userid     String?     @unique
+  secret     String?     @db.Text
+  folder     String?     @db.Text
+  webhook    String?     @db.Text
+  cookie     String?     @db.Text
+  owner      Boolean?    @default(false)
+  admin      Boolean?    @default(false)
+  staff      Boolean?    @default(false)
+  banned     Boolean?    @default(false)
+  developer  Boolean?    @default(false)
+  verified   Boolean?    @default(false)
+  domain     String?     @db.Text
+  domains    domains[]
+  images     images[]
+  key        String?     @unique
+  signature  signatures? @relation(fields: [key], references: [key])
+}
+
+model images {
+  id       String    @id @default(uuid())
+  userid   String
+  fileid   String
+  filename String?
+  name     String?
+  type     String?
+  size     Int?
+  date     DateTime? @db.Date
+  users    users?    @relation(fields: [userid], references: [userid])
+}
+
+model domains {
+  id        String   @id @default(uuid())
+  name      String   @db.Text
+  content   String   @db.LongText
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  users     users?   @relation(fields: [user], references: [userid])
+  user      String?
+}
+
+model signatures {
+  id   Int    @id @default(autoincrement())
+  key  String @unique @default(uuid())
+  user users?
+}
+
+model webhooks {
+  id      String  @id
+  token   String  @db.LongText
+  name    String  @db.Text
+  enabled Boolean
+}
+
+model errors {
+  id        String    @id @default(uuid())
+  state     ErrStates @default(OPEN)
+  type      ErrTypes  @default(UNKNOWN_ERR)
+  status    String
+  message   String    @db.LongText
+  reporter  String
+  error_obj Json
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model partners {
+  id     String @id @default(uuid())
+  name   String @db.Text
+  image  String @db.Text
+  bio    String @db.Text
+  url    String @db.Text
+  social String @db.Text
+}
+
+model reports {
+  id        String       @id
+  type      ReportTypes  @default(BUG_REPORT)
+  author    String       @db.Text
+  reason    String       @db.LongText
+  status    ReportStatus @default(OPEN)
+  mod       String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+enum ReportTypes {
+  BUG_REPORT
+  FEATURE_REQUEST
+  PARTNER_REQUEST
+  PARTNER_REPORT
+  USER_REPORT
+  IMAGE_REPORT
+  DOMAIN_REPORT
+  WEBHOOK_REPORT
+}
+
+enum ReportStatus {
+  OPEN
+  INVESTIGATING
+  INFO_NEEDED
+  CLOSED
+}
+
+enum ErrTypes {
+  API_ERR
+  AUTH_ERR
+  BUCKET_ERR
+  CACHE_ERR
+  CLIENT_ERR
+  DB_ERR
+  EXTERNAL_ERR
+  INTERNAL_ERR
+  UPLOADS_ERR
+  USER_ERR
+  WEBHOOK_ERR
+  UNKNOWN_ERR
+}
+
+enum ErrStates {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  IGNORED
+}
