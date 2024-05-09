@@ -1,4 +1,4 @@
-import CordX from "../../client/CordX";
+import CordX from "../../client/cordx";
 
 export interface Client {
     client: CordX;

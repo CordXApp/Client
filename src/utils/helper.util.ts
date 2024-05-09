@@ -5,8 +5,8 @@ import { bucketMessages } from "../generator/messages";
 import { CordXSnowflake } from "@cordxapp/snowflake";
 import { Cooldown } from "../types/client/index";
 import { File } from "../types/spaces/files";
-import type CordX from "../client/CordX"
-import Logger from "./Logger"
+import type CordX from "../client/cordx"
+import Logger from "./logger.util"
 
 export class Utilities {
     public client: CordX
@@ -100,7 +100,7 @@ export class Utilities {
 
                 const id = snowflake.generate();
 
-                const exists = await this.client.db.db.reports.findUnique({ where: { id: id } });
+                const exists = await this.client.db.prisma.reports.findUnique({ where: { id: id } });
 
                 if (exists) {
                     this.logs.warn(`Report ID ${id} already exists, generating a new one...`);

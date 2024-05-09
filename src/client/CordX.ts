@@ -1,22 +1,22 @@
 import { join } from "node:path"
 import Config from "../config/main.config"
 import helpConfig from "../config/help.config"
-import { CordxEmbed } from "../utils/Embeds"
-import { Utilities } from "../utils/Helper"
-import { DatabaseManager } from "../managers/Database"
-import { PermissionsManager } from "../managers/Permissions"
+import { CordxEmbed } from "../utils/embed.util"
+import { Utilities } from "../utils/helper.util"
+import { DatabaseManager } from "../managers/database.manager"
+import { PermissionsManager } from "../managers/permissions.manager"
 import { Client, ClientOptions, Collection } from "discord.js"
 import type { IConfig, IHelpConfig } from "../types/client"
 import { SecurityModule } from "../modules/security.module";
 import { SpacesModule } from "../modules/spaces.module";
-import PrivateManager from "../managers/Private"
-import CommandManager from "../managers/Commands"
-import EventManager from "../managers/Listeners"
+import PrivateManager from "../managers/private.manager"
+import CommandManager from "../managers/command.manager"
+import EventManager from "../managers/listener.manager"
 import { CordXSystem } from "@cordxapp/client";
 import CordXServer from "../server/server";
-import RestManager from "../managers/Restful";
-import { API } from "../managers/API";
-import Logger from "../utils/Logger";
+import RestManager from "../managers/restful.manager";
+import { API } from "../managers/api.manager";
+import Logger from "../utils/logger.util";
 
 class CordX extends Client {
     public api: API = new API(this)

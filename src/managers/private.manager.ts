@@ -2,30 +2,30 @@ import { readdirSync } from "node:fs"
 import { join, sep } from "node:path"
 import { ISlashCommand } from "../types/client/commands"
 import { Collection } from "discord.js"
-import type CordX from "../client/CordX"
-import Logger from "../utils/Logger"
+import type CordX from "../client/cordx"
+import Logger from "../utils/logger.util"
 
-class CommandManager {
-    public logs: Logger = new Logger("[COMMANDS]")
+export default class PrivateManager {
+    public logs: Logger = new Logger("[PRIV COMMANDS]")
     public client: CordX
-    public commands: Collection<string, ISlashCommand> = new Collection()
+    public private: Collection<string, ISlashCommand> = new Collection()
 
     constructor(client: CordX) {
         this.client = client
     }
 
     public get(name: string): ISlashCommand | undefined {
-        return this.commands.get(name)
+        return this.private.get(name)
     }
 
     public category(category: string): Collection<string, ISlashCommand> {
-        return this.commands.filter(
+        return this.private.filter(
             (cmd: ISlashCommand) => cmd.props.category === category,
         )
     }
 
     public get all(): Collection<string, ISlashCommand> {
-        return this.commands
+        return this.private
     }
 
     public load(dir: string): void {
@@ -40,15 +40,13 @@ class CommandManager {
                     command.props.name &&
                     typeof command.props.name === "string"
                 ) {
-                    if (this.commands.get(command.props.name))
+                    if (this.private.get(command.props.name))
                         return this.logs.error(
                             `${command.props.name} is already a used name`,
                         )
-                    this.commands.set(command.props.name, command)
+                    this.private.set(command.props.name, command)
                 }
             }
         })
     }
 }
-
-export default CommandManager

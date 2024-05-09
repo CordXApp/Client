@@ -1,6 +1,6 @@
 import { UptimeClient } from "@infinitylist/uptime"
-import type CordX from "../client/CordX"
-import Logger from "./Logger"
+import type CordX from "../client/cordx"
+import Logger from "./logger.util"
 
 export class UptimeMonitor {
     public logs: Logger

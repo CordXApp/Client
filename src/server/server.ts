@@ -1,6 +1,6 @@
 import path from "node:path";
-import Logger from "../utils/Logger";
-import CordX from "../client/CordX";
+import Logger from "../utils/logger.util";
+import CordX from "../client/cordx";
 import fastify, { FastifyInstance } from "fastify";
 import { version } from "../../package.json";
 

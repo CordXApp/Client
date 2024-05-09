@@ -1,8 +1,8 @@
 import { ActionRow, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, type CacheType, type ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities"
-import { SlashBase } from "../../../../schemas/Command.schema"
+import { SlashBase } from "../../../../schemas/command.schema";
 import { SyncAll } from "../../../../types/spaces/files"
-import type CordX from "../../../CordX"
+import type CordX from "../../../cordx"
 
 export default class aSync extends SlashBase {
     constructor() {
@@ -47,11 +47,6 @@ export default class aSync extends SlashBase {
                     name: 'buckets',
                     description: 'Sync the bucket data for all users.',
                     type: SubCommandOptions.SubCommand,
-                },
-                {
-                    name: 'files',
-                    description: 'Validate your files and correct the count',
-                    type: SubCommandOptions.SubCommand
                 }
             ],
         })
@@ -229,7 +224,7 @@ export default class aSync extends SlashBase {
                             components: []
                         })
 
-                        const promise = Promise.all([client.utils.base.delay(300000), client.db.bucket.sync_all()])
+                        const promise = Promise.all([client.utils.base.delay(300000), client.spaces.actions.sync_all()])
                             .then(async ([, status]: [unknown, { results: SyncAll }]) => {
 
                                 await interaction.editReply({
@@ -352,93 +347,6 @@ export default class aSync extends SlashBase {
                     }
 
                     collector.stop()
-                })
-            }
-
-                break;
-
-            case 'files': {
-                const user = interaction.user.id;
-
-                interaction.reply({
-                    embeds: [
-                        new client.Embeds({
-                            title: 'Admin: correction',
-                            description: `Please wait while we run a correction for ${user}`,
-                            color: client.config.EmbedColors.base,
-                            thumbnail: client.config.Icons.loading
-                        })
-                    ]
-                })
-
-                setTimeout(() => {
-                    interaction.editReply({
-                        embeds: [
-                            new client.Embeds({
-                                title: 'Update: still working on it',
-                                description: 'Wow, there is a lot of mistakes here.',
-                                color: client.config.EmbedColors.warning,
-                                thumbnail: client.config.Icons.loading
-                            })
-                        ]
-                    })
-                }, 5000)
-
-                Promise.all([client.utils.base.delay(10000), client.db.correct.images(user as string)]).then(([_, status]) => {
-
-                    if (!status.success) return interaction.editReply({
-                        embeds: [
-                            new client.Embeds({
-                                title: 'Error: correction failed',
-                                description: status.message,
-                                color: client.config.EmbedColors.error,
-                                fields: [{
-                                    name: 'Valid',
-                                    value: `${status.data.valid} valid files`,
-                                    inline: false
-                                }, {
-                                    name: 'Invalid',
-                                    value: `${status.data.invalid} invalid files`,
-                                    inline: false
-                                }, {
-                                    name: 'Failed',
-                                    value: `${status.data.failed} errors occurred`,
-                                    inline: false
-                                }, {
-                                    name: 'Total',
-                                    value: `${status.data.valid + status.data.invalid + status.data.failed} files processed`,
-                                    inline: false
-                                }]
-                            })
-                        ]
-                    })
-
-                    return interaction.editReply({
-                        embeds: [
-                            new client.Embeds({
-                                title: 'Admin: correction complete',
-                                description: `Successfully corrected image count for ${user}`,
-                                color: client.config.EmbedColors.success,
-                                fields: [{
-                                    name: 'Valid',
-                                    value: `${status.data.valid} valid files`,
-                                    inline: false
-                                }, {
-                                    name: 'Invalid',
-                                    value: `${status.data.invalid} invalid files`,
-                                    inline: false
-                                }, {
-                                    name: 'Failed',
-                                    value: `${status.data.failed} errors occurred`,
-                                    inline: false
-                                }, {
-                                    name: 'Total',
-                                    value: `${status.data.valid + status.data.invalid + status.data.failed} files processed`,
-                                    inline: false
-                                }]
-                            })
-                        ]
-                    })
                 })
             }
         }

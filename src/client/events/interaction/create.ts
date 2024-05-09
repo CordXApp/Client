@@ -1,8 +1,8 @@
 import Discord, { Collection, ApplicationCommandOptionType } from "discord.js"
 import type { CacheType, Interaction, BaseInteraction, PermissionResolvable } from "discord.js"
 import { BasePermissions } from "../../../types/database/users";
-import EventBase from "../../../schemas/Event.schema"
-import type CordX from "../../CordX"
+import EventBase from "../../../schemas/event.schema"
+import type CordX from "../../cordx"
 
 export default class InteractionCreate extends EventBase {
     constructor() {

@@ -4,7 +4,7 @@ import type {
     PermissionResolvable,
     Interaction,
 } from "discord.js"
-import type CordXClient from "../../client/CordX"
+import type CordXClient from "../../client/cordx"
 import { Perms } from "../database/users";
 
 export interface ISlashCommand {

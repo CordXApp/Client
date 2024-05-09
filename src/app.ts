@@ -1,6 +1,6 @@
 import { config as insertEnv } from "dotenv"
 import { Partials } from "discord.js"
-import CordX from "./client/CordX"
+import CordX from "./client/cordx"
 import config from "./config/main.config"
 
 insertEnv()

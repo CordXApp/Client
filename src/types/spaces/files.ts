@@ -32,3 +32,13 @@ export interface SyncBucket {
     failed: number;
     total: number;
 }
+
+export interface ActionRes {
+    synced: number;
+    skipped: number;
+    deleted: number;
+    failed: number;
+    total: number;
+    users: number;
+    muser: number
+}

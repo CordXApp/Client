@@ -1,6 +1,6 @@
 import { readdirSync } from "node:fs"
 import { join, sep } from "node:path"
-import type CordX from "../client/CordX"
+import type CordX from "../client/cordx"
 import type { IEvent } from "../types/client/utilities"
 
 class EventManager {

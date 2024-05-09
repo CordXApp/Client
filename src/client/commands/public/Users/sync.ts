@@ -1,8 +1,8 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, type CacheType, type ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities";
-import { SlashBase } from "../../../../schemas/Command.schema"
+import { SlashBase } from "../../../../schemas/command.schema"
 import { SyncBucket } from "../../../../types/spaces/files";
-import type CordX from "../../../CordX"
+import type CordX from "../../../cordx"
 
 export default class Sync extends SlashBase {
     constructor() {
@@ -75,7 +75,7 @@ export default class Sync extends SlashBase {
                             components: []
                         })
 
-                        const promise = Promise.all([client.utils.base.delay(60000), client.db.bucket.sync(interaction.user.id)])
+                        const promise = Promise.all([client.utils.base.delay(60000), client.spaces.actions.sync_user(interaction.user.id)])
                             .then(async ([, res]: [unknown, { results: SyncBucket }]) => {
 
                                 await interaction.editReply({
@@ -113,7 +113,7 @@ export default class Sync extends SlashBase {
                                 collector.stop()
                             });
 
-                        client.db.emitter.on('progress', async (results) => {
+                        client.spaces.emitter.on('progress', async (results) => {
                             interaction.editReply({
                                 embeds: [
                                     new client.Embeds({

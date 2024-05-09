@@ -1,8 +1,8 @@
 import { REST, Routes, ApplicationCommand } from "discord.js"
 import type { ISlashCommand } from "../types/client/commands"
-import type CordX from "../client/CordX"
+import type CordX from "../client/cordx"
 import config from "../config/main.config"
-import Logger from "../utils/Logger"
+import Logger from "../utils/logger.util"
 
 class RestManager {
     public client: CordX

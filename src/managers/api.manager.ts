@@ -1,7 +1,7 @@
-import type CordX from "../client/CordX"
+import type CordX from "../client/cordx"
 import { UserConfig } from "../types/database/users";
 import { version } from "../../package.json";
-import Logger from "../utils/Logger"
+import Logger from "../utils/logger.util"
 import fetch from 'node-fetch';
 
 export class API {

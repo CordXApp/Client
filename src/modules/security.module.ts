@@ -1,6 +1,6 @@
 import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
-import type CordX from "../client/CordX"
-import Logger from "../utils/Logger"
+import type CordX from "../client/cordx"
+import Logger from "../utils/logger.util"
 
 export class SecurityModule {
     public client: CordX
