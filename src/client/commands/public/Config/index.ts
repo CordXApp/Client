@@ -13,10 +13,9 @@ export default class Profile extends SlashBase {
             category: "Info",
             cooldown: 5,
             permissions: {
-                base: {
-                    client: ['SendMessages'],
-                    user: ['SendMessages']
-                }
+                gate: [],
+                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
+                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
             options: [
                 {

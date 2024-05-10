@@ -1,19 +1,22 @@
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
+import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema";
+import { Report } from "../../../../types/database/reports";
+import { reports } from "@prisma/client";
 import type CordX from "../../../cordx";
 
-export default class Invite extends SlashBase {
+export default class Profile extends SlashBase {
     constructor() {
         super({
-            name: 'invite',
-            description: 'Invite me to your server!',
-            category: 'Info',
+            name: 'profile',
+            description: 'View your profile information and statistics!',
+            category: 'Users',
             cooldown: 5,
             permissions: {
-                gate: [],
                 user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
                 bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
+            options: []
         })
     }
 
@@ -22,8 +25,10 @@ export default class Invite extends SlashBase {
         interaction: ChatInputCommandInteraction<CacheType>
     ): Promise<any> {
 
-        return interaction.reply({
-            content: `Woahh, you want to invite me to your server? Thats\'s awesome! You can do that [here](https://discord.com/oauth2/authorize?client_id=${client.user?.id})`
-        })
+        switch (interaction.options.getSubcommand()) {
+
+
+
+        }
     }
 }

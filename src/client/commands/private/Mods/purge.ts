@@ -3,7 +3,7 @@ import { SubCommandOptions } from "../../../../types/client/utilities"
 import { SlashBase } from "../../../../schemas/command.schema"
 import type CordX from "../../../cordx"
 
-export default class Sync extends SlashBase {
+export default class Purge extends SlashBase {
     constructor() {
         super({
             name: "purge",
@@ -11,10 +11,9 @@ export default class Sync extends SlashBase {
             category: "Moderators",
             cooldown: 5,
             permissions: {
-                base: {
-                    client: ['ManageMessages'],
-                    user: ['ManageMessages']
-                }
+                gate: [],
+                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
+                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
             options: [
                 {

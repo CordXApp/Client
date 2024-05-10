@@ -10,11 +10,10 @@ export default class Bugs extends SlashBase {
             category: 'Info',
             cooldown: 5,
             permissions: {
-                base: {
-                    user: ['SendMessages', 'EmbedLinks'],
-                    client: ['SendMessages', 'EmbedLinks']
-                }
-            }
+                gate: [],
+                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
+                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
+            },
         })
     }
 

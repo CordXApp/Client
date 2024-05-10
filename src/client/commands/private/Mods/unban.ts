@@ -3,7 +3,7 @@ import { SubCommandOptions } from "../../../../types/client/utilities"
 import { SlashBase } from "../../../../schemas/command.schema"
 import type CordX from "../../../cordx"
 
-export default class Sync extends SlashBase {
+export default class Unban extends SlashBase {
     constructor() {
         super({
             name: "unban",
@@ -11,10 +11,9 @@ export default class Sync extends SlashBase {
             category: "Moderators",
             cooldown: 5,
             permissions: {
-                base: {
-                    client: ['BanMembers', 'ModerateMembers'],
-                    user: ['BanMembers', 'ModerateMembers']
-                }
+                gate: [],
+                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
+                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
             options: [
                 {
@@ -37,7 +36,6 @@ export default class Sync extends SlashBase {
         let member = await interaction.options.getString('userid');
         let reason = await interaction.options.getString('reason');
         const logs: any = await interaction?.guild?.channels.cache.find((c) => c.id === '871275213013262397')
-        const perms = await client.perms.checkPermissions(interaction?.guild?.id as string, interaction?.member?.user.id as string, ['MODERATE_MEMBERS']);
 
         if (member === interaction?.member?.user.id) return interaction.reply({
             embeds: [
@@ -55,23 +53,6 @@ export default class Sync extends SlashBase {
                     title: "Error: Invalid User",
                     description: "Are you seriously trying to unban me?.....",
                     color: client.config.EmbedColors.error,
-                })
-            ]
-        })
-
-        if (!perms) return interaction.reply({
-            embeds: [
-                new client.Embeds({
-                    title: "Error: Missing Permissions",
-                    description: "You don't have the required permissions to run this command.",
-                    color: client.config.EmbedColors.error,
-                    fields: [
-                        {
-                            name: "Required Permissions",
-                            value: `\`MODERATE_MEMBERS\``,
-                            inline: true
-                        }
-                    ]
                 })
             ]
         })

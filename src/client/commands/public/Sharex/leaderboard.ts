@@ -14,11 +14,10 @@ export default class Leaderboard extends SlashBase {
             category: "Sharex",
             cooldown: 5,
             permissions: {
-                base: {
-                    user: ['SendMessages', 'EmbedLinks'],
-                    client: ['SendMessages', 'EmbedLinks']
-                }
-            }
+                gate: [],
+                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
+                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
+            },
         })
     }
 

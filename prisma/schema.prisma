@@ -8,27 +8,30 @@ datasource db {
 }
 
 model users {
-  id         String      @id @default(uuid())
-  avatar     String?
-  banner     String?
-  username   String?
-  globalName String?
-  userid     String?     @unique
-  secret     String?     @db.Text
-  folder     String?     @db.Text
-  webhook    String?     @db.Text
-  cookie     String?     @db.Text
-  owner      Boolean?    @default(false)
-  admin      Boolean?    @default(false)
-  staff      Boolean?    @default(false)
-  banned     Boolean?    @default(false)
-  developer  Boolean?    @default(false)
-  verified   Boolean?    @default(false)
-  domain     String?     @db.Text
-  domains    domains[]
-  images     images[]
-  key        String?     @unique
-  signature  signatures? @relation(fields: [key], references: [key])
+  id          String        @id @default(uuid())
+  avatar      String?
+  banner      String?
+  username    String?
+  globalName  String?
+  userid      String?       @unique
+  secret      String?       @db.Text
+  folder      String?       @db.Text
+  webhook     String?       @db.Text
+  cookie      String?       @db.Text
+  banned      Boolean?      @default(false)
+  verified    Boolean?      @default(false)
+  domain      String?       @db.Text
+  domains     domains[]
+  images      images[]
+  key         String?       @unique
+  signature   signatures?   @relation(fields: [key], references: [key])
+  permissions permissions[]
+}
+
+model permissions {
+  id    String          @id @default(uuid())
+  name  UserPermissions
+  users users[]
 }
 
 model images {
@@ -96,6 +99,14 @@ model reports {
   mod       String?
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+}
+
+enum UserPermissions {
+  OWNER
+  ADMIN
+  STAFF
+  SUPPORT
+  DEVELOPER
 }
 
 enum ReportTypes {

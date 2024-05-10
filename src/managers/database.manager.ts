@@ -4,7 +4,7 @@ import { User } from "../types/database/users";
 import { Webhook } from "../types/database/webhooks";
 import { Report } from "../types/database/reports";
 import { EventEmitter } from "events";
-import { PrismaClient } from '@prisma/client';
+import { Prisma, PrismaClient } from '@prisma/client';
 import type CordX from "../client/cordx"
 import Logger from "../utils/logger.util"
 import { TextChannel } from "discord.js";
@@ -30,7 +30,9 @@ export class DatabaseManager {
 
                 if (check) return { success: false, message: 'User already exists in our database.' };
 
-                const user = await this.prisma.users.create({ data: data }).catch((err: Error) => {
+                const user = await this.prisma.users.create({
+                    data: { ...data, permissions: [] as Prisma.permissionsUncheckedCreateNestedManyWithoutUsersInput }
+                }).catch((err: Error) => {
                     return { success: false, message: err.message }
                 });
 
@@ -58,7 +60,7 @@ export class DatabaseManager {
 
                 if (!check) return { success: false, message: 'Unable to locate that user in our database.' };
 
-                const user = await this.prisma.users.update({ where: { userid: id }, data: data });
+                const user = await this.prisma.users.update({ where: { userid: id }, data: { ...data, permissions: [] as Prisma.permissionsUncheckedCreateNestedManyWithoutUsersInput } });
 
                 if (!user) return { success: false, message: 'Unable to locate that user in our database.' };
 
@@ -327,11 +329,15 @@ export class DatabaseManager {
             fetch: async (id: string, user: string): Promise<Responses> => {
 
                 const report = await this.prisma.reports.findUnique({ where: { id: id } });
-                const db_user = await this.prisma.users.findUnique({ where: { userid: user } });
+
+                const db_user = await this.prisma.users.findUnique({
+                    where: { userid: user },
+                    include: { permissions: true }
+                });
 
                 if (!report) return { success: false, message: 'No report found with that ID!' };
 
-                if (db_user && report.author !== user && !db_user.staff) return {
+                if (db_user && report.author !== user && !db_user.permissions.some(permission => permission.name === 'STAFF')) return {
                     success: false,
                     message: 'Sorry chief, you do not posess the powers necessary to view this report!'
                 };

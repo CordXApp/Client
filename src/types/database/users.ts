@@ -16,16 +16,10 @@ export interface User extends PrismaUser {
     folder: string;
     webhook: string;
     cookie: string;
-    owner: boolean;
-    admin: boolean;
-    staff: boolean;
-    banned: boolean;
-    verified: boolean;
-    developer: boolean;
     domain: string;
     position: string;
+    permissions?: GatePermissions[];
     total: number;
-    perms?: GatePermissions
 }
 
 export interface Domain extends PrismaDomains {
@@ -65,28 +59,11 @@ export interface LeaderboardData {
 }
 
 export interface Perms {
-    base?: BasePermissions
-    gate?: GatePermissions
+    gate?: GatePermissions[]
+    user: PermissionResolvable[]
+    bot: PermissionResolvable[]
 }
 
-export interface BasePermissions {
-    client?: PermissionResolvable[]
-    user?: PermissionResolvable[]
-    [key: string]: PermissionResolvable[] | undefined | string
-}
-
-export interface GatePermissions {
-    owner?: boolean;
-    admin?: boolean;
-    staff?: boolean;
-    banned?: boolean;
-    developer?: boolean;
-    verified?: boolean;
-    [key: string]: boolean | string | undefined
-}
-
-export type UserPerms = keyof Perms;
-
-export const RequiredPerms = ['owner', 'admin', 'staff', 'developer', 'verified']
+export type GatePermissions = 'OWNER' | 'ADMIN' | 'STAFF' | 'SUPPORT' | 'DEVELOPER';
 
 export const TOTAL_UPLOADERS = 5;

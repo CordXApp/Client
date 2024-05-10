@@ -11,11 +11,9 @@ export default class Sync extends SlashBase {
             category: "Developers",
             cooldown: 5,
             permissions: {
-                gate: {
-                    owner: true,
-                    admin: true,
-                    developer: true
-                }
+                gate: ['OWNER'],
+                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
+                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
             options: [
                 {

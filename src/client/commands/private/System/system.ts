@@ -13,10 +13,9 @@ export default class System extends SlashBase {
             usage: '/system <subcommand>',
             example: '/system help',
             permissions: {
-                base: {
-                    user: ['SendMessages'],
-                    client: ['SendMessages']
-                }
+                gate: [],
+                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
+                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
             options: [
                 {

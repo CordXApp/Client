@@ -1,6 +1,5 @@
-import Discord, { Collection, ApplicationCommandOptionType } from "discord.js"
-import type { CacheType, Interaction, BaseInteraction, PermissionResolvable } from "discord.js"
-import { BasePermissions } from "../../../types/database/users";
+import Discord, { Collection, ApplicationCommandOptionType, Permissions, PermissionResolvable } from "discord.js"
+import type { CacheType, Interaction, BaseInteraction } from "discord.js"
 import EventBase from "../../../schemas/event.schema"
 import type CordX from "../../cordx"
 
@@ -23,25 +22,147 @@ export default class InteractionCreate extends EventBase {
             if (!cmd) return
 
             const { permissions } = cmd.props;
-            const userId = interaction.member?.user.id as string;
 
-            if (permissions.gate) {
-                const perms = await client.utils.permissions.gate(userId, permissions.gate);
+            if (permissions.gate && permissions.gate.length > 0) {
 
-                if (!perms.success) return interaction.reply({
+                const check = await client.perms.user.has({
+                    user: interaction.user.id,
+                    perm: permissions.gate
+                })
+
+                const missing = await client.perms.user.missing({
+                    user: interaction.user.id,
+                    perm: permissions.gate
+                });
+
+                if (!check && missing && missing.length > 0) return interaction.reply({
+                    ephemeral: true,
                     embeds: [
                         new client.Embeds({
-                            title: 'Error: invalid permissions',
+                            title: 'Error: missing permissions',
+                            description: 'Whoops, looks like you are missing one or more of our necessary team permissions required to execute this command!',
                             color: client.config.EmbedColors.error,
-                            description: perms?.message,
                             fields: [{
-                                name: 'Missing permissions',
-                                value: perms?.missing,
-                                inline: true
+                                name: 'Required',
+                                value: permissions.gate.join(', '),
+                                inline: false
+                            }, {
+                                name: 'Missing',
+                                value: missing.join(', '),
+                                inline: false
                             }]
                         })
                     ]
                 })
+            }
+
+            if (permissions.user && !interaction.memberPermissions?.has(permissions.user)) {
+
+                const required = new Set(permissions.user);
+                const available = new Set(interaction.memberPermissions?.toArray());
+                const missing = [...required].filter((perm: any) => !available.has(perm))
+
+                if (missing.length > 0) {
+                    return interaction.reply({
+                        ephemeral: true,
+                        embeds: [
+                            new client.Embeds({
+                                title: 'Error: missing permissions',
+                                description: 'Whoops, looks like you are missing one or more of the necessary permissions required to execute this command',
+                                color: client.config.EmbedColors.error,
+                                fields: [{
+                                    name: 'Required',
+                                    value: permissions.user.join(', '),
+                                    inline: true
+                                }, {
+                                    name: 'Available',
+                                    value: interaction.memberPermissions?.toArray().join(', '),
+                                    inline: true
+                                }, {
+                                    name: 'Missing',
+                                    value: missing.join(', '),
+                                    inline: true
+                                }]
+                            })
+                        ]
+                    })
+                }
+            }
+
+            if (permissions.bot) {
+                const required = new Set(permissions.bot);
+                const available = new Set(interaction.guild?.members.me?.permissions.toArray());
+                const missing = [...required].filter((perm: any) => !available.has(perm))
+
+                if (missing.length > 0) {
+                    return interaction.reply({
+                        ephemeral: true,
+                        embeds: [
+                            new client.Embeds({
+                                title: 'Error: missing permissions',
+                                description: 'Whoops, looks like I am missing one or more of the necessary permissions required to execute this command',
+                                color: client.config.EmbedColors.error,
+                                fields: [{
+                                    name: 'Required',
+                                    value: permissions.bot.join(', '),
+                                    inline: true
+                                }, {
+                                    name: 'Missing',
+                                    value: missing.join(', '),
+                                    inline: true
+                                }]
+                            })
+                        ]
+                    })
+                }
+            }
+
+            if (cmd.props.cooldown > 0) {
+                if (!client.cooldown.has(cmd.props.name)) {
+                    client.cooldown.set(cmd.props.name, new Collection());
+                }
+
+                const now = Date.now();
+
+                const timestamp = client.cooldown.get(cmd.props.name);
+                const timeout = cmd.props.cooldown * 1000;
+
+                if (timestamp?.has(interaction.user.id)) {
+
+                    const cooldown = timestamp.get(interaction.user.id);
+
+                    if (cooldown) {
+                        const expires = cooldown + timeout;
+
+                        if (now < expires) {
+                            const remaining = (expires - now) / 1000;
+
+                            return interaction.reply({
+                                ephemeral: true,
+                                embeds: [
+                                    new client.Embeds({
+                                        title: 'Error: chill pill activated',
+                                        description: 'Woah man, i think you need to take a breather. You are doing stuff way to fast!',
+                                        color: client.config.EmbedColors.error,
+                                        fields: [{
+                                            name: 'Cooldown',
+                                            value: `\`${timeout}\` seconds`,
+                                            inline: false
+                                        }, {
+                                            name: 'Remaining',
+                                            value: `\`${remaining}\` seconds`,
+                                            inline: false
+                                        }]
+                                    })
+                                ]
+                            })
+                        }
+                    }
+                }
+
+                timestamp?.set(interaction.user.id, now);
+
+                setTimeout(() => timestamp?.delete(interaction.user.id), timeout);
             }
 
             const args: any = []
