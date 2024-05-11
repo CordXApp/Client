@@ -10,10 +10,9 @@ export default class ReportCmd extends SlashBase {
         super({
             name: 'report',
             description: 'Create, view or update a report!',
-            category: 'Users',
+            category: 'Support',
             cooldown: 5,
             permissions: {
-                gate: [],
                 user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
                 bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
@@ -38,9 +37,6 @@ export default class ReportCmd extends SlashBase {
                     }, {
                         name: 'Partner Report',
                         value: 'PARTNER_REPORT'
-                    }, {
-                        name: 'User Report',
-                        value: 'USER_REPORT'
                     }, {
                         name: 'Image Report',
                         value: 'IMAGE_REPORT'
@@ -94,68 +90,75 @@ export default class ReportCmd extends SlashBase {
                 const reason = interaction.options.getString('reason', true);
 
                 if (reason.length > 1024) return interaction.reply({
-                    content: 'The reason for the report cannot be more than 1024 characters!',
-                    ephemeral: true
-                })
-
-                const report = await client.db.report.create({
-                    type: type as reports['type'],
-                    reason: reason as string,
-                    author: interaction.user.id as string
-                })
-
-                if (!report.success) return interaction.reply({
                     embeds: [
                         new client.Embeds({
-                            title: 'Error: report creation failed!',
-                            description: report.message,
+                            title: 'Error: report creation failed',
                             color: client.config.EmbedColors.error,
+                            description: 'Whoops, the reason you provided is to long, maximum character count is \`1024\`'
                         })
                     ]
                 })
 
-                await interaction.user.createDM(true).then(async (dm) => {
-                    await dm.send({
+                await interaction.reply({
+                    embeds: [
+                        new client.Embeds({
+                            title: 'Action: create report',
+                            description: 'Please wait while i create that report for you and notify the necessary members of our team!',
+                            thumbnail: client.config.Icons.loading,
+                            color: client.config.EmbedColors.base
+                        })
+                    ]
+                });
+
+                return Promise.all([client.utils.base.delay(10000), client.db.report.create({
+                    type: type as reports['type'],
+                    reason: reason as string,
+                    author: interaction.user.id as string
+                })]).then(async ([, report]) => {
+
+                    if (!report.success) return interaction.editReply({
                         embeds: [
                             new client.Embeds({
-                                title: 'Report Created!',
-                                description: 'Your report has been successfully created!',
+                                title: 'Error: report creation failed'
+                            })
+                        ]
+                    })
+
+                    await interaction.user.createDM(true).then(async (dm) => {
+                        await dm.send({
+                            embeds: [
+                                new client.Embeds({
+                                    title: `Report: ${report.data.id}`,
+                                    color: client.config.EmbedColors.base,
+                                    description: 'Your report has been successfully created!',
+                                    fields: [{
+                                        name: 'ID',
+                                        value: `\`${report.data.id}\``,
+                                        inline: false
+                                    }, {
+                                        name: 'Note',
+                                        value: '- You will be notified of any changes to your report (hopefully).\n- You will need the ID above to view the report.\n- You can view the report using my: \`/report view\` command.',
+                                        inline: false
+                                    }]
+                                })
+                            ]
+                        })
+                    })
+
+                    return interaction.editReply({
+                        embeds: [
+                            new client.Embeds({
+                                title: 'Success: report created',
+                                description: 'Your report has been created, please check your DM\'s for more information!',
                                 color: client.config.EmbedColors.success,
                                 fields: [{
-                                    name: 'ID',
+                                    name: 'Report ID',
                                     value: `\`${report.data.id}\``,
-                                    inline: false
-                                }, {
-                                    name: 'Type',
-                                    value: `\`${report.data.type}\``,
-                                    inline: false
-                                }, {
-                                    name: 'Status',
-                                    value: `\`${report.data.status}\``,
-                                    inline: false
-                                }, {
-                                    name: 'Created',
-                                    value: `\`${new Date(report.data.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}\``,
-                                    inline: false
-                                }, {
-                                    name: 'Note',
-                                    value: `- You will be notified of any changes to your report (hopefully).\n- You will need the ID above to view the report.\n- You can view the report using my: \`/report view\` command.`,
                                     inline: false
                                 }]
                             })
                         ]
                     })
-                })
-
-                return interaction.reply({
-                    ephemeral: true,
-                    embeds: [
-                        new client.Embeds({
-                            title: 'Success: report created!',
-                            description: 'Your report has been created successfully, i have sent more information to your DM\'s',
-                            color: client.config.EmbedColors.success,
-                        })
-                    ]
                 })
             }
 
@@ -176,13 +179,31 @@ export default class ReportCmd extends SlashBase {
                 })
 
                 const author = await client.users.fetch(report.data.author);
+                const perms = await client.perms.user.has({
+                    user: interaction.user.id,
+                    perm: ['SUPPORT', 'DEVELOPER']
+                })
+
+                if (report.data.author !== interaction.user.id || !perms) return interaction.reply({
+                    embeds: [
+                        new client.Embeds({
+                            title: 'Error: unauthorized access',
+                            description: 'You are not authorized to view this report!',
+                            color: client.config.EmbedColors.error,
+                            fields: [{
+                                name: 'Required Perms',
+                                value: `REPORT_AUTHOR, SUPPORT, DEVELOPER`,
+                                inline: false
+                            }]
+                        })
+                    ]
+                })
 
                 if (report.data.mod) {
 
                     const mod = await client.users.fetch(report.data.mod);
 
                     return interaction.reply({
-                        ephemeral: true,
                         embeds: [
                             new client.Embeds({
                                 title: `Report: ${report.data.id}`,
@@ -223,7 +244,6 @@ export default class ReportCmd extends SlashBase {
                 }
 
                 return interaction.reply({
-                    ephemeral: true,
                     embeds: [
                         new client.Embeds({
                             title: `Report: ${report.data.id}`,

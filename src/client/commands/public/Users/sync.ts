@@ -1,7 +1,7 @@
 import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, type CacheType, type ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities";
+import { SpacesResponse } from "../../../../types/modules/spaces";
 import { SlashBase } from "../../../../schemas/command.schema"
-import { SyncBucket } from "../../../../types/spaces/files";
 import type CordX from "../../../cordx"
 
 export default class Sync extends SlashBase {
@@ -74,44 +74,6 @@ export default class Sync extends SlashBase {
                             components: []
                         })
 
-                        const promise = Promise.all([client.utils.base.delay(60000), client.spaces.actions.sync_user(interaction.user.id)])
-                            .then(async ([, res]: [unknown, { results: SyncBucket }]) => {
-
-                                await interaction.editReply({
-                                    embeds: [
-                                        new client.Embeds({
-                                            title: 'Sync: operation successful',
-                                            description: 'All your available bucket files have been synced successfully!',
-                                            color: client.config.EmbedColors.base,
-                                            fields: [{
-                                                name: '✅ Synced',
-                                                value: `${res.results.synced} synced files`,
-                                                inline: false
-                                            }, {
-                                                name: '⏭️ Skipped',
-                                                value: `${res.results.skipped} skipped files`,
-                                                inline: false
-                                            }, {
-                                                name: '🗑️ Deleted',
-                                                value: `${res.results.deleted} deleted files`,
-                                                inline: false
-                                            }, {
-                                                name: '❌ Failed',
-                                                value: `${res.results.failed} failed files`,
-                                                inline: false
-                                            }, {
-                                                name: '🔢  Total',
-                                                value: `${res.results.synced + res.results.skipped + res.results.deleted + res.results.failed} total files processed`,
-                                                inline: false
-                                            }]
-                                        })
-                                    ],
-                                    components: []
-                                })
-
-                                collector.stop()
-                            });
-
                         client.spaces.emitter.on('progress', async (results) => {
                             interaction.editReply({
                                 embeds: [
@@ -121,30 +83,35 @@ export default class Sync extends SlashBase {
                                         thumbnail: client.config.Icons.loading,
                                         color: client.config.EmbedColors.warning,
                                         fields: [{
-                                            name: '✅ Synced',
-                                            value: `${results.synced} synced files`,
-                                            inline: false
-                                        }, {
-                                            name: '⏭️ Skipped',
-                                            value: `${results.skipped} skipped files`,
-                                            inline: false
-                                        }, {
-                                            name: '🗑️ Deleted',
-                                            value: `${results.deleted} deleted files`,
-                                            inline: false
-                                        }, {
-                                            name: '❌ Failed',
-                                            value: `${results.failed} failed files`,
+                                            name: '⏭️ Progress',
+                                            value: `${results.percentage}`,
                                             inline: false
                                         }, {
                                             name: '🔢  Total',
-                                            value: `${results.synced + results.skipped + results.deleted + results.failed} total files processed`,
+                                            value: `${results.total}`,
                                             inline: false
                                         }]
                                     })
                                 ]
                             })
                         })
+
+                        const promise = Promise.all([client.utils.base.delay(60000), client.spaces.actions.sync_user(interaction.user.id)])
+                            .then(async ([, res]: [unknown, { results: SpacesResponse }]) => {
+
+                                await interaction.editReply({
+                                    embeds: [
+                                        new client.Embeds({
+                                            title: 'Sync: operation successful',
+                                            description: 'All your available bucket files have been synced successfully!',
+                                            color: client.config.EmbedColors.base
+                                        })
+                                    ],
+                                    components: []
+                                })
+
+                                collector.stop()
+                            });
 
                         await promise;
 

@@ -1,12 +1,21 @@
 import type CordX from "../client/cordx"
-import { Params, Response } from "../types/database/perms";
-import { Prisma } from "@prisma/client";
+import { Params, Response, PermsClient } from "../types/modules/perms";
 
-export class PermissionsManager {
+export class Permissions implements PermsClient {
     private client: CordX
+    private acks: string[]
+    private list: any;
 
     constructor(client: CordX) {
         this.client = client
+        this.acks = [];
+        this.list = {
+            OWNER: [],
+            ADMIN: [],
+            DEVELOPER: [],
+            SUPPORT: [],
+            STAFF: []
+        }
     }
 
     public get user() {
@@ -25,6 +34,27 @@ export class PermissionsManager {
                 const perms = Array.isArray(perm) ? perm : [perm];
 
                 return perms.some(perm => data.permissions.some(p => p.name === perm));
+            },
+            acknowledgments: async (user: string) => {
+                const owner = await this.client.perms.user.has({ user: user, perm: ['OWNER'] });
+                const admin = await this.client.perms.user.has({ user: user, perm: ['ADMIN'] });
+                const dev = await this.client.perms.user.has({ user: user, perm: ['DEVELOPER'] });
+                const support = await this.client.perms.user.has({ user: user, perm: ['SUPPORT'] });
+                const staff = await this.client.perms.user.has({ user: user, perm: ['STAFF'] });
+
+                if (owner) this.list.OWNER.push(user);
+                if (admin) this.list.ADMIN.push(user);
+                if (dev) this.list.DEVELOPER.push(user);
+                if (support) this.list.SUPPORT.push(user);
+                if (staff) this.list.STAFF.push(user);
+
+                if (this.list.OWNER.includes(user)) this.acks.push('OWNER');
+                if (this.list.ADMIN.includes(user)) this.acks.push('ADMIN');
+                if (this.list.DEVELOPER.includes(user)) this.acks.push('DEVELOPER');
+                if (this.list.SUPPORT.includes(user)) this.acks.push('SUPPORT');
+                if (this.list.STAFF.includes(user)) this.acks.push('STAFF');
+
+                return this.acks.length > 0 ? this.acks.join(', ') : 'None';
             },
             list: async (user: string): Promise<Response> => {
 

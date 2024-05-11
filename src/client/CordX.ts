@@ -4,11 +4,11 @@ import helpConfig from "../config/help.config"
 import { CordxEmbed } from "../utils/embed.util"
 import { Utilities } from "../utils/helper.util"
 import { DatabaseManager } from "../managers/database.manager"
-import { PermissionsManager } from "../managers/permissions.manager"
+import { Permissions } from "../modules/permissions.module"
 import { Client, ClientOptions, Collection } from "discord.js"
 import type { IConfig, IHelpConfig } from "../types/client"
-import { SecurityModule } from "../modules/security.module";
-import { SpacesModule } from "../modules/spaces.module";
+import { Security } from "../modules/security.module";
+import { Spaces } from "../modules/spaces.module";
 import PrivateManager from "../managers/private.manager"
 import CommandManager from "../managers/command.manager"
 import EventManager from "../managers/listener.manager"
@@ -22,13 +22,13 @@ class CordX extends Client {
     public api: API = new API(this)
     public db: DatabaseManager = new DatabaseManager(this)
     public cooldown = new Collection<string, Collection<string, number>>()
-    public perms: PermissionsManager = new PermissionsManager(this)
+    public perms: Permissions = new Permissions(this)
     public commands: CommandManager = new CommandManager(this)
     public private: PrivateManager = new PrivateManager(this)
     public events: EventManager = new EventManager(this)
     public restApi: RestManager = new RestManager(this)
-    public security: SecurityModule = new SecurityModule(this)
-    public spaces: SpacesModule = new SpacesModule(this)
+    public security: Security = new Security(this)
+    public spaces: Spaces = new Spaces(this)
     public utils: Utilities = new Utilities(this)
     public System: CordXSystem = new CordXSystem()
     public logs: Logger = new Logger("Client")

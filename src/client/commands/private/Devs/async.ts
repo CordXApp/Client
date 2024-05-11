@@ -1,7 +1,6 @@
 import { ActionRow, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, type CacheType, type ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities"
 import { SlashBase } from "../../../../schemas/command.schema";
-import { SyncAll } from "../../../../types/spaces/files"
 import type CordX from "../../../cordx"
 
 export default class aSync extends SlashBase {
@@ -176,7 +175,7 @@ export default class aSync extends SlashBase {
 
                 break;
 
-            case 'buckets': {
+            /**case 'buckets': {
                 const confirm: any = new ButtonBuilder()
                     .setCustomId('agree')
                     .setLabel('🔄 Continue')
@@ -348,7 +347,7 @@ export default class aSync extends SlashBase {
 
                     collector.stop()
                 })
-            }
+            }*/
         }
     }
 }

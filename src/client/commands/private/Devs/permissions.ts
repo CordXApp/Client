@@ -12,7 +12,7 @@ export default class aSync extends SlashBase {
             category: "Developers",
             cooldown: 5,
             permissions: {
-                gate: ['OWNER', 'DEVELOPER', 'ADMIN'],
+                gate: ['OWNER', 'DEVELOPER'],
                 user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
                 bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
@@ -49,7 +49,6 @@ export default class aSync extends SlashBase {
                 const valid = ['ADMIN', 'STAFF', 'SUPPORT', 'DEVELOPER']
 
                 if (!valid.includes(perm as string)) return interaction.reply({
-                    ephemeral: true,
                     embeds: [
                         new client.Embeds({
                             title: 'Error: invalid permission(s)',
@@ -68,40 +67,51 @@ export default class aSync extends SlashBase {
                     ]
                 })
 
-                const update = await client.perms.user.update({
+                await interaction.reply({
+                    embeds: [
+                        new client.Embeds({
+                            title: 'Action: update permissions',
+                            description: `Updating permissions for ${user?.globalName}...`,
+                            thumbnail: client.config.Icons.loading,
+                            color: client.config.EmbedColors.base
+                        })
+                    ]
+                })
+
+                return Promise.all([client.utils.base.delay(10000), client.perms.user.update({
                     user: user?.id as string,
                     perm: perm as GatePermissions
+                })]).then(async ([, res]) => {
+
+                    if (!res.success) return interaction.editReply({
+                        embeds: [
+                            new client.Embeds({
+                                title: 'Error: failed to update permissions',
+                                description: 'Whoops, we failed to update the permissions for the user, please try again later!',
+                                color: client.config.EmbedColors.error
+                            })
+                        ]
+                    })
+
+                    return interaction.editReply({
+                        embeds: [
+                            new client.Embeds({
+                                title: 'Success: updated permissions',
+                                description: `Successfully updated permissions for ${user?.globalName}!`,
+                                color: client.config.EmbedColors.success,
+                                fields: [{
+                                    name: 'Added',
+                                    value: `${res.data.added || 'None'}`,
+                                    inline: false
+                                }, {
+                                    name: 'Removed',
+                                    value: `${res.data.removed || 'None'}`,
+                                    inline: false
+                                }]
+                            })
+                        ]
+                    })
                 });
-
-                if (!update.success) return interaction.reply({
-                    ephemeral: true,
-                    embeds: [
-                        new client.Embeds({
-                            title: 'Error: failed to update permissions',
-                            description: `${update.message}`,
-                            color: client.config.EmbedColors.error
-                        })
-                    ]
-                })
-
-                return interaction.reply({
-                    embeds: [
-                        new client.Embeds({
-                            title: 'Success: permissions updated',
-                            description: `${update.message}`,
-                            color: client.config.EmbedColors.base,
-                            fields: [{
-                                name: 'Added',
-                                value: `${update.data.added || 'No permissions added'}`,
-                                inline: false
-                            }, {
-                                name: 'Removed',
-                                value: `${update.data.removed || 'No permissions removed'}`,
-                                inline: false
-                            }]
-                        })
-                    ]
-                })
             }
         }
     }

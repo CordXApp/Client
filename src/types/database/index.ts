@@ -1,4 +1,4 @@
-import { User, UserPerms } from "./users";
+import { User } from "./users";
 import { Webhook } from "./webhooks";
 import { Partner } from "./partners";
 
@@ -37,6 +37,7 @@ export interface StatsMethods {
 export interface Responses {
     success: boolean
     message?: string
+    percentage?: number
     missing?: any
     data?: any
 }

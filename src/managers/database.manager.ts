@@ -290,6 +290,7 @@ export class DatabaseManager {
                 })
 
                 if (channel && channel instanceof TextChannel) await channel.send({
+                    content: '<@&1138246343412953218>',
                     embeds: [
                         new this.client.Embeds({
                             title: 'New Report',

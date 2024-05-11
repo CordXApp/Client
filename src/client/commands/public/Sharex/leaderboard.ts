@@ -1,6 +1,5 @@
 import type { CacheType, ChatInputCommandInteraction } from "discord.js"
 import { SlashBase } from "../../../../schemas/command.schema"
-import { SubCommandOptions } from "../../../../types/client/utilities";
 import { User } from "../../../../types/database/users";
 import type CordX from "../../../cordx"
 

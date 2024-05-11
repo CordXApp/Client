@@ -1,30 +1,17 @@
-import { S3, ListObjectsCommand } from "@aws-sdk/client-s3";
-import { Collection, PermissionResolvable } from "discord.js"
+import { Collection } from "discord.js"
 import { bucketMessages } from "../generator/messages";
 import { CordXSnowflake } from "@cordxapp/snowflake";
 import { Cooldown } from "../types/client/index";
-import { File } from "../types/spaces/files";
 import type CordX from "../client/cordx"
 import Logger from "./logger.util"
 
 export class Utilities {
     public client: CordX
     public logs: Logger;
-    private space: S3;
 
     constructor(client: CordX) {
         this.client = client
         this.logs = new Logger('[HELPER]')
-        this.space = new S3({
-            forcePathStyle: false,
-            endpoint: 'https://nyc3.digitaloceanspaces.com',
-            region: 'us-east-1',
-            credentials: {
-                accessKeyId: process.env.SPACES_KEY as string,
-                secretAccessKey: process.env.SPACES_SECRET as string
-            }
-
-        })
     }
 
     public get base() {

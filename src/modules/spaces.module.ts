@@ -1,20 +1,27 @@
-import { Responses } from "../types/database/index";
 import { ListObjectsV2CommandOutput, S3 } from "@aws-sdk/client-s3";
-import { File, SyncAll, SyncBucket, ActionRes, BucketData } from "../types/spaces/files";
-import { DropContentOpts, SpacesClient, SpacesResponse } from "../types/spaces/index";
 import type CordX from "../client/cordx"
 import { EventEmitter } from "events";
 import Logger from "../utils/logger.util"
 
-export class SpacesModule implements SpacesClient {
-    public client: CordX;
+import {
+    File,
+    EmitterResponse,
+    DropContentOpts,
+    SpacesClient,
+    SpacesResponse,
+    UpdateContentOpts
+} from "../types/modules/spaces";
+
+export class Spaces implements SpacesClient {
+    private client: CordX;
     public logs: Logger;
     private bucket: S3;
-    private action_res: ActionRes;
     public emitter: EventEmitter;
     private marker: string | undefined;
     private truncated: boolean;
     private objects: File[];
+    private currentPercentage: number;
+    private lastPercentage: number;
 
     constructor(client: CordX) {
         this.client = client;
@@ -29,17 +36,10 @@ export class SpacesModule implements SpacesClient {
                 secretAccessKey: process.env.SPACES_SECRET as string
             }
         })
-        this.action_res = {
-            synced: 0,
-            skipped: 0,
-            deleted: 0,
-            failed: 0,
-            total: 0,
-            users: 0,
-            muser: 0
-        }
         this.truncated = true;
         this.objects = [];
+        this.currentPercentage = 0;
+        this.lastPercentage = 0;
     }
 
     /**
@@ -80,40 +80,44 @@ export class SpacesModule implements SpacesClient {
             /**
              * Determine the size of a users bucket!
              */
-            size: (user: string) => {
-                return new Promise((resolve, reject) => {
+            size: async (user: string): Promise<SpacesResponse> => {
 
-                    const params = {
-                        Prefix: `${user}/`,
-                        Bucket: 'cordx',
-                        Key: `${user}/`
-                    }
+                const params = {
+                    Prefix: `${user}/`,
+                    Bucket: 'cordx',
+                    Key: `${user}/`
+                }
 
+                const database = await this.client.db.prisma.images.findMany({ where: { userid: user } });
+
+                const data = await new Promise<ListObjectsV2CommandOutput>((resolve, reject) => {
                     this.bucket.listObjectsV2(params, (err: Error, data?: ListObjectsV2CommandOutput) => {
+                        if (err) reject(err);
 
-                        const valid = data?.Contents?.filter(i => i?.Key?.includes(user));
-
-                        if (!valid || valid.length === 0) return reject({
-                            success: false,
-                            message: `Failed to find bucket for user: ${user}`
-                        })
-
-                        if (err) {
-                            this.logs.error(`Bucket error: ${err.message}`);
-                            this.logs.debug(`Stack trace: ${err.message}`);
-
-                            return reject({
-                                success: false,
-                                message: `Bucket error: ${err.message}`
-                            })
-                        }
-
-                        return resolve({
-                            success: true,
-                            bucket_size: data?.Contents?.map(i => i.Size).reduce((a: any, b: any) => a + b),
-                        })
+                        if (data) resolve(data);
                     })
                 })
+
+                if (!data || !database) return {
+                    success: false,
+                    message: 'Unable to locate your bucket.'
+                }
+
+                const valid = data?.Contents?.filter(i => i?.Key?.includes(user));
+
+                if (!valid || valid.length === 0) return {
+                    success: false,
+                    message: `Looks like you have no content in your bucket`
+                }
+
+                return {
+                    success: true,
+                    message: `Found: ${data?.Contents?.length} files in bucket for user`,
+                    data: {
+                        bucket_size: await this.client.utils.format.units(data?.Contents?.map(i => i.Size).reduce((a: any, b: any) => a + b)),
+                        bucket_db_size: await this.client.utils.format.units(database.map(i => i.size).reduce((a: any, b: any) => a + b))
+                    }
+                }
             }
         }
     }
@@ -121,233 +125,217 @@ export class SpacesModule implements SpacesClient {
     public get bucket_db() {
         return {
             /**
-             * Drop a specified file or all of a users bucket database content
+             * Drop the users bucket database content
              * @param {opts.user} string the user to drop file(s) for
-             * @param {opts.file} string the fileid to drop (optional)
-             * @param {opts.all} boolean default (not yet implemented)
+             * @param {opts.force} boolean force the operation if necessary
              */
-            drop: async (opts: DropContentOpts): Promise<Responses> => {
+            drop: async (opts: DropContentOpts): Promise<SpacesResponse> => {
 
-                let total: number = 0;
+                this.currentPercentage = 0;
+                this.lastPercentage = 0;
 
-                this.logs.info(`Dropping all bucket database content for: ${opts.user}`);
+                this.logs.info(`Dropping bucket database content for: ${opts.user}`);
 
-                let { skipped, deleted, failed, muser } = this.action_res;
-                const data = await this.client.db.prisma.images.findMany({ where: { userid: opts.user } });
                 const list = await this.user.list(opts.user);
+                const data = await this.client.db.prisma.images.findMany({ where: { userid: opts.user } });
 
                 if (!data || !list.success) {
-                    muser++;
+                    this.logs.debug(`Unable to locate bucket for: ${opts.user}, cancelling operation!`);
                     return {
                         success: false,
-                        missing: { muser },
-                        data: { skipped, deleted, failed }
-                    }
+                        message: `Unable to locate your bucket, do you have a CordX Account/have you uploaded anything!`
+                    };
                 }
 
                 const bucket: File[] = list.data;
 
-                total = data.length;
-
-                if (total === bucket.length || total > 250) {
-                    skipped += total;
+                if (data.length === bucket.length) {
+                    this.logs.debug(`Bucket content for: ${opts.user} is in sync, canacelling operation!`);
                     return {
                         success: false,
-                        missing: { muser },
-                        data: { skipped, deleted, failed }
+                        message: `Your bucket is already in-sync, cancelling operation!`
                     }
                 }
 
-                const deletedIds = data.map(file => file.id);
+                if (!opts.force && data.length > 250) {
+                    this.logs.debug(`Bucket content for: ${opts.user} exceeds 250 total files, cancelling delete operation!`);
+                    this.logs.info(`You can force this action to continue by re-executing it using the \`force: true\` flag`);
 
-                await this.client.db.prisma.images.deleteMany({ where: { id: { in: deletedIds } } })
-                    .then((result) => {
-                        deleted += result.count;
-                    }).catch((err: Error) => {
-                        this.logs.error(`Failed to delete bucket database content for user ${opts.user}: ${err.message}`);
-                        failed++;
-                    });
-
-                this.logs.debug(`[RESULTS]: Dropped: ${deleted} | Skipped: ${skipped} | Failed: ${failed}`);
-
-                return {
-                    success: true,
-                    message: `Successfully dropped ${total} files for ${opts.user}`,
-                    missing: { muser },
-                    data: { skipped, deleted, failed }
+                    return {
+                        success: false,
+                        message: 'Your bucket content exceeds the allowed 250 files, deletion will be skipped!'
+                    }
                 }
-            },
-            update: async (opts: DropContentOpts) => {
 
-                let { synced, skipped, failed, muser } = this.action_res;
+                const deletedIds: any = data.map(file => file.id);
+
+                this.logs.debug(`Bucket database content deletion: ${this.currentPercentage.toFixed(0)}% complete`)
+                for (let i = 0; i < deletedIds.length; i++) {
+                    await this.client.db.prisma.images.delete({ where: { id: deletedIds[i] } })
+                        .then(() => {
+                            this.currentPercentage = ((i + 1) / deletedIds.length) * 100;
+                            let roundedPercentage = Math.round(this.currentPercentage);
+                            if (roundedPercentage % 10 === 0 && roundedPercentage !== this.lastPercentage) {
+                                this.logs.debug(`Bucket database content deletion: ${this.currentPercentage.toFixed(0)}% complete`);
+                                this.lastPercentage = roundedPercentage;
+
+                                this.emitter.emit('progress', {
+                                    message: 'Dropping your database bucket content, this may take some time but i will update the progress below when necessary!',
+                                    percentage: `${this.currentPercentage.toFixed(0)}% complete`,
+                                    total: `${i + 1} files processed`
+                                })
+                            }
+                        }).catch((err: Error) => {
+                            this.logs.error(`Failed to delete bucket database content for user ${opts.user}`);
+                            this.logs.debug(`Stack trace: ${err.stack}`)
+
+                            return {
+                                success: false,
+                                message: err.message as string
+                            }
+                        });
+                }
+
+                this.logs.debug(`Successfully wiped bucket database content for user: ${opts.user}`);
+
+                return { success: true }
+            },
+            update: async (opts: UpdateContentOpts): Promise<SpacesResponse> => {
+
+                this.currentPercentage = 0;
+                this.lastPercentage = 0;
+
+                this.logs.info(`Syncing bucket database content for: ${opts.user}`);
+
                 const list = await this.user.list(opts.user);
                 const count = await this.client.db.prisma.images.count({ where: { userid: opts.user } });
 
-                if (!list.success || !count) {
-                    muser++;
-                    return {
-                        success: false,
-                        missing: { muser },
-                        data: { synced, skipped, failed }
-                    }
+                if (!list.success) {
+                    this.logs.debug(`Unable to locate bucket for: ${opts.user}, cancelling operation!`);
                 }
-
-                this.logs.info(`Resyncing bucket database content for: ${opts.user}`);
 
                 const bucket: File[] = list.data;
 
                 if (bucket.length === count) {
-                    skipped += count;
+                    this.logs.debug(`Bucket database content for: ${opts.user} is in sync, cancelling operation!`);
                     return {
                         success: false,
-                        missing: { muser },
-                        data: { synced, skipped, failed }
+                        message: 'Your bucket is already in-sync, cancelling operation!'
                     }
                 }
 
-                this.logs.debug(`Uploading ${bucket.length} files to the database for user: ${opts.user}`);
+                this.logs.debug(`Synchronizing: ${bucket.length} total files to the bucket database for ${opts.user}`);
 
-                for (const file of bucket) {
+                for (let i = 0; i < bucket.length; i++) {
+                    const file = bucket[i];
 
-                    const check = await this.client.db.prisma.images.findFirst({ where: { fileid: file.Key.split('/')[1] as string } });
+                    const check = await this.client.db.prisma.images.findFirst({
+                        where: { fileid: file?.Key.split('/')[1] as string }
+                    })
 
-                    /** ensure files aren't duplicated, don't contain a keep file and belong to the user */
-                    if (check || file.Key.endsWith('.gitkeep') || !file.Key.includes(opts.user)) {
-                        skipped++;
+                    if (check) {
+                        this.logs.debug(`Skipping file ${file?.Key.split('/')[1]} as it already exists`);
                         continue;
                     }
 
-                    await this.client.db.prisma.images.create({
-                        data: {
-                            userid: file.Key.split('/')[0] as string,
-                            fileid: file.Key.split('/')[1] as string,
-                            filename: file.Key.split('/')[1]?.split('.')[0],
-                            date: file.LastModified,
-                            name: file.Key.split('/')[1]?.split('.')[0],
-                            size: file.Size,
-                            type: file.Key.split('.')[1]
-                        }
-                    }).catch((err: Error) => {
-                        this.logs.error(`Failed to upload file ${file.Key} to the database: ${err.message}`);
-                        failed++;
+                    if (file?.Key.endsWith('.gitkeep')) {
+                        this.logs.debug(`Skipping keep file as this is unnecessary/irrelevant storage`);
+                        continue;
+                    }
 
-                        return {
-                            success: false,
-                            missing: { muser },
-                            data: { synced, skipped, failed }
-                        }
-                    })
+                    if (!file?.Key.includes(opts.user)) {
+                        this.logs.debug(`Whoops, this file doesn\'t belong to the requested user, skipping...`);
+                        continue;
+                    }
 
-                    synced++;
+                    const createData = {
+                        userid: file?.Key.split('/')[0] as string,
+                        fileid: file?.Key.split('/')[1] as string,
+                        filename: file?.Key.split('/')[1]?.split('.')[0],
+                        date: file?.LastModified,
+                        name: file?.Key.split('/')[1]?.split('.')[0],
+                        size: file?.Size,
+                        type: file?.Key.split('.')[1]
+                    }
+
+                    await this.client.db.prisma.images.create({ data: createData })
+                        .then(() => {
+                            this.currentPercentage = ((i + 1) / bucket.length) * 100;
+                            let roundedPercentage = Math.round(this.currentPercentage);
+                            if (roundedPercentage % 10 === 0 && roundedPercentage !== this.lastPercentage) {
+                                this.logs.debug(`Bucket database content upload: ${this.currentPercentage.toFixed(0)}% complete`);
+                                this.lastPercentage = roundedPercentage;
+
+                                this.emitter.emit('progress', {
+                                    message: 'Uploading bucket content to our database, this may take some time but i will update the progress below when necessary!',
+                                    percentage: `${this.currentPercentage.toFixed(0)}% complete`,
+                                    total: `${i + 1} files processed`
+                                })
+                            }
+                        }).catch((err: Error) => {
+                            this.logs.error(`Failed to upload file: ${file.Key.split('/')[1]}`);
+                            this.logs.debug(`Stack trace: ${err.stack}`)
+
+                            return {
+                                success: false,
+                                message: err.message as string
+                            };
+                        });
                 }
 
-                this.logs.debug(`[RESULTS]: Synced: ${synced} | Skipped: ${skipped} | Failed: ${failed}`);
+                this.logs.ready(`Successfully synced bucket with database for: ${opts.user}`)
 
-                return {
-                    success: true,
-                    message: `Successfully synced ${synced} files for ${opts.user}`,
-                    missing: { muser },
-                    data: { synced, skipped, failed }
-                }
+                return { success: true }
             }
         }
     }
 
     public get actions() {
         return {
-            /**
-             * Sync all files in a users bucket
-             */
-            sync_user: async (user: string): Promise<{ results: SyncBucket }> => {
+            sync_user: async (user: string): Promise<EmitterResponse> => {
 
-                this.logs.info(`Starting bucket sync for: ${user}`);
-
-                this.emitter.emit('progress', {
-                    message: `Starting bucket sync for: ${user}`,
-                    synced: this.action_res.synced,
-                    skipped: this.action_res.skipped,
-                    deleted: this.action_res.deleted,
-                    failed: this.action_res.failed,
-                    total: this.action_res.total
-                })
+                this.logs.info(`Starting bucket sync operation for: ${user}`);
 
                 const list = await this.user.list(user);
-                const data: File[] = list.data;
 
-                this.action_res.total = data.length;
-
-                this.emitter.emit('progress', {
-                    message: `Syncing files for: ${user}`,
-                    synced: this.action_res.synced,
-                    skipped: this.action_res.skipped,
-                    deleted: this.action_res.deleted,
-                    failed: this.action_res.failed,
-                    total: this.action_res.total
-                })
-
-                const bucket: Responses = await this.bucket_db.drop({ user, all: false });
-
-                if (!bucket.success) {
-                    this.action_res.failed++;
-
-                    this.emitter.emit('progress', {
-                        message: `Failed to clear bucket database for: ${user}`,
-                        synced: this.action_res.synced,
-                        skipped: this.action_res.skipped,
-                        deleted: this.action_res.deleted,
-                        failed: this.action_res.failed,
-                        total: this.action_res.total
-                    })
+                if (!list.success) return {
+                    results: {
+                        success: false,
+                        message: 'Unable to locate your bucket, do you have a CordX Profile and have you uploaded any content?'
+                    }
                 }
 
-                this.emitter.emit('progress', {
-                    message: `Cleared bucket database for: ${user}, starting re-sync`,
-                    synced: this.action_res.synced,
-                    skipped: this.action_res.skipped,
-                    deleted: this.action_res.deleted,
-                    failed: this.action_res.failed,
-                    total: this.action_res.total
-                })
+                const drop: SpacesResponse = await this.bucket_db.drop({ user, force: true });
 
-                const update: Responses = await this.bucket_db.update({ user, all: false });
+                if (!drop.success) {
+                    return {
+                        results: {
+                            success: false,
+                            message: drop.message
+                        }
+                    }
+                }
+
+                const update: SpacesResponse = await this.bucket_db.update({ user, force: true });
 
                 if (!update.success) {
-                    this.action_res.failed++;
-
-                    this.emitter.emit('progress', {
-                        message: `Failed to update bucket database for: ${user}`,
-                        synced: this.action_res.synced,
-                        skipped: this.action_res.skipped,
-                        deleted: this.action_res.deleted,
-                        failed: this.action_res.failed,
-                        total: this.action_res.total
-                    })
+                    return {
+                        results: {
+                            success: false,
+                            message: update.message
+                        }
+                    }
                 }
 
-                this.emitter.emit('progress', {
-                    message: `Updated bucket database for: ${user}, please wait for results...`,
-                    synced: this.action_res.synced,
-                    skipped: this.action_res.skipped,
-                    deleted: this.action_res.deleted,
-                    failed: this.action_res.failed,
-                    total: this.action_res.total
-                })
-
-                this.logs.ready(`Bucket sync complete for user: ${user}`);
-
-                this.action_res.synced += update.data.synced;
-                this.action_res.skipped += bucket.data.skipped + update.data.skipped;
-                this.action_res.deleted += bucket.data.deleted;
-                this.action_res.failed += bucket.data.failed + update.data.failed;
-                this.action_res.total = data.length;
-
-                return { results: this.action_res }
-            },
+                return {
+                    results: { success: true }
+                }
+            }
             /**
              * Sync all files in the bucket to the database
              * @returns {Promise<SyncAll>}
              */
-            sync_all: async (): Promise<{ results: SyncAll }> => {
+            /**sync_all: async (): Promise<{ results: SyncAll }> => {
 
                 const users = await this.client.db.prisma.users.findMany();
 
@@ -366,7 +354,7 @@ export class SpacesModule implements SpacesClient {
                         user: user.userid
                     })
 
-                    const bucket: Responses = await this.bucket_db.drop({ user: user.userid as string, all: true });
+                    const bucket: Responses = await this.bucket_db.drop({ user: user.userid as string });
 
                     this.emitter.emit('progress', {
                         synced: 0,
@@ -377,7 +365,7 @@ export class SpacesModule implements SpacesClient {
                         user: user.userid
                     })
 
-                    const update = await this.bucket_db.update({ user: user.userid as string, all: true });
+                    const update = await this.bucket_db.update({ user: user.userid as string });
 
                     this.emitter.emit('progress', {
                         synced: update.data.synced,
@@ -423,6 +411,45 @@ export class SpacesModule implements SpacesClient {
                 }
 
                 return { results: this.action_res }
+            }*/
+        }
+    }
+
+    public get stats() {
+        return {
+            profile: async (user: string): Promise<SpacesResponse> => {
+
+                const data = await this.client.db.prisma.images.findMany({ where: { userid: user } });
+                const known: string[] = ['.png', 'gif', 'mp4', '.jpg', '.jpeg']
+
+                const png = data.filter(f => f.fileid.includes('.png'));
+                const gif = data.filter(f => f.fileid.includes('.gif'));
+                const mp4 = data.filter(f => f.fileid.includes('.mp4'));
+                const unk = data.filter(f => !known.some(type => f.fileid.includes(type)));
+                const used = await this.user.size(user);
+
+                if (!used.success) return {
+                    success: false,
+                    message: `${used?.message}`
+                }
+
+
+                return {
+                    success: true,
+                    data: {
+                        storage: {
+                            bucket: used.data.bucket_size,
+                            database: used.data.bucket_db_size
+                        },
+                        files: {
+                            total: data.length,
+                            png: png.length,
+                            gif: gif.length,
+                            mp4: mp4.length,
+                            other: unk.length
+                        }
+                    }
+                }
             }
         }
     }
