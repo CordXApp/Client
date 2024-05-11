@@ -91,7 +91,7 @@ export default class ReportCmd extends SlashBase {
 
                 if (reason.length > 1024) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: report creation failed',
                             color: client.config.EmbedColors.error,
                             description: 'Whoops, the reason you provided is to long, maximum character count is \`1024\`'
@@ -101,7 +101,7 @@ export default class ReportCmd extends SlashBase {
 
                 await interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Action: create report',
                             description: 'Please wait while i create that report for you and notify the necessary members of our team!',
                             thumbnail: client.config.Icons.loading,
@@ -118,7 +118,7 @@ export default class ReportCmd extends SlashBase {
 
                     if (!report.success) return interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Error: report creation failed'
                             })
                         ]
@@ -127,7 +127,7 @@ export default class ReportCmd extends SlashBase {
                     await interaction.user.createDM(true).then(async (dm) => {
                         await dm.send({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: `Report: ${report.data.id}`,
                                     color: client.config.EmbedColors.base,
                                     description: 'Your report has been successfully created!',
@@ -147,7 +147,7 @@ export default class ReportCmd extends SlashBase {
 
                     return interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Success: report created',
                                 description: 'Your report has been created, please check your DM\'s for more information!',
                                 color: client.config.EmbedColors.success,
@@ -170,7 +170,7 @@ export default class ReportCmd extends SlashBase {
 
                 if (!report.success) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: failed to fetch report!',
                             description: report.message,
                             color: client.config.EmbedColors.error,
@@ -186,7 +186,7 @@ export default class ReportCmd extends SlashBase {
 
                 if (report.data.author !== interaction.user.id || !perms) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: unauthorized access',
                             description: 'You are not authorized to view this report!',
                             color: client.config.EmbedColors.error,
@@ -205,7 +205,7 @@ export default class ReportCmd extends SlashBase {
 
                     return interaction.reply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: `Report: ${report.data.id}`,
                                 description: 'Here is what you need to know about the requested report!',
                                 color: client.config.EmbedColors.base,
@@ -245,7 +245,7 @@ export default class ReportCmd extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: `Report: ${report.data.id}`,
                             description: 'Here is what you need to know about the requested report!',
                             color: client.config.EmbedColors.base,
@@ -291,7 +291,7 @@ export default class ReportCmd extends SlashBase {
 
                 if (!reports.success) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: failed to fetch reports!',
                             description: reports.message,
                             color: client.config.EmbedColors.error,
@@ -301,7 +301,7 @@ export default class ReportCmd extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Reports List',
                             description: 'Here is a list of all the reports you have created!',
                             color: client.config.EmbedColors.base,

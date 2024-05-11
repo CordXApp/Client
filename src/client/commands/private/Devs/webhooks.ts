@@ -75,7 +75,7 @@ export default class Sync extends SlashBase {
                 if (!create_hook.success) return interaction.reply({
                     ephemeral: true,
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: webhook creation failed',
                             color: client.config.EmbedColors.error,
                             description: `\`${create_hook.message}\``
@@ -86,7 +86,7 @@ export default class Sync extends SlashBase {
                 return interaction.reply({
                     ephemeral: true,
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Success: webhook created',
                             color: client.config.EmbedColors.success,
                             description: `I have created your new webhook \`${name}\`.`,
@@ -102,7 +102,7 @@ export default class Sync extends SlashBase {
                 if (!name) return interaction.reply({
                     ephemeral: false,
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: missing arguments',
                             color: client.config.EmbedColors.error,
                             description: `Please provide a valid webhook name`
@@ -117,7 +117,7 @@ export default class Sync extends SlashBase {
                 if (!webhook.success) return interaction.reply({
                     ephemeral: true,
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: webhook fetch failed',
                             color: client.config.EmbedColors.error,
                             description: `\`${webhook.message}\``
@@ -127,7 +127,7 @@ export default class Sync extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: `Admin: webhook fetch`,
                             color: client.config.EmbedColors.base,
                             description: `Here is the information for your requested webhook!`,

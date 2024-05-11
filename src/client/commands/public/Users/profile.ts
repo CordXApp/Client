@@ -42,7 +42,7 @@ export default class Profile extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Profile Command Help',
                             description: `Below are the available profile subcommands and their usage.`,
                             color: client.config.EmbedColors.base,
@@ -72,7 +72,7 @@ export default class Profile extends SlashBase {
 
                 await interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Action: fetch profile stats',
                             description: 'Please wait while i fetch your statistics',
                             thumbnail: client.config.Icons.loading,
@@ -85,7 +85,7 @@ export default class Profile extends SlashBase {
 
                     if (!res.success) return interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Error: failed to fetch profile',
                                 description: `${res.message}`,
                                 color: client.config.EmbedColors.error
@@ -98,7 +98,7 @@ export default class Profile extends SlashBase {
 
                     return interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Success: profile found',
                                 description: 'Here is your profile/upload statistics',
                                 author: {

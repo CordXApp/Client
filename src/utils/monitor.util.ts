@@ -66,7 +66,7 @@ export class UptimeMonitor {
 
             await channel.send({
                 embeds: [
-                    new this.client.Embeds({
+                    new this.client.EmbedBuilder({
                         title: "Status of: " + this.uptime.infos.url,
                         color: this.client.config.EmbedColors.success,
                         description: `**UP for:** ${dhms(up.uptime)}`,
@@ -101,7 +101,7 @@ export class UptimeMonitor {
 
             await channel.send({
                 embeds: [
-                    new this.client.Embeds({
+                    new this.client.EmbedBuilder({
                         title: "Status of: " + this.uptime.infos.url,
                         color: this.client.config.EmbedColors.error,
                         description: `Whoops, looks like ${this.uptime.infos.url} is down!`,
@@ -140,7 +140,7 @@ export class UptimeMonitor {
 
             await channel.send({
                 embeds: [
-                    new this.client.Embeds({
+                    new this.client.EmbedBuilder({
                         title: "Status of: " + this.uptime.infos.url,
                         color: this.client.config.EmbedColors.error,
                         description: `Something went wrong here, the monitor will be stopped now.`,

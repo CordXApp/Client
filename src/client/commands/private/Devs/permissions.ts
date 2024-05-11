@@ -50,7 +50,7 @@ export default class aSync extends SlashBase {
 
                 if (!valid.includes(perm as string)) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: invalid permission(s)',
                             description: 'Whoops, you provided a invalid permission string, please provide one of the valid permissions listed below (yes it needs to be uppercase)!',
                             color: client.config.EmbedColors.error,
@@ -69,7 +69,7 @@ export default class aSync extends SlashBase {
 
                 await interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Action: update permissions',
                             description: `Updating permissions for ${user?.globalName}...`,
                             thumbnail: client.config.Icons.loading,
@@ -85,7 +85,7 @@ export default class aSync extends SlashBase {
 
                     if (!res.success) return interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Error: failed to update permissions',
                                 description: 'Whoops, we failed to update the permissions for the user, please try again later!',
                                 color: client.config.EmbedColors.error
@@ -95,7 +95,7 @@ export default class aSync extends SlashBase {
 
                     return interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Success: updated permissions',
                                 description: `Successfully updated permissions for ${user?.globalName}!`,
                                 color: client.config.EmbedColors.success,

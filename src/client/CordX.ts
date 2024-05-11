@@ -20,6 +20,7 @@ import Logger from "../utils/logger.util";
 
 class CordX extends Client {
     public api: API = new API(this)
+    public EmbedBuilder: any = CordxEmbed
     public db: DatabaseManager = new DatabaseManager(this)
     public cooldown = new Collection<string, Collection<string, number>>()
     public perms: Permissions = new Permissions(this)
@@ -34,7 +35,6 @@ class CordX extends Client {
     public logs: Logger = new Logger("Client")
     public server = new CordXServer(this)
     public help: IHelpConfig = helpConfig
-    public Embeds: any = CordxEmbed
     public config: IConfig = Config
     constructor(options: ClientOptions) {
         super(options)

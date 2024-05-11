@@ -39,7 +39,7 @@ export default class Ban extends SlashBase {
 
         if (member?.id === interaction?.member?.user.id) return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: "Error: Invalid User",
                     description: "You cannot ban yourself.",
                     color: client.config.EmbedColors.error,
@@ -49,7 +49,7 @@ export default class Ban extends SlashBase {
 
         if (member?.id === client.user?.id) return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: "Error: Invalid User",
                     description: "You cannot ban me.",
                     color: client.config.EmbedColors.error,
@@ -62,7 +62,7 @@ export default class Ban extends SlashBase {
 
         if (!user?.manageable) return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: "Error: Missing Permissions",
                     description: "I don't have the required permissions to ban this user.",
                     color: client.config.EmbedColors.error,
@@ -72,7 +72,7 @@ export default class Ban extends SlashBase {
 
         if (!user?.moderatable) return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: "Error: Missing Permissions",
                     description: "Whoops, i was unable to ban that user! this could be perm related or they could be a higher role than me.",
                     color: client.config.EmbedColors.error,
@@ -85,7 +85,7 @@ export default class Ban extends SlashBase {
 
                 await logs?.send({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: "🔨 User Banned",
                             description: 'Whoops, someone has been naughty! here are the details:',
                             thumbnail: banned.displayAvatarURL(),
@@ -118,7 +118,7 @@ export default class Ban extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: "🔨 User Banned",
                             description: `Damn, someone was naughty and got the ban hammer. If you are a moderator/admin you can view more details in: <#${logs?.id}>`,
                             color: client.config.EmbedColors.success,
@@ -132,7 +132,7 @@ export default class Ban extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: "Error: Failed to ban user",
                             description: `Failed to ban ${member?.username}, please try again later.`,
                             color: client.config.EmbedColors.error,

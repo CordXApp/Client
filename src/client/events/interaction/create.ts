@@ -38,7 +38,7 @@ export default class InteractionCreate extends EventBase {
                 if (!check && missing && missing.length > 0) return interaction.reply({
                     ephemeral: true,
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: missing permissions',
                             description: 'Whoops, looks like you are missing one or more of our necessary team permissions required to execute this command!',
                             color: client.config.EmbedColors.error,
@@ -66,7 +66,7 @@ export default class InteractionCreate extends EventBase {
                     return interaction.reply({
                         ephemeral: true,
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Error: missing permissions',
                                 description: 'Whoops, looks like you are missing one or more of the necessary permissions required to execute this command',
                                 color: client.config.EmbedColors.error,
@@ -98,7 +98,7 @@ export default class InteractionCreate extends EventBase {
                     return interaction.reply({
                         ephemeral: true,
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Error: missing permissions',
                                 description: 'Whoops, looks like I am missing one or more of the necessary permissions required to execute this command',
                                 color: client.config.EmbedColors.error,
@@ -140,7 +140,7 @@ export default class InteractionCreate extends EventBase {
                             return interaction.reply({
                                 ephemeral: true,
                                 embeds: [
-                                    new client.Embeds({
+                                    new client.EmbedBuilder({
                                         title: 'Error: chill pill activated',
                                         description: 'Woah man, i think you need to take a breather. You are doing stuff way to fast!',
                                         color: client.config.EmbedColors.error,

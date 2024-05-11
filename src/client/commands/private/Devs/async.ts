@@ -67,7 +67,7 @@ export default class aSync extends SlashBase {
 
                 if (!command) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: command not found',
                             description: `Are you sure i have a command with that name :thinking:`,
                             color: client.config.EmbedColors.error
@@ -77,7 +77,7 @@ export default class aSync extends SlashBase {
 
                 await interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Admin: sync command',
                             description: `Preparing to sync a ${type} command`,
                             color: client.config.EmbedColors.base,
@@ -89,7 +89,7 @@ export default class aSync extends SlashBase {
                 setTimeout(() => {
                     interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Update: compiling command',
                                 description: 'Compiling the Command ID and other data.',
                                 color: client.config.EmbedColors.warning,
@@ -102,7 +102,7 @@ export default class aSync extends SlashBase {
                 setTimeout(() => {
                     interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Update: establishing connection',
                                 description: 'Establishing connection with the Discord API.',
                                 color: client.config.EmbedColors.warning,
@@ -115,7 +115,7 @@ export default class aSync extends SlashBase {
                 setTimeout(() => {
                     interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Update: connection successful',
                                 description: `Syncing the ${type} command now!`,
                                 color: client.config.EmbedColors.warning,
@@ -132,7 +132,7 @@ export default class aSync extends SlashBase {
 
                     return interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Admin: command sync complete',
                                 description: `Successfully synced command with the Discord API.`,
                                 color: client.config.EmbedColors.base,
@@ -157,7 +157,7 @@ export default class aSync extends SlashBase {
                     client.logs.error(err.stack as string);
                     return interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Error: command sync failed',
                                 description: `Failed to sync command \`${name}\` with the Discord API.`,
                                 color: client.config.EmbedColors.error,

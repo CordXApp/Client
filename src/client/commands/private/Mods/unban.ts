@@ -39,7 +39,7 @@ export default class Unban extends SlashBase {
 
         if (member === interaction?.member?.user.id) return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: "Error: Invalid User",
                     description: "If you are seriously trying to unban yourself you obviously don't know how bans work.",
                     color: client.config.EmbedColors.error,
@@ -49,7 +49,7 @@ export default class Unban extends SlashBase {
 
         if (member === client?.user?.id) return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: "Error: Invalid User",
                     description: "Are you seriously trying to unban me?.....",
                     color: client.config.EmbedColors.error,
@@ -61,7 +61,7 @@ export default class Unban extends SlashBase {
             .then(async (banned) => {
                 await logs.send({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: '🔨 User unbanned!',
                             description: 'Wow, someone got another chance, lets hope they don\'t mess it up.',
                             thumbnail: banned?.displayAvatarURL(),
@@ -94,7 +94,7 @@ export default class Unban extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: '🔨 User unbanned!',
                             color: client.config.EmbedColors.base,
                             description: `Wow someone got lucky with a second chance. If you are a moderator/admin you can view more details in: <#${logs?.id}>`,
@@ -107,7 +107,7 @@ export default class Unban extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: Failed to unban user',
                             color: client.config.EmbedColors.error,
                             description: `${e.message}`

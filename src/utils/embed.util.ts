@@ -1,4 +1,4 @@
-import { EmbedBuilder, HexColorString, EmbedField, EmbedAuthorOptions, EmbedAuthorData } from "discord.js"
+import { EmbedBuilder, HexColorString, EmbedField, EmbedAuthorOptions, EmbedFooterOptions } from "discord.js"
 import { version } from "../../package.json";
 
 /**
@@ -18,6 +18,7 @@ export class CordxEmbed extends EmbedBuilder {
         color: HexColorString
         fields?: EmbedField[]
         author?: EmbedAuthorOptions
+        footer?: EmbedFooterOptions
     }) {
         super()
 
@@ -37,9 +38,13 @@ export class CordxEmbed extends EmbedBuilder {
         this.setColor(data.color)
         if (data.fields) this.setFields(data.fields)
         this.setTimestamp()
-        this.setFooter({
-            text: `© Copyright 2023 - CordX v${version}`,
-            iconURL: "https://cordx.lol/assets/loggo.png",
-        })
+        this.setFooter(
+            data.footer
+                ? data.footer
+                : {
+                    text: `© Copyright 2023 - CordX v${version}`,
+                    iconURL: "https://cordx.lol/assets/loggo.png",
+                }
+        )
     }
 }

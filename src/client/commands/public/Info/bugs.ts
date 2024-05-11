@@ -24,7 +24,7 @@ export default class Bugs extends SlashBase {
 
         return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: 'Bug Reports',
                     description: 'If you find one of those pesky bugs, please report it using one of the methods below!',
                     color: client.config.EmbedColors.base,

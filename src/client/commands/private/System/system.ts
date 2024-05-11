@@ -114,7 +114,7 @@ export default class System extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'System Help',
                             description: 'Here are all of the system commands and their usage.',
                             color: client.config.EmbedColors.base,
@@ -151,7 +151,7 @@ export default class System extends SlashBase {
                 if (method == 'bot') {
                     return interaction.reply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'CordX: Bot Stats',
                                 description: `Here are my stats chief.`,
                                 color: client.config.EmbedColors.base,
@@ -179,7 +179,7 @@ export default class System extends SlashBase {
                     client.System.Statistics().then((data) => {
                         return interaction.reply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'CordX: Website Stats',
                                     description: `Here are our website stats chief.`,
                                     color: client.config.EmbedColors.base,
@@ -209,7 +209,7 @@ export default class System extends SlashBase {
                     }).catch((e: Error) => {
                         return interaction.reply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'CordX: Website Stats',
                                     description: `There was an error fetching the stats.`,
                                     color: client.config.EmbedColors.error,
@@ -249,7 +249,7 @@ export default class System extends SlashBase {
                     case 'current': {
                         return interaction.reply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'CordX: Current Versions',
                                     description: `Here are the current versions of all of our systems.`,
                                     color: client.config.EmbedColors.base,
@@ -293,7 +293,7 @@ export default class System extends SlashBase {
                     case 'newest': {
                         return interaction.reply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'CordX: Newest Versions',
                                     description: `Here are the newest versions of all of our systems.`,
                                     color: client.config.EmbedColors.base,
@@ -337,7 +337,7 @@ export default class System extends SlashBase {
                     case 'stable': {
                         return interaction.reply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'CordX: Stable Versions',
                                     description: `Here are the stable versions of all of our systems.`,
                                     color: client.config.EmbedColors.base,
@@ -388,7 +388,7 @@ export default class System extends SlashBase {
 
                 if (!member?.permissions.has('ManageGuild')) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'CordX: System',
                             description: 'You do not have the required permissions to run this command.',
                             color: client.config.EmbedColors.error,
@@ -401,7 +401,7 @@ export default class System extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Server Rules',
                             description: 'Here are the rules for our server, please make sure to follow them.',
                             color: client.config.EmbedColors.base,
@@ -495,7 +495,7 @@ export default class System extends SlashBase {
             default: {
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'CordX: System',
                             description: 'Whoops, you used a invalid subcommand. Please use the `/system help` to see all available subcommands.',
                             color: client.config.EmbedColors.error,

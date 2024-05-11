@@ -42,7 +42,7 @@ export default class Sync extends SlashBase {
 
                 const message = await interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Sync: user bucket',
                             description: 'Are you sure you want to re-sync your bucket? this will take a while and could result in data loss if something goes wrong!',
                             color: client.config.EmbedColors.base
@@ -64,7 +64,7 @@ export default class Sync extends SlashBase {
 
                         interaction.editReply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'Sync: user bucket',
                                     description: 'Please wait while i execute the task at hand!',
                                     thumbnail: client.config.Icons.loading,
@@ -77,7 +77,7 @@ export default class Sync extends SlashBase {
                         client.spaces.emitter.on('progress', async (results) => {
                             interaction.editReply({
                                 embeds: [
-                                    new client.Embeds({
+                                    new client.EmbedBuilder({
                                         title: 'Update: still working on it',
                                         description: `${results.message}`,
                                         thumbnail: client.config.Icons.loading,
@@ -101,7 +101,7 @@ export default class Sync extends SlashBase {
 
                                 await interaction.editReply({
                                     embeds: [
-                                        new client.Embeds({
+                                        new client.EmbedBuilder({
                                             title: 'Sync: operation successful',
                                             description: 'All your available bucket files have been synced successfully!',
                                             color: client.config.EmbedColors.base
@@ -120,7 +120,7 @@ export default class Sync extends SlashBase {
 
                         await interaction.editReply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'Sync: operation cancelled',
                                     description: 'Cancelled the sync operation (this was probably a smart idea)',
                                     color: client.config.EmbedColors.error
@@ -141,7 +141,7 @@ export default class Sync extends SlashBase {
                     if (collected.size === 0) {
                         interaction.editReply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'Sync: operation timed out',
                                     description: 'You took too long to respond, the operation has been cancelled!',
                                     color: client.config.EmbedColors.error

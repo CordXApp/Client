@@ -42,7 +42,7 @@ export default class MessageCreate extends EventBase {
         if (message.content.startsWith(prefix + 'explain') || message.content.startsWith(prefix + 'exp')) return message.channel.send({
             content: message.type === MessageType.Reply ? `${message.mentions.repliedUser}` : `${author}`,
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: 'CordX: Service Explanation',
                     description: 'So you wanna know more about CordX? Let\'s break it down for you.',
                     color: client.config.EmbedColors.base,
@@ -154,7 +154,7 @@ export default class MessageCreate extends EventBase {
 
             return message.channel.send({
                 embeds: [
-                    new client.Embeds({
+                    new client.EmbedBuilder({
                         title: 'CordX: Support Commands',
                         description: 'Here are my available support commands.',
                         color: client.config.EmbedColors.base,

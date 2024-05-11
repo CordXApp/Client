@@ -31,7 +31,7 @@ export default class GuildMemberAdd extends EventBase {
 
             return l_chan.send({
                 embeds: [
-                    new client.Embeds({
+                    new client.EmbedBuilder({
                         title: "Member Joined!",
                         description:
                             "A new user has spawned, can we trust them?",
@@ -60,7 +60,7 @@ export default class GuildMemberAdd extends EventBase {
 
             return l_chan.send({
                 embeds: [
-                    new client.Embeds({
+                    new client.EmbedBuilder({
                         title: "Bot Joined!",
                         description: "A new bot has spawned, can we trust it?",
                         color: client.config.EmbedColors.base,

@@ -34,7 +34,7 @@ export default class WhoIs extends SlashBase {
 
         if (!member) return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: 'User Not Found',
                     description: 'The user you are trying to view information about could not be found in this guild!',
                     color: client.config.EmbedColors.error
@@ -44,7 +44,7 @@ export default class WhoIs extends SlashBase {
 
         if (member.user.bot) return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: `About: ${member.user.tag}`,
                     description: 'Here is some information about the requested application!',
                     color: client.config.EmbedColors.base,
@@ -72,7 +72,7 @@ export default class WhoIs extends SlashBase {
 
         return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: `About: ${member.user.username}`,
                     description: 'Here is some information about the requested user!',
                     color: client.config.EmbedColors.base,

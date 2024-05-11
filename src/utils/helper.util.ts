@@ -55,7 +55,7 @@ export class Utilities {
                 while (true) {
                     interaction.editReply({
                         embeds: [
-                            new this.client.Embeds({
+                            new this.client.EmbedBuilder({
                                 title: 'Update: still working on it',
                                 description: msg as string,
                                 color: this.client.config.EmbedColors.warning,

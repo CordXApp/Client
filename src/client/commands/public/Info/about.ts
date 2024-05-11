@@ -26,7 +26,7 @@ export default class About extends SlashBase {
 
         return interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: 'About Me 🤖',
                     description: 'Hey there, I am CordX a Simple Application made to make your life easier while interacting with the CordX Website',
                     color: client.config.EmbedColors.base,

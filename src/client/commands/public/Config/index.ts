@@ -58,7 +58,7 @@ export default class Profile extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Profile Help',
                             description: 'Below are the available subcommands and their usage.',
                             color: client.config.EmbedColors.error,
@@ -95,7 +95,7 @@ export default class Profile extends SlashBase {
 
                 if (!user.success) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: profile not found',
                             color: client.config.EmbedColors.error,
                             description: 'Your profile could not be located at this time :thinking:'
@@ -105,7 +105,7 @@ export default class Profile extends SlashBase {
 
                 if (user.data?.domain === 'none' || user.data?.domain === null) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: domain not found',
                             color: client.config.EmbedColors.error,
                             description: 'You should have a domain set to view your config.'
@@ -140,7 +140,7 @@ export default class Profile extends SlashBase {
 
                 if (!user || !user.success) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: profile not found',
                             color: client.config.EmbedColors.error,
                             description: 'Your profile could not be located at this time :thinking:'
@@ -150,7 +150,7 @@ export default class Profile extends SlashBase {
 
                 interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Action: config generation',
                             color: client.config.EmbedColors.base,
                             description: 'Please wait while we generate your config',
@@ -162,7 +162,7 @@ export default class Profile extends SlashBase {
                 setTimeout(() => {
                     interaction.editReply({
                         embeds: [
-                            new client.Embeds({
+                            new client.EmbedBuilder({
                                 title: 'Action: config generation',
                                 color: client.config.EmbedColors.base,
                                 description: 'Attempting to send your config to your DMs :mailbox_with_mail:',
@@ -177,7 +177,7 @@ export default class Profile extends SlashBase {
 
                         if (!config) return interaction.editReply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'Error: config not found',
                                     color: client.config.EmbedColors.error,
                                     description: 'Your config could not be generated at this time :thinking:'
@@ -196,7 +196,7 @@ export default class Profile extends SlashBase {
                         }).catch(() => {
                             return interaction.editReply({
                                 embeds: [
-                                    new client.Embeds({
+                                    new client.EmbedBuilder({
                                         title: 'Error: unable to send DM',
                                         color: client.config.EmbedColors.error,
                                         description: 'Whoops, seems like i was unable to send you your config file :thinking: Please make sure your DMs are open and try again.',
@@ -207,7 +207,7 @@ export default class Profile extends SlashBase {
 
                         return interaction.editReply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'Action: download config',
                                     color: client.config.EmbedColors.base,
                                     description: 'Your config has been sent to your DMs :mailbox_with_mail:, here is a preview!',

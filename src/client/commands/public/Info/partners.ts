@@ -38,7 +38,7 @@ export default class Partners extends SlashBase {
 
                 if (!list.success) return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Error: failed to fetch partners',
                             description: list.message,
                             color: client.config.EmbedColors.error
@@ -56,7 +56,7 @@ export default class Partners extends SlashBase {
 
                 return interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Our Partners 🤝',
                             description: 'Alone we can do so little; together we can do so much.',
                             color: client.config.EmbedColors.base,

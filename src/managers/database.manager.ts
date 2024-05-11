@@ -292,7 +292,7 @@ export class DatabaseManager {
                 if (channel && channel instanceof TextChannel) await channel.send({
                     content: '<@&1138246343412953218>',
                     embeds: [
-                        new this.client.Embeds({
+                        new this.client.EmbedBuilder({
                             title: 'New Report',
                             description: `A new report has been filed by ${data.author}!`,
                             color: this.client.config.EmbedColors.base,

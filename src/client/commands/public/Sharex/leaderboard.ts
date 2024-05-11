@@ -27,7 +27,7 @@ export default class Leaderboard extends SlashBase {
 
         interaction.reply({
             embeds: [
-                new client.Embeds({
+                new client.EmbedBuilder({
                     title: '🔄 Stats: fetching leaderboard',
                     description: 'I am gathering the data, please wait....',
                     thumbnail: client.config.Icons.loading,
@@ -40,7 +40,7 @@ export default class Leaderboard extends SlashBase {
 
             if (!leaderboard.success) return interaction.editReply({
                 embeds: [
-                    new client.Embeds({
+                    new client.EmbedBuilder({
                         title: '🚫 Error: failed to fetch leaderboard',
                         description: `Error: \`${leaderboard.message}\``,
                         color: client.config.EmbedColors.error,
@@ -58,7 +58,7 @@ export default class Leaderboard extends SlashBase {
 
             return interaction.editReply({
                 embeds: [
-                    new client.Embeds({
+                    new client.EmbedBuilder({
                         title: '🏆 Leaderboard: top uploaders',
                         description: 'Here is our top 5 uploaders based on their total uploads.',
                         color: client.config.EmbedColors.base,
