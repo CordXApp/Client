@@ -4,7 +4,6 @@ import helpConfig from "../config/help.config"
 import { CordxEmbed } from "../utils/embed.util"
 import { Utilities } from "../utils/helper.util"
 import { DatabaseManager } from "../managers/database.manager"
-import { Permissions } from "../modules/permissions.module"
 import { Client, ClientOptions, Collection } from "discord.js"
 import type { IConfig, IHelpConfig } from "../types/client"
 import { Security } from "../modules/security.module";
@@ -17,6 +16,10 @@ import CordXServer from "../server/server";
 import RestManager from "../managers/restful.manager";
 import { API } from "../managers/api.manager";
 import Logger from "../utils/logger.util";
+
+/** CLIENT MODULES */
+import { Permissions } from "../modules/permissions.module"
+import { FunModule } from "../modules/fun.module"
 
 class CordX extends Client {
     public api: API = new API(this)
@@ -36,6 +39,8 @@ class CordX extends Client {
     public server = new CordXServer(this)
     public help: IHelpConfig = helpConfig
     public config: IConfig = Config
+    public funmod: FunModule = new FunModule(this)
+
     constructor(options: ClientOptions) {
         super(options)
         this.init()

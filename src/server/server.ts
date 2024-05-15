@@ -73,11 +73,11 @@ export default class CordXServer {
 
         try {
             this.app.listen({
-                port: parseInt('10420'),
+                port: parseInt('4985'),
                 host: '0.0.0.0'
             });
 
-            this.logger.ready(`Server is running on port: 10420`);
+            this.logger.ready(`Server is running on port: 4985`);
         } catch (e: unknown) {
             this.logger.error(`An error occurred while starting the server: ${(e as Error).message}`);
             this.logger.debug(`Stack trace: ${(e as Error).stack}`);

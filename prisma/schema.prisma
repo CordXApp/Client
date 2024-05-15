@@ -28,6 +28,11 @@ model users {
   permissions permissions[]
 }
 
+model secrets {
+  id  String @id @default(uuid())
+  key String @db.LongText
+}
+
 model permissions {
   id    String          @id @default(uuid())
   name  UserPermissions
@@ -48,7 +53,7 @@ model images {
 
 model domains {
   id        String   @id @default(uuid())
-  name      String   @db.Text
+  name      String   @unique @db.VarChar(255)
   content   String   @db.LongText
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())

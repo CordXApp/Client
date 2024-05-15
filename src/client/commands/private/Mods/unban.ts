@@ -12,8 +12,8 @@ export default class Unban extends SlashBase {
             cooldown: 5,
             permissions: {
                 gate: [],
-                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
-                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
+                user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands', 'ModerateMembers'],
+                bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands', 'ModerateMembers']
             },
             options: [
                 {

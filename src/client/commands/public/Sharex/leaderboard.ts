@@ -1,4 +1,5 @@
 import type { CacheType, ChatInputCommandInteraction } from "discord.js"
+import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema"
 import { User } from "../../../../types/database/users";
 import type CordX from "../../../cordx"
@@ -17,6 +18,12 @@ export default class Leaderboard extends SlashBase {
                 user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
                 bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
+            options: [{
+                name: 'amount',
+                description: 'The top uploader count (1 - 15)',
+                type: SubCommandOptions.Number,
+                required: true
+            }]
         })
     }
 
@@ -24,6 +31,8 @@ export default class Leaderboard extends SlashBase {
         client: CordX,
         interaction: ChatInputCommandInteraction<CacheType>,
     ): Promise<any> {
+
+        const amount = interaction.options.getNumber('amount', true)
 
         interaction.reply({
             embeds: [
@@ -36,7 +45,7 @@ export default class Leaderboard extends SlashBase {
             ]
         })
 
-        Promise.all([client.utils.base.delay(10000), client.db.stats.leaderboard()]).then(async ([_, leaderboard]) => {
+        Promise.all([client.utils.base.delay(10000), client.db.stats.leaderboard(amount)]).then(async ([_, leaderboard]) => {
 
             if (!leaderboard.success) return interaction.editReply({
                 embeds: [
@@ -59,8 +68,8 @@ export default class Leaderboard extends SlashBase {
             return interaction.editReply({
                 embeds: [
                     new client.EmbedBuilder({
-                        title: '🏆 Leaderboard: top uploaders',
-                        description: 'Here is our top 5 uploaders based on their total uploads.',
+                        title: '🏆 Leaderboard: top uploader(s)',
+                        description: `Here is our top ${amount === 1 ? 'uploader' : 'uploaders'} based on the total amount of files they have uploaded to CordX!`,
                         color: client.config.EmbedColors.base,
                         fields: [...fields]
                     })

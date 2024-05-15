@@ -78,7 +78,7 @@ export default class aSync extends SlashBase {
                     ]
                 })
 
-                return Promise.all([client.utils.base.delay(10000), client.perms.user.update({
+                return Promise.all([client.utils.base.delay(5000), client.perms.user.update({
                     user: user?.id as string,
                     perm: perm as GatePermissions
                 })]).then(async ([, res]) => {

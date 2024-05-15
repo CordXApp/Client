@@ -47,5 +47,9 @@ export default class Ready extends EventBase {
                 type: presence.type,
             })
         }, 10000)
+
+        setInterval(async () => {
+            await client.db.domain.wipeUnverified();
+        }, 30000)
     }
 }

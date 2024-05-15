@@ -9,10 +9,10 @@
         "db:init": "prisma init",
         "db:create": "prisma generate",
         "db:push": "prisma db push",
-        "dev": "nodemon src/app.ts",
+        "dev:node": "nodemon src/app.ts",
         "dev:build": "nodemon build/app.js",
         "start:build": "node build/app.js",
-        "start": "ts-node src/app.ts"
+        "start:node": "ts-node src/app.ts"
     },
     "dependencies": {
         "@aws-sdk/client-s3": "^3.556.0",

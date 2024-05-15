@@ -8,6 +8,7 @@ export interface UserMethods {
     fetch: (id: User['userid']) => Promise<Responses>
     update: (id: User['userid'], data: User) => Promise<Responses>
     delete: (id: User['userid']) => Promise<Responses>
+    profile: (id: User['userid']) => Promise<Responses>
 }
 
 export interface WebhookMethods {
@@ -31,7 +32,7 @@ export interface StatsMethods {
     images: () => Promise<Responses>
     users: () => Promise<Responses>
     domains: () => Promise<Responses>
-    leaderboard: () => Promise<Responses>
+    leaderboard: (amount: number) => Promise<Responses>
 }
 
 export interface Responses {

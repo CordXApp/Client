@@ -1,4 +1,5 @@
 import { Collection } from "discord.js"
+import { Responses } from "../types/database/index";
 import { bucketMessages } from "../generator/messages";
 import { CordXSnowflake } from "@cordxapp/snowflake";
 import { Cooldown } from "../types/client/index";
@@ -96,6 +97,32 @@ export class Utilities {
                 this.logs.info(`Generated new report ID: ${id}`);
 
                 return id;
+            },
+            purgeMessages: async (channel: string, amount: number, initialMessageID: string): Promise<Responses> => {
+
+                let chan = this.client.channels.cache.get(channel);
+
+                if (amount > 99 || amount <= 2) return { success: false, message: 'Amount of messages should be between 2 and 99' }
+                if (!chan?.isTextBased()) return { success: false, message: 'Please provide a valid text channel' }
+                if (!chan) return { success: false, message: 'Unable to locate the provided channel.' }
+
+                let messages = (await chan.messages.fetch({ limit: amount })).filter((m: any) => m.createdAt.getTime() > Date.now() - 1209600000);
+
+                messages = messages.filter((m: any) => m.id !== initialMessageID);
+                messages = messages.sort((a: any, b: any) => b.createdAt.getTime() - a.createdAt.getTime());
+
+                const length = messages.size;
+
+                for (const message of messages.values()) {
+                    await message.delete().catch(async (err: Error) => {
+                        this.logs.error(`Failed to delete message: ${message.id} in channel: ${chan?.id} - ${err}`);
+                        return { success: false, message: `Failed to delete message: ${message.id} - ${err.message}` }
+                    })
+                }
+
+                return {
+                    success: true, message: `Successfully purged ${length} messages from channel <#${chan.id}>, please wait while i cleanup the process!`
+                }
             }
         }
     }

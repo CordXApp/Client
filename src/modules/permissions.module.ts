@@ -1,5 +1,6 @@
 import type CordX from "../client/cordx"
 import { Params, Response, PermsClient } from "../types/modules/perms";
+import { GatePermissions } from "../types/database/users";
 
 export class Permissions implements PermsClient {
     private client: CordX
@@ -36,23 +37,21 @@ export class Permissions implements PermsClient {
                 return perms.some(perm => data.permissions.some(p => p.name === perm));
             },
             acknowledgments: async (user: string) => {
-                const owner = await this.client.perms.user.has({ user: user, perm: ['OWNER'] });
-                const admin = await this.client.perms.user.has({ user: user, perm: ['ADMIN'] });
-                const dev = await this.client.perms.user.has({ user: user, perm: ['DEVELOPER'] });
-                const support = await this.client.perms.user.has({ user: user, perm: ['SUPPORT'] });
-                const staff = await this.client.perms.user.has({ user: user, perm: ['STAFF'] });
+                const permissions = ['OWNER', 'ADMIN', 'DEVELOPER', 'SUPPORT', 'STAFF'];
 
-                if (owner) this.list.OWNER.push(user);
-                if (admin) this.list.ADMIN.push(user);
-                if (dev) this.list.DEVELOPER.push(user);
-                if (support) this.list.SUPPORT.push(user);
-                if (staff) this.list.STAFF.push(user);
+                for (const perm of permissions) {
+                    this.list[perm] = this.list[perm].filter((u: any) => u !== user);
+                }
+                this.acks = [];
 
-                if (this.list.OWNER.includes(user)) this.acks.push('OWNER');
-                if (this.list.ADMIN.includes(user)) this.acks.push('ADMIN');
-                if (this.list.DEVELOPER.includes(user)) this.acks.push('DEVELOPER');
-                if (this.list.SUPPORT.includes(user)) this.acks.push('SUPPORT');
-                if (this.list.STAFF.includes(user)) this.acks.push('STAFF');
+                for (const perm of permissions) {
+                    const hasPerm = await this.client.perms.user.has({ user: user, perm: perm as GatePermissions });
+
+                    if (hasPerm) {
+                        this.list[perm].push(user);
+                        this.acks.push(perm);
+                    }
+                }
 
                 return this.acks.length > 0 ? this.acks.join(', ') : 'None';
             },

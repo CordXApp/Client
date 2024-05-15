@@ -1,13 +1,35 @@
-import { UserMethods, WebhookMethods, Responses, PartnerMethods, StatsMethods } from "../types/database/index"
-import { LeaderboardData, TOTAL_UPLOADERS } from "../types/database/users";
+import { LeaderboardData } from "../types/database/users";
 import { User } from "../types/database/users";
 import { Webhook } from "../types/database/webhooks";
 import { Report } from "../types/database/reports";
 import { EventEmitter } from "events";
 import { Prisma, PrismaClient } from '@prisma/client';
-import type CordX from "../client/cordx"
-import Logger from "../utils/logger.util"
+import type CordX from "../client/cordx";
+import Logger from "../utils/logger.util";
 import { TextChannel } from "discord.js";
+import crypto from "node:crypto";
+import dns from "node:dns";
+import net from "node:net";
+
+import {
+    UserMethods,
+    WebhookMethods,
+    Responses,
+    PartnerMethods,
+    StatsMethods
+} from "../types/database/index"
+
+import {
+    DomainConfig,
+    BLACKLIST_KEYWORDS,
+    BLACKLIST_ERROR,
+    IP_ADDRESS_ERROR,
+    INVALID_DOMAIN_ERROR,
+    INVALID_PATTERN_ERROR,
+    ESCAPE_SEQUENCE_ERROR,
+    PROTOCOL_ERROR,
+    SUCCESS_MESSAGE
+} from "../types/database/domains"
 
 export class DatabaseManager {
     private client: CordX
@@ -73,6 +95,20 @@ export class DatabaseManager {
                 if (!check) return { success: false, message: 'Unable to locate that user in our database.' };
 
                 const user = await this.prisma.users.delete({ where: { userid: id } });
+
+                return { success: true, data: user }
+            },
+            profile: async (id: User['userid']): Promise<Responses> => {
+
+                const user = await this.prisma.users.findUnique({
+                    where: { userid: id },
+                    include: {
+                        domains: true,
+                        permissions: true
+                    }
+                });
+
+                if (!user) return { success: false, message: 'Unable to locate that user in our database.' };
 
                 return { success: true, data: user }
             }
@@ -204,12 +240,14 @@ export class DatabaseManager {
                 return { success: true, data: domains.length }
             },
 
-            leaderboard: async (): Promise<Responses> => {
+            leaderboard: async (amount: number): Promise<Responses> => {
 
                 try {
 
+                    if (amount < 1 || amount > 15) return { success: false, message: 'Whoops, the top uploaders count should be between 1 and 15' }
+
                     const images = await this.prisma.images.findMany();
-                    if (!images) return { success: false, message: 'No images found, oh the sadness!' };
+                    if (!images) return { success: false, message: 'No images found, oh the sadness! Did someone kill our database again?' };
 
                     const uploaders = images.reduce((acc, image) => {
                         acc[image.userid] = (acc[image.userid] || 0) + 1;
@@ -218,7 +256,7 @@ export class DatabaseManager {
 
                     const topUploaders = Object.entries(uploaders)
                         .sort(([, countA], [, countB]) => countB - countA)
-                        .slice(0, TOTAL_UPLOADERS)
+                        .slice(0, amount)
                         .map(([userid, count]) => ({ userid, count }));
 
                     const userArray: LeaderboardData[] = [];
@@ -344,6 +382,193 @@ export class DatabaseManager {
                 };
 
                 return { success: true, data: report }
+            }
+        }
+    }
+
+    public get secret() {
+        return {
+            create: async (): Promise<Responses> => {
+                try {
+                    const secret = crypto.randomBytes(32).toString('hex');
+
+                    const update = await this.prisma.secrets.create({
+                        data: { key: this.secret.encrypt(secret) }
+                    })
+
+                    return {
+                        success: true,
+                        message: 'Here is the new API Secret, please do not abuse it xD',
+                        data: {
+                            id: update.id,
+                            key: update.key
+                        }
+                    }
+
+                } catch (err: unknown) {
+
+                    if (err instanceof Error) {
+                        return { success: false, message: `${err.message}` }
+                    }
+
+                    return { success: false, message: 'An unknown error occured!' }
+                }
+            },
+            view: async (id: string): Promise<Responses> => {
+
+                const secret = await this.prisma.secrets.findUnique({ where: { id } });
+
+                if (!secret) return { success: false, message: 'Unable to locate a secret with the provided Secret ID' };
+
+                return {
+                    success: true,
+                    message: `The requested secret has been sent to your DM\'s for security purposes.`,
+                    data: { secret: secret.key }
+                }
+            },
+            exists: async (key: string): Promise<Boolean> => {
+
+                const secrets = await this.prisma.secrets.findMany();
+
+                if (!secrets || secrets.length === 0) return false;
+
+                const keys = secrets.map((secret: any) => this.secret.decrypt(secret.key));
+
+                if (keys.length === 0) return false;
+
+                return keys.includes(key) ? true : false;
+            },
+            encrypt: (text: string): string => {
+                const cipher = crypto.createCipheriv('aes-256-ctr', Buffer.from(process.env.ENCRYPTION_KEY as string, 'hex'), Buffer.alloc(16, 0));
+                const encrypted = Buffer.concat([cipher.update(text, 'utf8'), cipher.final()]);
+                return encrypted.toString('hex');
+            },
+            decrypt: (encryptedText: string): string => {
+                const decipher = crypto.createDecipheriv('aes-256-ctr', Buffer.from(process.env.ENCRYPTION_KEY as string, 'hex'), Buffer.alloc(16, 0));
+                const decrypted = Buffer.concat([decipher.update(Buffer.from(encryptedText, 'hex')), decipher.final()]);
+                return decrypted.toString('utf8');
+            },
+
+        }
+    }
+
+    public get domain() {
+        return {
+            create: async (dom: string, owner: string): Promise<Responses> => {
+
+                if (!dom) return { success: false, message: 'Please provide a valid domain without the http/https protocol' };
+
+                const validate = await this.domain.validate(dom as string);
+
+                if (!validate.success) return { success: false, message: validate.message }
+
+                const create = await this.prisma.domains.create({
+                    data: {
+                        name: dom,
+                        content: crypto.randomBytes(15).toString('hex'),
+                        verified: false,
+                        user: owner
+                    }
+                })
+
+                return {
+                    success: true,
+                    message: 'Domain created successfully',
+                    data: create
+                }
+            },
+            fetch: async (dom: string): Promise<Responses> => {
+
+                const domain = await this.prisma.domains.findUnique({ where: { name: dom } });
+
+                if (!domain) return { success: false, message: 'Unable to locate that domain in our database' };
+
+                return {
+                    success: true,
+                    message: 'Here is the domain you requested',
+                    data: domain
+                }
+            },
+            exists: async (dom: string): Promise<Responses> => {
+
+                const domain = await this.prisma.domains.findUnique({ where: { name: dom } });
+
+                if (!domain) return { success: false, message: 'Unable to locate that domain in our database' }
+
+                return {
+                    success: true,
+                    message: 'Here is the domain info',
+                    data: domain
+                }
+            },
+            /**
+             * Validate a domain name to ensure it follows our standards
+             * @param {dom} string The domain name to validate
+             * @returns {Promise<Responses>} The response structure
+             */
+            validate: async (dom: string): Promise<Responses> => {
+                const isNotIP = net.isIP(dom) != 0;
+
+                if (isNotIP) return { success: false, message: IP_ADDRESS_ERROR };
+
+                const pattern = new RegExp('^(?!-)[A-Za-z0-9-]{1,63}(?<!-)$');
+
+                const parts = dom.split('.');
+
+                if (parts.length < 2) return { success: false, message: INVALID_DOMAIN_ERROR };
+
+                if (!parts.every(part => pattern.test(part))) return { success: false, message: INVALID_PATTERN_ERROR };
+
+                if (/\\|https?:\/\//.test(dom)) return { success: false, message: dom.includes('\\') ? ESCAPE_SEQUENCE_ERROR : PROTOCOL_ERROR };
+
+                const config: DomainConfig = { blacklist: BLACKLIST_KEYWORDS };
+                const blacklisted = await this.domain.blacklisted(dom as string, config);
+
+                if (blacklisted) return { success: false, message: BLACKLIST_ERROR };
+
+                return { success: true, message: SUCCESS_MESSAGE }
+            },
+            blacklisted: async (dom: string, config: DomainConfig): Promise<boolean> => {
+                const isBlacklisted = config.blacklist.some((blacklisted: any) => dom.includes(blacklisted));
+
+                return isBlacklisted ? true : false
+            },
+            verifyRecord: (dom: string, txtName: string): Promise<boolean> => {
+                return new Promise(async (resolve, reject) => {
+
+                    const exists = await this.domain.exists(dom);
+
+                    if (!exists) return false
+
+                    const filtered = this.domain.removeSub(dom);
+
+                    dns.resolve(filtered, (err, records) => {
+                        if (err) return resolve(false);
+
+                        const hasRecord = records.some((r: any) => r.includes());
+
+                        resolve(hasRecord)
+                    })
+                })
+            },
+            removeSub: (dom: string): string => {
+                const parts = dom.split('.');
+                const root = parts.slice(-2).join('.');
+
+                return root;
+            },
+            wipeUnverified: async (): Promise<void> => {
+                const thirtyDaysAgo = new Date();
+                thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 15);
+
+                await this.prisma.domains.deleteMany({
+                    where: {
+                        verified: false,
+                        createdAt: {
+                            lt: thirtyDaysAgo
+                        }
+                    }
+                });
             }
         }
     }
