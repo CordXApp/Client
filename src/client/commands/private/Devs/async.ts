@@ -1,4 +1,5 @@
 import { ActionRow, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, type CacheType, type ChatInputCommandInteraction } from "discord.js"
+import { SpacesResponse } from "../../../../types/modules/spaces"
 import { SubCommandOptions } from "../../../../types/client/utilities"
 import { SlashBase } from "../../../../schemas/command.schema";
 import type CordX from "../../../cordx"
@@ -175,7 +176,7 @@ export default class aSync extends SlashBase {
 
                 break;
 
-            /**case 'buckets': {
+            case 'buckets': {
                 const confirm: any = new ButtonBuilder()
                     .setCustomId('agree')
                     .setLabel('🔄 Continue')
@@ -191,7 +192,7 @@ export default class aSync extends SlashBase {
 
                 const message = await interaction.reply({
                     embeds: [
-                        new client.Embeds({
+                        new client.EmbedBuilder({
                             title: 'Admin: sync all buckets',
                             description: `Are you sure you want to sync/re-sync all bucket data? this will take a while and could result in data loss if the bot crashes.`,
                             color: client.config.EmbedColors.base,
@@ -213,94 +214,54 @@ export default class aSync extends SlashBase {
 
                         interaction.editReply({
                             embeds: [
-                                new client.Embeds({
-                                    title: 'Admin: syncing all buckets',
-                                    description: `Please wait while i execute the task at hand.`,
-                                    color: client.config.EmbedColors.base,
-                                    thumbnail: client.config.Icons.loading
+                                new client.EmbedBuilder({
+                                    title: 'Sync: user bucket',
+                                    description: 'Please wait while i execute the task at hand!',
+                                    thumbnail: client.config.Icons.loading,
+                                    color: client.config.EmbedColors.warning
                                 })
                             ],
                             components: []
                         })
 
+                        client.spaces.emitter.on('progress', async (results) => {
+                            interaction.editReply({
+                                embeds: [
+                                    new client.EmbedBuilder({
+                                        title: 'Update: still working on it',
+                                        description: `${results.message}`,
+                                        thumbnail: client.config.Icons.loading,
+                                        color: client.config.EmbedColors.warning,
+                                        fields: [{
+                                            name: '⏭️ Progress',
+                                            value: `${results.percentage}`,
+                                            inline: false
+                                        }, {
+                                            name: '🔢  Total',
+                                            value: `${results.total}`,
+                                            inline: false
+                                        }]
+                                    })
+                                ]
+                            })
+                        })
+
                         const promise = Promise.all([client.utils.base.delay(300000), client.spaces.actions.sync_all()])
-                            .then(async ([, status]: [unknown, { results: SyncAll }]) => {
+                            .then(async ([, res]: [unknown, { results: SpacesResponse }]) => {
 
                                 await interaction.editReply({
                                     embeds: [
-                                        new client.Embeds({
+                                        new client.EmbedBuilder({
                                             title: 'Admin: bucket sync complete',
-                                            description: `All available data has been synced for a total of \`${status.results.users}\` users!`,
+                                            description: `All available bucket data has been synced successfully!`,
                                             color: client.config.EmbedColors.success,
-                                            fields: [{
-                                                name: '✅ Synced',
-                                                value: `${status.results.synced} synced files`,
-                                                inline: false
-                                            }, {
-                                                name: '⏭️ Skipped',
-                                                value: `${status.results.skipped} skipped files`,
-                                                inline: false
-                                            }, {
-                                                name: '🗑️ Deleted',
-                                                value: `${status.results.deleted} deleted files`,
-                                                inline: false
-                                            }, {
-                                                name: '❓ Missing',
-                                                value: `${status.results.muser} users missing a bucket`,
-                                            }, {
-                                                name: '❌ Failed',
-                                                value: `${status.results.failed} errors occurred`,
-                                                inline: false
-                                            }, {
-                                                name: '🔢 Total',
-                                                value: `${status.results.synced + status.results.skipped + status.results.deleted + status.results.failed} total files processed`,
-                                                inline: false
-                                            }]
                                         })
                                     ],
                                     components: []
                                 })
 
                                 collector.stop();
-                            })
-
-                        client.db.emitter.on('progress', (results) => {
-                            interaction.editReply({
-                                embeds: [
-                                    new client.Embeds({
-                                        title: 'Admin: syncing all buckets',
-                                        description: `Syncing data for ${results.user}...`,
-                                        thumbnail: client.config.Icons.loading,
-                                        color: client.config.EmbedColors.warning,
-                                        fields: [{
-                                            name: '✅ Synced',
-                                            value: `${results.synced} synced files`,
-                                            inline: false
-                                        }, {
-                                            name: '⏭️ Skipped',
-                                            value: `${results.skipped} skipped files`,
-                                            inline: false
-                                        }, {
-                                            name: '🗑️ Deleted',
-                                            value: `${results.deleted} deleted files`,
-                                            inline: false
-                                        }, {
-                                            name: '❓ Missing',
-                                            value: `${results.muser} users missing a bucket`,
-                                        }, {
-                                            name: '❌ Failed',
-                                            value: `${results.failed} errors occurred`,
-                                            inline: false
-                                        }, {
-                                            name: '🔢 Total',
-                                            value: `${results.synced + results.skipped + results.deleted + results.failed} total files processed`,
-                                            inline: false
-                                        }]
-                                    })
-                                ],
-                                components: []
-                            })
-                        })
+                            });
 
                         await promise;
 
@@ -309,7 +270,7 @@ export default class aSync extends SlashBase {
 
                         await interaction.editReply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'Admin: sync all buckets',
                                     description: `Cancelled the sync opeartion (this was probably a smart idea)`,
                                     color: client.config.EmbedColors.error
@@ -330,7 +291,7 @@ export default class aSync extends SlashBase {
                     if (collected.size === 0) {
                         interaction.editReply({
                             embeds: [
-                                new client.Embeds({
+                                new client.EmbedBuilder({
                                     title: 'Admin: sync user bucket',
                                     description: `No reaction was collected, cancelling the bucket sync`,
                                     color: client.config.EmbedColors.error
@@ -347,7 +308,7 @@ export default class aSync extends SlashBase {
 
                     collector.stop()
                 })
-            }*/
+            }
         }
     }
 }

@@ -31,7 +31,9 @@ import {
     SUCCESS_MESSAGE
 } from "../types/database/domains"
 
-export class DatabaseManager {
+const prismaClient = new PrismaClient();
+
+export class DatabaseClient {
     private client: CordX
     private logs: Logger
     public prisma: PrismaClient
@@ -40,7 +42,7 @@ export class DatabaseManager {
     constructor(client: CordX) {
         this.client = client;
         this.logs = new Logger("Database")
-        this.prisma = new PrismaClient()
+        this.prisma = prismaClient
         this.emitter = new EventEmitter()
     }
 

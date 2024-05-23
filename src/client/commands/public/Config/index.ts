@@ -10,7 +10,7 @@ export default class Profile extends SlashBase {
             description: "Manage your CordX/ShareX config.",
             usage: "/config <subCommand>",
             example: "/config view",
-            category: "Info",
+            category: "Config",
             cooldown: 5,
             permissions: {
                 gate: [],

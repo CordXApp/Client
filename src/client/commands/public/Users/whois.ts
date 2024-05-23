@@ -9,7 +9,7 @@ export default class WhoIs extends SlashBase {
         super({
             name: 'whois',
             description: 'View information about yourself or another user!',
-            category: 'Info',
+            category: 'Users',
             cooldown: 5,
             permissions: {
                 user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],

@@ -3,7 +3,7 @@ import Config from "../config/main.config"
 import helpConfig from "../config/help.config"
 import { CordxEmbed } from "../utils/embed.util"
 import { Utilities } from "../utils/helper.util"
-import { DatabaseManager } from "../managers/database.manager"
+import { DatabaseClient } from "../prisma/prisma.client";
 import { Client, ClientOptions, Collection } from "discord.js"
 import type { IConfig, IHelpConfig } from "../types/client"
 import { Security } from "../modules/security.module";
@@ -24,7 +24,7 @@ import { FunModule } from "../modules/fun.module"
 class CordX extends Client {
     public api: API = new API(this)
     public EmbedBuilder: any = CordxEmbed
-    public db: DatabaseManager = new DatabaseManager(this)
+    public db: DatabaseClient = new DatabaseClient(this)
     public cooldown = new Collection<string, Collection<string, number>>()
     public perms: Permissions = new Permissions(this)
     public commands: CommandManager = new CommandManager(this)

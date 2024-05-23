@@ -21,6 +21,16 @@ export default class Sync extends SlashBase {
             options: [{
                 name: 'bucket',
                 description: 'Sync/re-sync your bucket files',
+                options: [{
+                    name: 'force',
+                    description: 'Force the sync operation',
+                    type: SubCommandOptions.Boolean,
+                    required: true
+                }],
+                type: SubCommandOptions.SubCommand,
+            }, {
+                name: 'check',
+                description: 'Check if your bucket needs to be synced!',
                 type: SubCommandOptions.SubCommand
             }]
         })
@@ -33,7 +43,48 @@ export default class Sync extends SlashBase {
 
         switch (interaction.options.getSubcommand()) {
 
+            case 'check': {
+
+                await interaction.reply({
+                    embeds: [
+                        new client.EmbedBuilder({
+                            title: 'Action: check sync status',
+                            description: 'Checking if your bucket needs to be synced!',
+                            thumbnail: client.config.Icons.loading,
+                            color: client.config.EmbedColors.warning
+                        })
+                    ]
+                });
+
+                return Promise.all([client.utils.base.delay(5000), client.spaces.actions.check(interaction.user.id)]).then(async ([, res]) => {
+
+                    if (!res.success) return interaction.editReply({
+                        embeds: [
+                            new client.EmbedBuilder({
+                                title: 'Error: failed to check sync status',
+                                description: res.message,
+                                color: client.config.EmbedColors.error
+                            })
+                        ]
+                    });
+
+                    return interaction.editReply({
+                        embeds: [
+                            new client.EmbedBuilder({
+                                title: 'Success: status check complete',
+                                description: res.message,
+                                color: client.config.EmbedColors.base
+                            })
+                        ]
+                    })
+                })
+
+            }
+
             case 'bucket': {
+
+                const force = interaction.options.getBoolean('force');
+
                 const row: any = new ActionRowBuilder()
                     .addComponents([
                         new ButtonBuilder().setCustomId('agree').setLabel('🔄 Sync bucket').setStyle(ButtonStyle.Danger),
@@ -96,24 +147,49 @@ export default class Sync extends SlashBase {
                             })
                         })
 
-                        const promise = Promise.all([client.utils.base.delay(60000), client.spaces.actions.sync_user(interaction.user.id)])
-                            .then(async ([, res]: [unknown, { results: SpacesResponse }]) => {
+                        const syncUserPromise = client.spaces.actions.sync_user(interaction.user.id, force as boolean);
 
-                                await interaction.editReply({
+                        syncUserPromise.then(async (res: { results: SpacesResponse }) => {
+                            if (!res.results.success) {
+                                return interaction.editReply({
                                     embeds: [
                                         new client.EmbedBuilder({
-                                            title: 'Sync: operation successful',
-                                            description: 'All your available bucket files have been synced successfully!',
-                                            color: client.config.EmbedColors.base
+                                            title: 'Sync: operation failed',
+                                            description: res.results.message,
+                                            color: client.config.EmbedColors.error
                                         })
                                     ],
                                     components: []
-                                })
+                                });
+                            }
 
-                                collector.stop()
+                            await client.utils.base.delay(60000);
+
+                            await interaction.editReply({
+                                embeds: [
+                                    new client.EmbedBuilder({
+                                        title: 'Sync: operation successful',
+                                        description: 'All your available bucket files have been synced successfully!',
+                                        color: client.config.EmbedColors.base
+                                    })
+                                ],
+                                components: []
                             });
 
-                        await promise;
+                            collector.stop();
+                        }).catch((err: Error) => {
+
+                            return interaction.editReply({
+                                embeds: [
+                                    new client.EmbedBuilder({
+                                        title: 'Sync: operation failed',
+                                        description: err.message,
+                                        color: client.config.EmbedColors.error
+                                    })
+                                ],
+                                components: []
+                            })
+                        });
 
                         collector.stop();
                     } else if (result.customId === 'disagree') {

@@ -13,27 +13,17 @@ export default class Ready extends EventBase {
 
         client.logs.info(`Logged in as ${client.user?.tag}!`)
 
+        const uploads = await client.db.prisma.images.count();
+
         client.server.start().catch((err: Error) => {
             client.logs.error(err.stack as string);
         });
 
         let presences = [
             {
-                name: "Playing with your images",
-                type: ActivityType.Custom,
-            },
-            {
-                name: "https://cordximg.host",
-                type: ActivityType.Custom,
-            },
-            {
-                name: "https://help.cordx.lol",
-                type: ActivityType.Custom,
-            },
-            {
-                name: "https://status.cordx.lol",
-                type: ActivityType.Custom,
-            },
+                name: `${uploads} stored uploads `,
+                type: ActivityType.Watching,
+            }
         ]
 
         client?.user?.setStatus("idle")
