@@ -8,7 +8,7 @@
         "build": "tsc",
         "db:init": "prisma init",
         "db:create": "prisma generate",
-        "db:push": "prisma db push",
+        "db:push": "prisma db push --schema=",
         "dev:node": "nodemon src/app.ts",
         "dev:build": "nodemon build/app.js",
         "start:build": "node build/app.js",
@@ -32,12 +32,8 @@
         "prisma": "^5.12.1"
     },
     "devDependencies": {
-        "@cordxapp/client": "0.4.18",
-        "@cordxapp/instatus": "0.4.18",
-        "@cordxapp/pastes": "0.4.18",
         "@cordxapp/snowflake": "0.4.18",
         "@types/node": "^20.5.9",
-        "@infinitylist/uptime": "0.1.7-alpha.7",
         "nodemon": "^3.0.1",
         "ts-node": "^10.9.1",
         "typescript": "5.2.2"
