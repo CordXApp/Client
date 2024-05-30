@@ -11,10 +11,9 @@ import { Spaces } from "../modules/spaces.module";
 import PrivateManager from "../managers/private.manager"
 import CommandManager from "../managers/command.manager"
 import EventManager from "../managers/listener.manager"
-import { CordXSystem } from "@cordxapp/client";
 import CordXServer from "../server/server";
 import RestManager from "../managers/restful.manager";
-import { API } from "../managers/api.manager";
+//import { API } from "../managers/api.manager";
 import Logger from "../utils/logger.util";
 
 /** CLIENT MODULES */
@@ -22,7 +21,7 @@ import { Permissions } from "../modules/permissions.module"
 import { FunModule } from "../modules/fun.module"
 
 class CordX extends Client {
-    public api: API = new API(this)
+    //public api: API = new API(this)
     public EmbedBuilder: any = CordxEmbed
     public db: DatabaseClient = new DatabaseClient(this)
     public cooldown = new Collection<string, Collection<string, number>>()
@@ -34,7 +33,6 @@ class CordX extends Client {
     public security: Security = new Security(this)
     public spaces: Spaces = new Spaces(this)
     public utils: Utilities = new Utilities(this)
-    public System: CordXSystem = new CordXSystem()
     public logs: Logger = new Logger("Client")
     public server = new CordXServer(this)
     public help: IHelpConfig = helpConfig

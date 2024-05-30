@@ -45,7 +45,7 @@ export default class Leaderboard extends SlashBase {
             ]
         })
 
-        Promise.all([client.utils.base.delay(10000), client.db.stats.leaderboard(amount)]).then(async ([_, leaderboard]) => {
+        Promise.all([client.utils.base.delay(10000), client.db.stats.model.leaderboard(amount)]).then(async ([_, leaderboard]) => {
 
             if (!leaderboard.success) return interaction.editReply({
                 embeds: [

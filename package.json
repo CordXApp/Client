@@ -6,9 +6,9 @@
     "license": "UNLICENSED",
     "scripts": {
         "build": "tsc",
-        "db:init": "prisma init",
-        "db:create": "prisma generate",
-        "db:push": "prisma db push --schema=",
+        "db:init": "prisma init --schema=./src/prisma/schema.prisma",
+        "db:create": "prisma generate --schema=./src/prisma/schema.prisma",
+        "db:push": "prisma db push --schema=./src/prisma/schema.prisma",
         "dev:node": "nodemon src/app.ts",
         "dev:build": "nodemon build/app.js",
         "start:build": "node build/app.js",

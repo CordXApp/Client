@@ -6,7 +6,7 @@ const config: IConfig = {
         secret: `${process.env.API_SECRET}`,
     },
     Cordx: {
-        domain: "https://cordx.lol",
+        domain: "https://cordximg.host",
         docs: "https://help.cordx.lol",
     },
     Icons: {

@@ -26,6 +26,7 @@ model users {
   key         String?       @unique
   signature   signatures?   @relation(fields: [key], references: [key])
   permissions permissions[]
+  orgs        orgs[]
 }
 
 model secrets {
@@ -104,6 +105,63 @@ model reports {
   mod       String?
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+}
+
+model orgs {
+  id          String       @id @unique
+  name        String       @db.VarChar(255)
+  username    String       @db.VarChar(255)
+  logo        String       @db.VarChar(255)
+  banner      String       @db.LongText
+  links       org_links?
+  description String       @db.LongText
+  members     org_member[]
+  creator     users        @relation(fields: [owner], references: [userid])
+  owner       String       @db.VarChar(255)
+  api_key     String       @unique
+  verified    Boolean      @default(false)
+  banned      Boolean      @default(false)
+  domain      org_domain?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model org_member {
+  id     String      @id @unique
+  org    orgs        @relation(fields: [id], references: [id])
+  roles  org_roles[]
+  userid String      @unique
+}
+
+model org_links {
+  id        String @id @unique
+  discord   String @db.Text
+  twitter   String @db.Text
+  github    String @db.Text
+  instagram String @db.Text
+  youtube   String @db.Text
+  website   String @db.Text
+  org       orgs   @relation(fields: [id], references: [id])
+}
+
+model org_roles {
+  id     String     @id @unique
+  admin  Boolean    @default(false)
+  editor Boolean    @default(false)
+  reader Boolean    @default(false)
+  guest  Boolean    @default(false)
+  user   org_member @relation(fields: [member], references: [id])
+  member String     @db.VarChar(255)
+}
+
+model org_domain {
+  id        String   @id @unique
+  name      String   @db.Text
+  content   String   @db.LongText
+  verified  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  org       orgs     @relation(fields: [id], references: [id])
 }
 
 enum UserPermissions {

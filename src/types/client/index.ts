@@ -8,7 +8,7 @@ export interface IConfig {
         secret: string
     }
     Cordx: {
-        domain: "https://cordx.lol"
+        domain: "https://cordximg.host"
         docs: "https://help.cordx.lol"
     }
     Icons: {

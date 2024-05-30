@@ -34,7 +34,7 @@ export default class Partners extends SlashBase {
 
             case 'list': {
 
-                const list = await client.db.partner.list();
+                const list = await client.db.partner.model.list();
 
                 if (!list.success) return interaction.reply({
                     embeds: [

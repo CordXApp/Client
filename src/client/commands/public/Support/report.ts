@@ -110,7 +110,7 @@ export default class ReportCmd extends SlashBase {
                     ]
                 });
 
-                return Promise.all([client.utils.base.delay(10000), client.db.report.create({
+                return Promise.all([client.utils.base.delay(10000), client.db.report.model.create({
                     type: type as reports['type'],
                     reason: reason as string,
                     author: interaction.user.id as string
@@ -166,7 +166,7 @@ export default class ReportCmd extends SlashBase {
 
                 const id = interaction.options.getString('id', true);
 
-                const report = await client.db.report.fetch(id, interaction.user.id);
+                const report = await client.db.report.model.fetch(id, interaction.user.id);
 
                 if (!report.success) return interaction.reply({
                     embeds: [
@@ -287,7 +287,7 @@ export default class ReportCmd extends SlashBase {
 
                 const user = interaction.options.getString('user_id', false) || interaction.user.id;
 
-                const reports = await client.db.report.list(user);
+                const reports = await client.db.report.model.list(user);
 
                 if (!reports.success) return interaction.reply({
                     embeds: [
