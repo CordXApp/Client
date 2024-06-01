@@ -3,9 +3,9 @@ import { FastifyRequest, FastifyReply } from "fastify";
 export class VersionHandler {
     constructor() { }
 
-    public get versions() {
+    public get Versions() {
         return {
-            handler: async (req: FastifyRequest<{ Querystring: { branch: string } }>, res: FastifyReply) => {
+            Handler: async (req: FastifyRequest<{ Querystring: { branch: string } }>, res: FastifyReply) => {
                 res.header('Content-Type', 'application/json');
                 const { branch } = req.query;
 
@@ -36,7 +36,7 @@ export class VersionHandler {
                     web: await req.client.utils.github.version('CordXApp/Website', 'master', 'package.json'),
                 })
             },
-            preHandler: async (req: FastifyRequest<{ Querystring: { branch: string } }>, res: FastifyReply) => {
+            PreHandler: async (req: FastifyRequest<{ Querystring: { branch: string } }>, res: FastifyReply) => {
                 const { branch } = req.query;
 
                 if (!branch) return res.status(400).send({

@@ -1,14 +1,14 @@
 import { FastifyInstance } from 'fastify';
-import { UserHandler } from "../../handlers/users/user.handler";
+import { DiscordUserHandler } from "../../handlers/users/discord.handler";
 
 export default async function (fastify: FastifyInstance) {
 
-    const { handler, preHandler } = new UserHandler();
+    const { DiscordUser } = new DiscordUserHandler();
 
     fastify.route({
         method: 'GET',
         url: '/:userId/discord',
-        handler: handler.getDiscordUser,
-        preHandler: preHandler.getDiscordUser
+        handler: DiscordUser.Handler,
+        preHandler: DiscordUser.PreHandler
     })
 }

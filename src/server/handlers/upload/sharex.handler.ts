@@ -7,9 +7,9 @@ import { randomUUID } from "node:crypto";
 export class SharexUploader {
     constructor() { }
 
-    public get sharex() {
+    public get Sharex() {
         return {
-            handler: async (req: FastifyRequest, res: FastifyReply) => {
+            Handler: async (req: FastifyRequest, res: FastifyReply) => {
                 const { userid, secret } = req.headers;
 
                 return new Promise(async (resolve, reject) => {
@@ -56,7 +56,7 @@ export class SharexUploader {
                     })
                 })
             },
-            preHandler: async (req: FastifyRequest, res: FastifyReply) => {
+            PreHandler: async (req: FastifyRequest, res: FastifyReply) => {
                 const { userid, secret } = req.headers;
 
                 if (!userid || !secret) return res.status(400).send({

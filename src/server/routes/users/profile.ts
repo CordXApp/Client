@@ -1,14 +1,14 @@
 import { FastifyInstance } from 'fastify';
-import { UserHandler } from "../../handlers/users/user.handler";
+import { UserProfileHandler } from "../../handlers/users/profile.handler";
 
 export default async function (fastify: FastifyInstance) {
 
-    const { handler, preHandler } = new UserHandler();
+    const { UserProfile } = new UserProfileHandler();
 
     fastify.route({
         method: 'GET',
         url: '/:userId/:secret',
-        handler: handler.getUserProfile,
-        preHandler: preHandler.getUserProfile
+        handler: UserProfile.Handler,
+        preHandler: UserProfile.PreHandler
     })
 }

@@ -1,14 +1,14 @@
 import { FastifyInstance } from 'fastify';
-import { UserHandler } from "../../handlers/users/user.handler";
+import { UploadStatsHandler } from "../../handlers/users/stats.handler";
 
 export default async function (fastify: FastifyInstance) {
 
-    const { handler, preHandler } = new UserHandler();
+    const { UploadStats } = new UploadStatsHandler();
 
     fastify.route({
         method: 'GET',
         url: '/:userId/stats',
-        handler: handler.getUserUploadStats,
-        preHandler: preHandler.getUserUploadStats
+        handler: UploadStats.Handler,
+        preHandler: UploadStats.PreHandler
     })
 }

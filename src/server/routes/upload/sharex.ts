@@ -3,7 +3,7 @@ import { SharexUploader } from "../../handlers/upload/sharex.handler";
 
 export default async function (fastify: FastifyInstance) {
 
-    const { sharex } = new SharexUploader()
+    const { Sharex } = new SharexUploader()
 
     fastify.route({
         method: 'GET',
@@ -19,7 +19,7 @@ export default async function (fastify: FastifyInstance) {
     fastify.route({
         method: 'POST',
         url: '/sharex',
-        handler: sharex.handler,
-        preHandler: sharex.preHandler
+        handler: Sharex.Handler,
+        preHandler: Sharex.PreHandler
     })
 }

@@ -3,9 +3,9 @@ import { FastifyRequest, FastifyReply } from "fastify";
 export class RootHandler {
     constructor() { }
 
-    public get base() {
+    public get Home() {
         return {
-            root: async (req: FastifyRequest, res: FastifyReply) => {
+            Handler: async (req: FastifyRequest, res: FastifyReply) => {
                 return res.status(200).send({
                     message: 'Hey there, welcome to the CordX API!',
                     documentation: 'https://help.cordx.lol',
