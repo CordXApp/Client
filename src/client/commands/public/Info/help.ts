@@ -1,4 +1,4 @@
-import type { CacheType, ChatInputCommandInteraction } from "discord.js";
+import { pagination, ButtonTypes, ButtonStyles } from "@devraelfreeze/discordjs-pagination";
 import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema";
 import type CordX from "../../../cordx";
@@ -26,7 +26,7 @@ export default class Help extends SlashBase {
 
     public async execute(
         client: CordX,
-        interaction: ChatInputCommandInteraction<CacheType>
+        interaction: any
     ): Promise<any> {
 
         const cmd = interaction.options.getString('command');
@@ -60,35 +60,69 @@ export default class Help extends SlashBase {
             })
         }
 
-        return interaction.reply({
-            embeds: [
-                new client.EmbedBuilder({
-                    title: 'CordX: Help Menu 📚',
-                    description: `Here is a list of all my available commands, sorted by their categories!`,
-                    color: client.config.EmbedColors.base,
-                    fields: [{
-                        name: 'Info Commands',
-                        value: client.commands.category('Info').map((cmd) => cmd.props.name).join(', '),
-                        inline: true
-                    }, {
-                        name: 'Config Commands',
-                        value: client.commands.category('Config').map((cmd) => cmd.props.name).join(', '),
-                        inline: true
-                    }, {
-                        name: 'ShareX Commands',
-                        value: client.commands.category('Sharex').map((cmd) => cmd.props.name).join(', '),
-                        inline: true
-                    }, {
-                        name: 'Support Commands',
-                        value: client.commands.category('Support').map((cmd) => cmd.props.name).join(', '),
-                        inline: true
-                    }, {
-                        name: 'User Commands',
-                        value: client.commands.category('Users').map((cmd) => cmd.props.name).join(', '),
-                        inline: true
-                    }]
-                })
-            ]
+        const info = new client.EmbedBuilder({
+            title: 'Help: info commands',
+            description: 'Here is a list of all my info commands!',
+            color: client.config.EmbedColors.base,
+            fields: [{
+                name: 'Commands',
+                value: client.commands.category('Info').map((cmd) => cmd.props.name).join(', '),
+                inline: true
+            }]
+        });
+
+        const sharex = new client.EmbedBuilder({
+            title: 'Help: sharex commands',
+            description: 'Here is a list of all my sharex commands!',
+            color: client.config.EmbedColors.base,
+            fields: [{
+                name: 'Commands',
+                value: client.commands.category('Sharex').map((cmd) => cmd.props.name).join(', '),
+                inline: true
+            }]
+        });
+
+        const support = new client.EmbedBuilder({
+            title: 'Help: support commands',
+            description: 'Here is a list of all my support commands!',
+            color: client.config.EmbedColors.base,
+            fields: [{
+                name: 'Commands',
+                value: client.commands.category('Support').map((cmd) => cmd.props.name).join(', '),
+                inline: true
+            }]
+        });
+
+        const users = new client.EmbedBuilder({
+            title: 'Help: user commands',
+            description: 'Here is a list of all my user commands!',
+            color: client.config.EmbedColors.base,
+            fields: [{
+                name: 'Commands',
+                value: client.commands.category('Users').map((cmd) => cmd.props.name).join(', '),
+                inline: true
+            }]
+        });
+
+        return pagination({
+            interaction: interaction,
+            embeds: [info, sharex, support, users],
+            author: interaction.member.user,
+            disableButtons: false,
+            fastSkip: true,
+            ephemeral: false,
+            time: 30000,
+            buttons: [{
+                type: ButtonTypes.previous,
+                label: 'Previous',
+                style: ButtonStyles.Secondary,
+                emoji: '⬅️'
+            }, {
+                type: ButtonTypes.next,
+                label: 'Next',
+                style: ButtonStyles.Primary,
+                emoji: '➡️'
+            }]
         })
     }
 }

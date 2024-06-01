@@ -17,9 +17,9 @@ export interface User extends PrismaUser {
     webhook: string;
     cookie: string;
     domain: string;
-    position: string;
+    position?: string;
     permissions?: GatePermissions[];
-    total: number;
+    total?: number;
 }
 
 export interface Domain extends PrismaDomains {

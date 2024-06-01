@@ -1,10 +1,10 @@
 import { Collection } from "discord.js"
 import { Responses } from "../types/database/index";
-import { bucketMessages } from "../generator/messages";
 import { CordXSnowflake } from "@cordxapp/snowflake";
 import { Cooldown } from "../types/client/index";
 import type CordX from "../client/cordx"
 import Logger from "./logger.util"
+import axios from "axios";
 
 export class Utilities {
     public client: CordX
@@ -193,17 +193,63 @@ export class Utilities {
         }
     }
 
-    public get random() {
+    public get github() {
         return {
-            message: async (type: string): Promise<string> => {
+            /**
+             * Fetch the raw content from a GitHub Repository
+             * @param {string} repo - Repository name
+             * @param {string} branch - Branch name
+             * @param {string} path - Path to the file (optional)
+             * @returns {Responses} - Response object
+             */
+            raw: async (repo: string, branch: string, path: string): Promise<Responses> => {
+                if (!repo) return { success: false, message: 'Please provide a valid repository' };
+                if (!branch) return { success: false, message: 'Please provide a valid branch' };
 
-                let messages;
+                const url = `https://raw.githubusercontent.com/${repo}/${branch}/${path}`;
 
-                if (type === 'bucket') messages = bucketMessages;
+                const res = await axios.get(url, { headers: { Authorization: `token ${process.env.GH_TOKEN}` } }).then(res => res);
 
-                if (!messages) return 'I don\'t know what to say chief! Someone done messed up.'
+                if (res.status !== 200) return { success: false, message: `Failed to fetch data with error: ${res.statusText}` };
 
-                return `${messages[Math.floor(Math.random() * messages.length)]}`
+                return { success: true, data: res.data };
+            },
+            /**
+             * Fetch the content from a GitHub Repository
+             * @param {string} repo - Repository name
+             * @param {string} branch - Branch name
+             * @param {string} path - Path to the file (optional)
+             * @returns {Responses} - Response object
+             */
+            request: async (repo: string, branch: string, path: string): Promise<Responses> => {
+                if (!repo) return { success: false, message: 'Please provide a valid repository' };
+                if (!branch) return { success: false, message: 'Please provide a valid branch' };
+
+                const url = `https://api.github.com/repos/${repo}/contents/${path}?ref=${branch}`;
+
+                const res = await axios.get(url, { headers: { Authorization: `token ${process.env.GH_TOKEN}` } }).then(res => res);
+
+                if (res.status !== 200) return { success: false, message: `Failed to fetch data with error: ${res.statusText}` };
+
+                return { success: true, data: res.data };
+            },
+            /**
+             * Fetch the project version from the GitHub Repository
+             * @param {string} repo - Repository name
+             * @param {string} branch - Branch name
+             * @param {string} path - Path to the file where the version is present
+             * @returns {Responses} - Response object
+             */
+            version: async (repo: string, branch: string, path: string): Promise<void> => {
+                if (!repo) throw new Error('Please provide a valid repository!');
+                if (!branch) throw new Error('Please provide a valid branch!');
+                if (!path) throw new Error('Please provide a valid path!');
+
+                const repository = await this.github.raw(repo, branch, path);
+
+                if (!repository.success) throw new Error(repository.message);
+
+                return repository.data.version ? repository.data.version : 'Unavailable';
             }
         }
     }

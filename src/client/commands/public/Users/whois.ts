@@ -1,4 +1,4 @@
-import type { CacheType, ChatInputCommandInteraction } from "discord.js";
+import type { CacheType, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema";
 import type CordX from "../../../cordx";
@@ -70,6 +70,9 @@ export default class WhoIs extends SlashBase {
             ]
         })
 
+        const presence = member.presence ? member.presence.status : 'OFFLINE';
+        client.logs.debug(`Presence: ${member}`);
+
         return interaction.reply({
             embeds: [
                 new client.EmbedBuilder({
@@ -99,7 +102,7 @@ export default class WhoIs extends SlashBase {
                         inline: true
                     }, {
                         name: 'Boost Status',
-                        value: `${member.premiumSince ? `Boosting since \`${moment(member.premiumSince).format('LL')}\`` : 'Not currently boosting this server :sob:'}`,
+                        value: `${member.premiumSince ? `Boosting since \`${moment(member.premiumSince).format('LL')}\`` : 'Not boosting the server!'}`,
                         inline: true
                     }, {
                         name: 'Guild Permissions',

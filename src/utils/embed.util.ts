@@ -33,7 +33,7 @@ export class CordxEmbed extends EmbedBuilder {
         this.setThumbnail(
             data.thumbnail
                 ? data.thumbnail
-                : "https://cordx.lol/assets/loggo.png",
+                : "https://cdn.discordapp.com/attachments/1132817220611866745/1243642520030937098/IMG_5430.png?ex=6658cf5a&is=66577dda&hm=58fd8240fe3ac8f0207613ee4696615b0fd85e266e06426a4331ca7e71cc77f8&",
         )
         this.setColor(data.color)
         if (data.fields) this.setFields(data.fields)
@@ -43,7 +43,7 @@ export class CordxEmbed extends EmbedBuilder {
                 ? data.footer
                 : {
                     text: `© Copyright 2023 - CordX v${version}`,
-                    iconURL: "https://cordx.lol/assets/loggo.png",
+                    iconURL: "https://cdn.discordapp.com/attachments/1132817220611866745/1243642520030937098/IMG_5430.png?ex=6658cf5a&is=66577dda&hm=58fd8240fe3ac8f0207613ee4696615b0fd85e266e06426a4331ca7e71cc77f8&",
                 }
         )
     }

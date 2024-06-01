@@ -13,7 +13,8 @@ import CommandManager from "../managers/command.manager"
 import EventManager from "../managers/listener.manager"
 import CordXServer from "../server/server";
 import RestManager from "../managers/restful.manager";
-//import { API } from "../managers/api.manager";
+import { Information } from "../modules/info.module";
+import { Webhooks } from "../modules/webhook.module";
 import Logger from "../utils/logger.util";
 
 /** CLIENT MODULES */
@@ -38,6 +39,8 @@ class CordX extends Client {
     public help: IHelpConfig = helpConfig
     public config: IConfig = Config
     public funmod: FunModule = new FunModule(this)
+    public info: Information = new Information(this)
+    public webhooks: Webhooks = new Webhooks(this);
 
     constructor(options: ClientOptions) {
         super(options)

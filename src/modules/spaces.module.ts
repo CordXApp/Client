@@ -1,7 +1,13 @@
 import { ListObjectsV2CommandOutput, S3 } from "@aws-sdk/client-s3";
+import { ObjectCannedACL, PutObjectCommand } from "@aws-sdk/client-s3";
+import { Responses } from "../types/database/index";
+import { FastifyReply, FastifyRequest } from "fastify";
+import { existsSync, statSync, createReadStream, readFileSync } from "fs";
+import { HandleUploadParams } from "../types/server/upload.types";
 import type CordX from "../client/cordx"
 import { EventEmitter } from "events";
 import Logger from "../utils/logger.util"
+import { randomBytes } from "node:crypto";
 
 import {
     File,
@@ -11,11 +17,12 @@ import {
     SpacesResponse,
     UpdateContentOpts
 } from "../types/modules/spaces";
+import { randomUUID } from "crypto";
 
 export class Spaces implements SpacesClient {
     private client: CordX;
     public logs: Logger;
-    private bucket: S3;
+    public bucket: S3;
     public emitter: EventEmitter;
     private marker: string | undefined;
     private truncated: boolean;
@@ -470,6 +477,121 @@ export class Spaces implements SpacesClient {
                         }
                     }
                 }
+            }
+        }
+    }
+
+    public get sharex() {
+        return {
+            handleUpload: async ({ req, res, files, secret, userid }: HandleUploadParams) => {
+
+                const file = files.sharex;
+                const data = readFileSync(file.path);
+                const mime = file.name.substr(file.name.lastIndexOf('.') + 1);
+                const fileId = await this.sharex.makeId(10);
+                const user = await this.client.db.user.model.fetch(userid as string);
+                const env = req.client.user!.id === '829979197912645652' ? 'development' : 'production';
+                const dev = await req.client.perms.user.has({ user: userid, perm: 'DEVELOPER' });
+                const getBase = (req: FastifyRequest) => `${env === 'development' ? 'http' : 'https'}://${req.headers['x-cordx-host'] || req.headers.host}`;
+                const dom = await req.client.db.domain.model.exists(getBase(req));
+
+                if (!file) return res.status(400).send({
+                    status: 'NO_POST_DATA',
+                    message: 'No valid files were provided!',
+                });
+
+                if (req.headers.host!.includes('dev.cordx.lol') && !dev) return res.status(400).send({
+                    status: 'DEVELOPER_NOT_ENABLED',
+                    message: 'You must be a developer to upload to our development domain ;)',
+                })
+
+                if (req.headers.host!.includes('beta.cordx.lol') && !user.data.beta) return res.status(400).send({
+                    status: 'BETA_NOT_ENABLED',
+                    message: 'You must be a beta tester to upload to our beta domain ;)',
+                });
+
+                if (dom.success && !(await this.client.db.domain.model.verified(getBase(req)))) return res.status(400).send({
+                    status: 'DOMAIN_NOT_VERIFIED',
+                    message: 'Your domain is not verified, please verify your domain before uploading!',
+                });
+
+                const formattedSize = await this.sharex.formatSize(file.size);
+
+                const params = {
+                    Bucket: 'cordx',
+                    ACL: 'public-read' as ObjectCannedACL,
+                    Key: `${userid}/${fileId}.${mime}`,
+                    Body: data
+                }
+
+                await this.bucket.send(new PutObjectCommand(params)).then(async () => {
+                    const dateString = file.lastModifiedDate.toISOString()
+
+                    await req.client.db.prisma.images.create({
+                        data: {
+                            id: randomUUID(),
+                            userid: userid as string,
+                            fileid: `${fileId}.${mime}`,
+                            filename: file.name,
+                            date: dateString,
+                            name: fileId as string,
+                            size: file.size,
+                            type: mime
+                        }
+                    }).catch((err: Error) => {
+                        req.client.logs.error(err.message);
+                        req.client.logs.debug(err.stack as string);
+
+                        return res.status(500).send({
+                            status: 'UPLOAD_ERROR',
+                            message: err.message
+                        })
+                    });
+
+                    let replaceHook = user.data.webhook.replace('discord.com', 'proxy.cordx.lol');
+
+                    const { webhooks } = this.client.webhooks;
+
+                    await webhooks.send({
+                        userid: userid as string,
+                        webhook: replaceHook,
+                        link: `${req.client.config.Cordx.domain}/api/user/${userid}/${fileId}.${mime}`,
+                        type: mime,
+                        info: {
+                            size: formattedSize,
+                            name: file.name,
+                            date: file.lastModifiedDate.toDateString()
+                        }
+                    });
+                }).catch((err: Error) => {
+                    req.client.logs.error(err.message);
+                    req.client.logs.debug(err.stack as string);
+
+                    return res.status(500).send({
+                        status: 'UPLOAD_ERROR',
+                        message: err.message
+                    })
+                })
+
+                return res.status(200).send({
+                    status: 'OK',
+                    message: 'Successfully uploaded your file!',
+                    url: `${getBase(req)}/users/${userid}/${fileId}.${mime}`
+                })
+            },
+            makeId: async (length: number): Promise<string> => {
+                return randomBytes(length).toString('hex');
+            },
+            formatSize: async (bytes: number): Promise<string> => {
+                const units = ['byte', 'bytes', 'KB', 'MB', 'GB', 'TB'];
+                let index = 0;
+
+                while (bytes >= 1024 && index < units.length - 1) {
+                    bytes /= 1024;
+                    index++;
+                }
+
+                return `${bytes.toFixed(2)} ${units[index]}`;
             }
         }
     }

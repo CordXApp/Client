@@ -8,6 +8,7 @@ export interface IConfig {
         secret: string
     }
     Cordx: {
+        proxy: "https://proxy.cordx.lol"
         domain: "https://cordximg.host"
         docs: "https://help.cordx.lol"
     }

@@ -56,7 +56,7 @@ export default class Sync extends SlashBase {
                     ]
                 })
 
-                return Promise.all([client.utils.base.delay(5000), client.db.secret.create()])
+                return Promise.all([client.utils.base.delay(5000), client.db.secret.model.create()])
                     .then(async ([_, res]) => {
 
                         if (!res.success) return interaction.editReply({
@@ -69,7 +69,7 @@ export default class Sync extends SlashBase {
                             ]
                         })
 
-                        await interaction.user.createDM(true).then(async(dm) => {
+                        await interaction.user.createDM(true).then(async (dm) => {
                             await dm.send({
                                 embeds: [
                                     new client.EmbedBuilder({
@@ -80,7 +80,7 @@ export default class Sync extends SlashBase {
                                             name: 'Secret ID',
                                             value: `${res.data.id}`,
                                             inline: false
-                                        },{
+                                        }, {
                                             name: 'Secret Key',
                                             value: `${res.data.key}`,
                                             inline: false
@@ -117,7 +117,7 @@ export default class Sync extends SlashBase {
                     ]
                 })
 
-                return Promise.all([client.utils.base.delay(5000), client.db.secret.view(secretId)])
+                return Promise.all([client.utils.base.delay(5000), client.db.secret.model.view(secretId)])
                     .then(async ([_, res]) => {
 
                         if (!res.success) return interaction.editReply({
@@ -130,7 +130,7 @@ export default class Sync extends SlashBase {
                             ]
                         })
 
-                        await interaction.user.createDM(true).then(async(dm) => {
+                        await interaction.user.createDM(true).then(async (dm) => {
                             await dm.send({
                                 embeds: [
                                     new client.EmbedBuilder({
@@ -139,7 +139,7 @@ export default class Sync extends SlashBase {
                                         color: client.config.EmbedColors.success,
                                         fields: [{
                                             name: 'Secret',
-                                            value: `${await client.db.secret.decrypt(res.data.secret)}`,
+                                            value: `${await client.db.secret.model.decrypt(res.data.secret)}`,
                                             inline: false
                                         }]
                                     })

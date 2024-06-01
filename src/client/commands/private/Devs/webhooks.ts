@@ -65,7 +65,7 @@ export default class Sync extends SlashBase {
                 const token = interaction.options.getString('token');
                 const name = interaction.options.getString('name');
 
-                const create_hook = await client.db.webhook.create({
+                const create_hook = await client.db.webhook.model.create({
                     id: id as string,
                     token: token as string,
                     name: name as string,
@@ -112,7 +112,7 @@ export default class Sync extends SlashBase {
 
 
 
-                const webhook = await client.db.webhook.fetch(name as string);
+                const webhook = await client.db.webhook.model.fetch(name as string);
 
                 if (!webhook.success) return interaction.reply({
                     ephemeral: true,

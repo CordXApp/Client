@@ -73,6 +73,13 @@ export class UserDomClient {
                     data: domain
                 }
             },
+            verified: async (dom: string): Promise<boolean> => {
+                const domain = await this.client.db.prisma.domains.findUnique({ where: { name: dom } });
+
+                if (!domain) return false;
+
+                return domain.verified ? true : false
+            },
             /**
              * Validate a domain name to ensure it follows our standards
              * @param {dom} string The domain name to validate
