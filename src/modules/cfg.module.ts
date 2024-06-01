@@ -25,7 +25,7 @@ export class ConfigModule {
                 if (!secret) return { success: false, message: 'Secret is required' };
 
                 const config: UserConfig = {
-                    Version: version,
+                    Version: `${version}`,
                     Name: domain ? domain : 'cordximg.host',
                     DestinationType: 'ImageUploader, FileUploader',
                     RequestMethod: 'POST',

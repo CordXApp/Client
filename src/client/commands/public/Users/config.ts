@@ -27,17 +27,14 @@ export default class Profile extends SlashBase {
                 },
                 {
                     name: 'view',
-                    description: 'View your CordX/ShareX config.',
-                    example: '/config view',
+                    description: 'View your config',
                     type: SubCommandOptions.SubCommand,
-                    required: false
-                },
-                {
-                    name: 'download',
-                    description: 'Download your CordX/ShareX config.',
-                    example: '/config download',
-                    type: SubCommandOptions.SubCommand,
-                    required: false
+                    options: [{
+                        name: 'type',
+                        description: 'Currently only sharex is available.',
+                        type: SubCommandOptions.String,
+                        required: false
+                    }]
                 }
             ]
         })
@@ -91,7 +88,23 @@ export default class Profile extends SlashBase {
 
             case 'view': {
 
-                const user = await client.db.user.fetch(interaction.user.id);
+                const type = interaction.options.getString('type');
+
+                if (type !== 'sharex') {
+
+                    return interaction.reply({
+                        embeds: [
+                            new client.EmbedBuilder({
+                                title: 'Error: invalid type',
+                                color: client.config.EmbedColors.error,
+                                description: 'Sorry about that chief, we currently only support ShareX as an uploader!'
+                            })
+                        ]
+                    })
+
+                }
+
+                const user = await client.db.user.model.fetch(interaction.user.id);
 
                 if (!user.success) return interaction.reply({
                     embeds: [
@@ -113,28 +126,21 @@ export default class Profile extends SlashBase {
                     ]
                 })
 
-                return interaction.reply({
+                const config = await client.configs.sharex.generate(user.data?.userid, user.data?.secret, user.data?.domain);
+                const cfgString = JSON.stringify(config.data, null, 2);
+
+                if (!config.success) return interaction.reply({
                     ephemeral: true,
-                    content: `\`\`\`json
-                        {
-                            "Version": "14.1.0",
-                            "Name": "${user.data?.domain}",
-                            "DestinationType": "ImageUploader, FileUploader",
-                            "RequestMethod": "POST",
-                            "RequestURL": "https://${user.data?.domain}/api/upload/sharex",
-                            "Headers": {
-                               "userid": "${interaction?.user?.id}",
-                               "secret": "${user?.data?.secret}"
-                            },
-                            "Body": "MultipartFormData",
-                            "FileFormName": "sharex",
-                            "URL": "{json:url}"
-                        }\`\`\``
+                    content: `Error: ${config.message}`
                 })
 
+                return interaction.reply({
+                    ephemeral: true,
+                    content: "```json\n" + cfgString + "\n```"
+                })
             }
 
-            case 'download': {
+            /**case 'download': {
 
                 const user = await client.db.user.fetch(interaction.user.id);
 
@@ -228,7 +234,7 @@ export default class Profile extends SlashBase {
                             ]
                         })
                     })
-            }
+            }*/
         }
     }
 }
