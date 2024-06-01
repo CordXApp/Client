@@ -29,13 +29,13 @@ export class ConfigModule {
                     Name: domain ? domain : 'cordximg.host',
                     DestinationType: 'ImageUploader, FileUploader',
                     RequestMethod: 'POST',
-                    RequestURL: `${this.client.config.API.domain}/upload/sharex`,
+                    RequestURL: `${this.client.config.API.domain}/upload/create`,
                     Headers: {
                         userid: user,
                         secret: secret
                     },
                     Body: 'MultipartFormData',
-                    FileFormName: 'sharex',
+                    FileFormName: `cordx`,
                     URL: '${json:url}'
                 }
 

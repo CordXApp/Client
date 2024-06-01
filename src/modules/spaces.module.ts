@@ -1,9 +1,7 @@
-import { ListObjectsV2CommandOutput, S3 } from "@aws-sdk/client-s3";
-import { ObjectCannedACL, PutObjectCommand } from "@aws-sdk/client-s3";
-import { Responses } from "../types/database/index";
-import { FastifyReply, FastifyRequest } from "fastify";
-import { existsSync, statSync, createReadStream, readFileSync } from "fs";
-import { HandleUploadParams } from "../types/server/upload.types";
+import { HandleUploadParams, HandleDeleteParams } from "../types/server/upload.types";
+import { S3, ListObjectsV2CommandOutput, ObjectCannedACL, PutObjectCommand } from "@aws-sdk/client-s3";
+import { FastifyRequest } from "fastify";
+import { readFileSync } from "fs";
 import type CordX from "../client/cordx"
 import { EventEmitter } from "events";
 import Logger from "../utils/logger.util"
@@ -483,9 +481,9 @@ export class Spaces implements SpacesClient {
 
     public get sharex() {
         return {
-            handleUpload: async ({ req, res, files, secret, userid }: HandleUploadParams) => {
+            handleUpload: async ({ req, res, files, userid }: HandleUploadParams) => {
 
-                const file = files.sharex;
+                const file = files.cordx;
                 const data = readFileSync(file.path);
                 const mime = file.name.substr(file.name.lastIndexOf('.') + 1);
                 const fileId = await this.sharex.makeId(10);
@@ -497,7 +495,7 @@ export class Spaces implements SpacesClient {
 
                 if (!file) return res.status(400).send({
                     status: 'NO_POST_DATA',
-                    message: 'No valid files were provided!',
+                    message: 'No files were provided with the required "cordx" FileForm',
                 });
 
                 if (req.headers.host!.includes('dev.cordx.lol') && !dev) return res.status(400).send({
@@ -520,7 +518,7 @@ export class Spaces implements SpacesClient {
                 const params = {
                     Bucket: 'cordx',
                     ACL: 'public-read' as ObjectCannedACL,
-                    Key: `${userid}/${fileId}.${mime}`,
+                    Key: `${user.data.userid}/${fileId}.${mime}`,
                     Body: data
                 }
 
@@ -530,7 +528,7 @@ export class Spaces implements SpacesClient {
                     await req.client.db.prisma.images.create({
                         data: {
                             id: randomUUID(),
-                            userid: userid as string,
+                            userid: user.data.userid,
                             fileid: `${fileId}.${mime}`,
                             filename: file.name,
                             date: dateString,
@@ -553,7 +551,7 @@ export class Spaces implements SpacesClient {
                     const { webhooks } = this.client.webhooks;
 
                     await webhooks.send({
-                        userid: userid as string,
+                        userid: user.data.userid,
                         webhook: replaceHook,
                         link: `${req.client.config.Cordx.domain}/api/user/${userid}/${fileId}.${mime}`,
                         type: mime,

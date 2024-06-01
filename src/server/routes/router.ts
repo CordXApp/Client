@@ -1,17 +1,15 @@
 import { FastifyInstance } from 'fastify';
 import { RootHandler } from '../handlers/home/root.handler';
-import { RootSchema } from '../../types/server/res.types';
+import { Router } from "../../types/server/base.types";
 
 export default async function (fastify: FastifyInstance) {
-
     const { Home } = new RootHandler();
 
-    fastify.route({
-        method: 'GET',
+    const Getter: Router = {
         url: '/',
-        handler: Home.Handler,
-        schema: {
-            response: RootSchema
-        }
-    })
+        method: 'GET',
+        handler: Home.Handler
+    }
+
+    fastify.route(Getter);
 }

@@ -56,24 +56,28 @@ export class DiscordUserHandler {
                 });
 
                 if (test.status === 500) return res.status(500).send({
+                    status: 'INTERNAL_SERVER_ERROR',
                     message: 'An error occurred while trying to fetch the user from discord',
                     error: test.statusText,
                     code: 500
                 });
 
                 if (test.status >= 429) return res.status(429).send({
+                    status: 'REQUEST_LIMIT_REACHED',
                     message: 'Request limit reached, please try again later.',
                     error: test.statusText,
                     code: 429
                 });
 
                 if (test.status >= 427) return res.status(427).send({
+                    status: 'REQUEST_LIMIT_REACHED',
                     message: 'Request limit reached, please try again later.',
                     error: test.statusText,
                     code: 427
                 });
 
                 if (!userId) return res.status(400).send({
+                    status: 'MISSING_USERID',
                     message: 'No user id provided',
                     code: 400
                 });

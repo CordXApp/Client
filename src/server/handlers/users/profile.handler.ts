@@ -11,6 +11,7 @@ export class UserProfileHandler {
                 const user = await req.client.db.user.model.profile(req.params.userId);
 
                 if (!user.success) return res.status(404).send({
+                    status: 'USER_NOT_FOUND',
                     message: `${user.message}`,
                     code: 404
                 })
@@ -33,6 +34,7 @@ export class UserProfileHandler {
                 const { userId, secret } = req.params;
 
                 if (!userId) return res.status(400).send({
+                    status: 'NO_USER_ID',
                     message: 'No user id provided',
                     code: 400
                 });
@@ -40,6 +42,7 @@ export class UserProfileHandler {
                 const test = await req.client.db.user.model.profile(userId);
 
                 if (!test.success) return res.status(500).send({
+                    status: 'USER_NOT_FOUND',
                     message: test.message,
                     code: 500
                 })
@@ -47,6 +50,7 @@ export class UserProfileHandler {
                 const exists = await req.client.db.secret.model.exists(secret as string);
 
                 if (!secret || !exists) return res.status(400).send({
+                    status: 'INVALID_SECRET',
                     message: 'Please provide a valid CordX API Secret',
                     code: 400
                 })

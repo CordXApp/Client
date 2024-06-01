@@ -4,6 +4,12 @@ export interface HandleUploadParams {
     req: FastifyRequest;
     res: FastifyReply;
     files: any;
-    secret: string;
+    secret?: string;
     userid: string;
+}
+
+export interface HandleDeleteParams {
+    userid: string;
+    secret: string;
+    fileid: string;
 }

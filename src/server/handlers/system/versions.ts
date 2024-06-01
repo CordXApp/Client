@@ -40,7 +40,14 @@ export class VersionHandler {
                 const { branch } = req.query;
 
                 if (!branch) return res.status(400).send({
-                    message: 'Please provide a querystring of "branch=current", "branch=newest" or "branch=stable"',
+                    status: 'INVALID_BRANCH',
+                    message: 'Please provide a branch of either current, newest or stable!',
+                    code: 400
+                });
+
+                if (branch !== 'current' && branch !== 'newest' && branch !== 'stable') return res.status(400).send({
+                    status: 'INVALID_BRANCH',
+                    message: 'Please provide a branch of either current, newest or stable!',
                     code: 400
                 });
             }

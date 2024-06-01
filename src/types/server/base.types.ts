@@ -1,3 +1,4 @@
+import { HTTPMethods } from "fastify";
 import CordX from "../../client/cordx";
 
 export interface Client {
@@ -9,18 +10,19 @@ export interface Client {
 
 }
 
-export interface Params {
+export interface Router {
     url: string;
-    method: string;
-    schema?: any;
-    preHandler: any;
+    method: HTTPMethods | HTTPMethods[];
     handler: any;
+    preHandler?: any;
+    schema?: Schema;
     config?: any;
 }
 
-export interface Router {
+export interface Schema {
     summary: string;
     description: string;
+    headers?: any;
     security?: any[];
     response: any;
     params?: any;

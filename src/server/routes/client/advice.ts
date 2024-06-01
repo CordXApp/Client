@@ -1,15 +1,16 @@
 import { FastifyInstance } from 'fastify';
+import { Advice } from "../../handlers/client/advice.handler";
+import { AdviceSchema } from "../../schemas/client/advice.schema";
+import { Router } from "../../../types/server/base.types";
 
 export default async function (fastify: FastifyInstance) {
-    fastify.route({
+
+    const Getter: Router = {
         method: 'GET',
         url: '/advice',
-        handler: async (request, reply) => {
-            reply.header('Content-Type', 'application/json');
+        handler: Advice.Handler,
+        schema: AdviceSchema.Swagger
+    }
 
-            const response = await request.client.funmod.generate.Advice();
-
-            return reply.code(200).send({ response });
-        }
-    })
+    fastify.route(Getter);
 }

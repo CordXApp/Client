@@ -33,7 +33,6 @@ export class Webhooks {
                     await axios.post(webhook, {
                         username: 'CordX Uploads',
                         avatar_url: 'https://cordximg.host/assets/logo.png',
-                        content: link,
                         files: files,
                         embeds: [embed]
                     }, {
@@ -89,7 +88,7 @@ export class Webhooks {
                         image: { url: link },
                         author: {
                             name: user.data.global_name ? user.data.global_name : user.data.username,
-                            url: `${this.client.config.Cordx.domain}/users/${user.data.id}`,
+                            url: `${this.client.config.Cordx.domain}/users/${user.data.userid}`,
                             icon_url: user.data.avatar
                         },
                         fields: [{

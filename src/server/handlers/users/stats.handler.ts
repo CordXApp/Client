@@ -15,6 +15,7 @@ export class UploadStatsHandler {
             PreHandler: async (req: FastifyRequest<{ Params: GetDiscordUser }>, res: FastifyReply) => {
 
                 if (!req.params.userId) return res.status(500).send({
+                    status: 'NO_USER_ID',
                     message: 'No user id provided',
                     code: 500
                 });
@@ -22,6 +23,7 @@ export class UploadStatsHandler {
                 const test = await req.client.spaces.stats.profile(req.params.userId);
 
                 if (!test.success) return res.status(500).send({
+                    status: 'USER_NOT_FOUND',
                     message: test.message,
                     code: 500
                 })

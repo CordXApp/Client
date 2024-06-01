@@ -33,6 +33,40 @@ export default class CordXServer {
             preflight: true
         });
 
+        this.app.register(require('@fastify/swagger'), {
+            routePrefix: '/docs',
+            exposeRoute: true,
+            hideUntagged: true,
+            swagger: {
+                host: 'api.cordx.lol',
+                basePath: '/',
+                schemes: ['https', 'http'],
+                consumes: ['application/json', 'multipart/form-data'],
+                produces: ['application/json'],
+                info: {
+                    title: 'CordX API',
+                    description: 'Documentation for the CordX API',
+                    version: version
+                },
+                tags: [
+                    { name: 'Auth', description: 'Authentication endpoints' },
+                    { name: 'Client', description: 'Client endpoints' },
+                    { name: 'System', description: 'System endpoints' },
+                    { name: 'Upload', description: 'Upload endpoints' },
+                    { name: 'Users', description: 'User endpoints' }
+                ]
+            },
+            uiConf: { docExpansion: 'full', deepLinking: false },
+            uiHooks: {
+                onRequest: function (req: any, reply: any, next: any) {
+                    next();
+                },
+                preHandler: function (req: any, reply: any, next: any) {
+                    next();
+                },
+            }
+        })
+
         this.app.register(require('@fastify/autoload'), {
             dir: path.join(__dirname, 'routes')
         });
@@ -73,6 +107,7 @@ export default class CordXServer {
 
         this.app.ready(err => {
             if (err) throw err;
+            this.app.swagger();
         });
 
         try {
@@ -86,6 +121,12 @@ export default class CordXServer {
             this.logger.error(`An error occurred while starting the server: ${(e as Error).message}`);
             this.logger.debug(`Stack trace: ${(e as Error).stack}`);
         }
+    }
+}
+
+declare module "fastify" {
+    export interface FastifyInstance {
+        swagger: () => void;
     }
 }
 
