@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
-        "strict": true,
+        "strict": false,
         "allowUnusedLabels": false,
         "allowUnreachableCode": false,
-        "forceConsistentCasingInFileNames": true,
-        "noFallthroughCasesInSwitch": true,
-        "noUncheckedIndexedAccess": true,
-        "useDefineForClassFields": true,
+        "forceConsistentCasingInFileNames": false,
+        "noFallthroughCasesInSwitch": false,
+        "noUncheckedIndexedAccess": false,
+        "useDefineForClassFields": false,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "noImplicitOverride": true,
