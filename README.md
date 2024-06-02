@@ -1,6 +1,6 @@
 # CordX Client
 
-Welcome to the official Discord bot for managing our Discord server. With CordX Client, users can manage their profiles and settings directly from Discord, without the need to visit our website.
+Official Discord App/Client and API for the CordX Services.
 
 ---
 
