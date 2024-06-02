@@ -1,12 +1,12 @@
 {
     "compilerOptions": {
-        "strict": false,
+        "strict": true,
         "allowUnusedLabels": false,
         "allowUnreachableCode": false,
-        "forceConsistentCasingInFileNames": false,
-        "noFallthroughCasesInSwitch": false,
-        "noUncheckedIndexedAccess": false,
-        "useDefineForClassFields": false,
+        "forceConsistentCasingInFileNames": true,
+        "noFallthroughCasesInSwitch": true,
+        "noUncheckedIndexedAccess": true,
+        "useDefineForClassFields": true,
         "experimentalDecorators": true,
         "emitDecoratorMetadata": true,
         "noImplicitOverride": true,
@@ -23,7 +23,6 @@
         "noEmitHelpers": true,
         "importHelpers": true,
         "outDir": "./build",
-        "inlineSourceMap": true,
         "esModuleInterop": true
     },
     "include": [
