@@ -1,35 +1,23 @@
 {
     "compilerOptions": {
-        "strict": true,
-        "allowUnusedLabels": false,
-        "allowUnreachableCode": false,
-        "forceConsistentCasingInFileNames": true,
-        "noFallthroughCasesInSwitch": true,
-        "noUncheckedIndexedAccess": true,
-        "useDefineForClassFields": true,
-        "experimentalDecorators": true,
-        "emitDecoratorMetadata": true,
-        "noImplicitOverride": true,
+        "target": "ESNext",
+        "moduleResolution": "node",
+        "moduleDetection": "auto",
+        "module": "commonjs",
         "resolveJsonModule": true,
-        "lib": [
-            "ESNext",
-            "ES2022"
-        ],
-        "target": "ES2022",
-        "baseUrl": ".",
-        "rootDir": ".",
-        "moduleResolution": "Node",
-        "module": "CommonJS",
-        "noEmitHelpers": true,
-        "importHelpers": true,
+        "noImplicitAny": false,
+        "allowJs": true,
+        "checkJs": true,
+        "declaration": false,
         "outDir": "./build",
-        "esModuleInterop": true
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "strict": true,
+        "skipLibCheck": true
     },
     "include": [
-        "./src/**/*"
-    ],
-    "exclude": [
-        "node_modules",
-        "build"
+        "src",
+        "src/types",
+        "src/types/**/*"
     ]
 }

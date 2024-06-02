@@ -1,4 +1,4 @@
-import type { IConfig } from "src/types/client"
+import type { IConfig } from "../types/client"
 
 const config: IConfig = {
     API: {

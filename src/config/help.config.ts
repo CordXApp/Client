@@ -1,4 +1,4 @@
-import type { IHelpConfig } from "src/types/client"
+import type { IHelpConfig } from "../types/client"
 
 const helpConfig: IHelpConfig = {
     prefix: '!!',

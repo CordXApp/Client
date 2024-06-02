@@ -1,4 +1,4 @@
-import type { IEventBaseProps } from "src/types/client/utilities"
+import type { IEventBaseProps } from "../types/client/utilities"
 
 class EventBase {
     public props: IEventBaseProps

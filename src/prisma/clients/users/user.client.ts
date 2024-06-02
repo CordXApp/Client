@@ -80,7 +80,7 @@ export class UserClient {
             },
             staff: async (): Promise<Responses> => {
 
-                const usersWithPerms = [];
+                const usersWithPerms: any = [];
 
                 const staff = await this.client.db.prisma.users.findMany({ include: { permissions: true } });
 
