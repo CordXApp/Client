@@ -15,6 +15,7 @@ export class CallbackHandler {
                 if (!code || !state) return res.status(400).send({
                     status: 'MISSING_PARAMETERS',
                     message: 'Missing required parameters!',
+                    code: 400
                 });
 
                 let { redirect } = JSON.parse(decodeURIComponent(state as string));
@@ -60,7 +61,8 @@ export class CallbackHandler {
 
                 if (user.data.banned) return res.status(403).send({
                     status: 'FORBIDDEN',
-                    message: 'You are banned from using this service!'
+                    message: 'You are banned from using this service!',
+                    code: 403
                 });
 
                 return res.status(302).redirect(`https://${redirect}/api/auth/validate?auth_code=${auth_code}`);

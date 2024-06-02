@@ -9,6 +9,7 @@ export interface UserMethods {
     update: (id: User['userid'], data: User) => Promise<Responses>
     delete: (id: User['userid']) => Promise<Responses>
     profile: (id: User['userid']) => Promise<Responses>
+    staff: () => Promise<Responses>
 }
 
 export interface WebhookMethods {

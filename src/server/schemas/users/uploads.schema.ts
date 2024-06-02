@@ -3,8 +3,8 @@ import { Schema } from "../../../types/server/base.types";
 export class UserUploads {
     public static Swagger: Schema = {
         tags: ['Users'],
-        summary: 'View a Users CordX Stats',
-        description: 'Fetch a users CordX statistics and info!',
+        summary: 'View a users uploads',
+        description: 'View a users uploads by their user ID',
         params: {
             type: 'object',
             required: ['userId'],
@@ -16,23 +16,18 @@ export class UserUploads {
             200: {
                 type: 'object',
                 properties: {
-                    uploads: {
-                        type: 'array',
+                    Key: { type: 'string' },
+                    LastModified: { type: 'string' },
+                    ETag: { type: 'string' },
+                    Size: { type: 'number' },
+                    StorageClass: { type: 'string' },
+                    Owner: {
+                        type: 'object',
                         properties: {
-                            Key: { type: 'string' },
-                            LastModified: { type: 'string' },
-                            ETag: { type: 'string' },
-                            Size: { type: 'number' },
-                            StorageClass: { type: 'string' },
-                            Owner: {
-                                type: 'object',
-                                properties: {
-                                    DisplayName: { type: 'string' },
-                                    ID: { type: 'string' }
-                                }
-                            }
+                            DisplayName: { type: 'string' },
+                            ID: { type: 'string' }
                         }
-                    },
+                    }
                 }
             },
             400: {

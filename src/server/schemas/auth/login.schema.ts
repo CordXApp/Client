@@ -11,6 +11,23 @@ export class LoginSchema {
                 properties: {
                     status: { type: 'string' },
                     message: { type: 'string' },
+                    code: { type: 'number' }
+                }
+            },
+            403: {
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    message: { type: 'string' },
+                    code: { type: 'number' }
+                }
+            },
+            500: {
+                type: 'object',
+                properties: {
+                    status: { type: 'string' },
+                    message: { type: 'string' },
+                    code: { type: 'number' }
                 }
             }
         }

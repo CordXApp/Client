@@ -18,6 +18,7 @@ model users {
   folder      String?       @db.Text
   webhook     String?       @db.Text
   cookie      String?       @db.Text
+  beta        Boolean?      @default(false)
   banned      Boolean?      @default(false)
   verified    Boolean?      @default(false)
   domain      String?       @db.Text

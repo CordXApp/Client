@@ -14,7 +14,8 @@ export class LoginHandler {
 
                 if (redirect && redirect.includes('https://')) return res.status(400).send({
                     status: 'INVALID_REDIRECT',
-                    error: 'You do not need to provide the protocol in the redirect URL!',
+                    message: 'You do not need to provide the protocol in the redirect URL!',
+                    code: 400
                 });
 
                 if (!redirect) redirect = 'cordximg.host'

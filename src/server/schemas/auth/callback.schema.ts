@@ -11,6 +11,7 @@ export class CallbackSchema {
                 properties: {
                     status: { type: 'string' },
                     message: { type: 'string' },
+                    code: { type: 'number' }
                 }
             },
             403: {
@@ -18,6 +19,7 @@ export class CallbackSchema {
                 properties: {
                     status: { type: 'string' },
                     message: { type: 'string' },
+                    code: { type: 'number' }
                 }
             },
             500: {
@@ -25,6 +27,7 @@ export class CallbackSchema {
                 properties: {
                     status: { type: 'string' },
                     message: { type: 'string' },
+                    code: { type: 'number' }
                 }
             }
         }

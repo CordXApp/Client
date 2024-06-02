@@ -20,7 +20,7 @@ export default async function (fastify: FastifyInstance) {
 
     const Poster: Router = {
         url: '/delete',
-        method: 'POST',
+        method: 'DELETE',
         handler: DeleteUpload.Handler,
         preHandler: DeleteUpload.PreHandler,
         schema: Delete.Swagger

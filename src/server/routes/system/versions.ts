@@ -1,5 +1,5 @@
 import { FastifyInstance } from 'fastify';
-import { VersionHandler } from "../../handlers/system/versions";
+import { VersionHandler } from "../../handlers/system/versions.handler";
 import { VersionsSchema } from "../../schemas/system/versions.schema";
 import { Router } from "../../../types/server/base.types";
 

@@ -77,6 +77,30 @@ export class UserClient {
                 if (!user) return { success: false, message: 'Unable to locate that user in our database.' };
 
                 return { success: true, data: user }
+            },
+            staff: async (): Promise<Responses> => {
+
+                const usersWithPerms = [];
+
+                const staff = await this.client.db.prisma.users.findMany({ include: { permissions: true } });
+
+                if (!staff) return { success: false, message: 'No staff members found in our database.' };
+
+                for (const user of staff) {
+
+                    if (user.permissions && user.permissions.length > 0) {
+                        usersWithPerms.push({
+                            id: user.userid as string,
+                            avatar: user.avatar as string,
+                            banner: user.banner as string,
+                            username: user.username as string,
+                            globalName: user.globalName as string,
+                            permissions: user.permissions.map(perm => perm.name as string)
+                        });
+                    }
+                }
+
+                return { success: true, data: usersWithPerms }
             }
         }
     }
