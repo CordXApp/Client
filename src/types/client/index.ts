@@ -4,7 +4,7 @@ export interface IConfig {
     intents: BitFieldResolvable<GatewayIntentsString, number>
     restVersion: "10" | "9"
     API: {
-        domain: "https://api.cordx.lol"
+        domain: "https://demonstride.cordx.lol"
         secret: string
     }
     Cordx: {

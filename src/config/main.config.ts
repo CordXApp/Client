@@ -2,7 +2,7 @@ import type { IConfig } from "src/types/client"
 
 const config: IConfig = {
     API: {
-        domain: "https://api.cordx.lol",
+        domain: "https://demonstride.cordx.lol",
         secret: `${process.env.API_SECRET}`,
     },
     Cordx: {

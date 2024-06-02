@@ -38,7 +38,7 @@ export default class CordXServer {
             exposeRoute: true,
             hideUntagged: true,
             swagger: {
-                host: 'api.cordx.lol',
+                host: 'demonstride.cordx.lol',
                 basePath: '/',
                 schemes: ['https', 'http'],
                 consumes: ['application/json', 'multipart/form-data'],
@@ -112,11 +112,11 @@ export default class CordXServer {
 
         try {
             this.app.listen({
-                port: parseInt('4985'),
+                port: parseInt('4995'),
                 host: '0.0.0.0'
             });
 
-            this.logger.ready(`Server is running on port: 4985`);
+            this.logger.ready(`Server is running on port: 4995`);
         } catch (e: unknown) {
             this.logger.error(`An error occurred while starting the server: ${(e as Error).message}`);
             this.logger.debug(`Stack trace: ${(e as Error).stack}`);
