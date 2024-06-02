@@ -111,7 +111,6 @@ model reports {
 model orgs {
   id          String       @id @unique
   name        String       @db.VarChar(255)
-  username    String       @db.VarChar(255)
   logo        String       @db.VarChar(255)
   banner      String       @db.LongText
   links       org_links?
