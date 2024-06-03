@@ -19,8 +19,8 @@ export class VersionHandler {
                 })
 
                 if (branch === 'newest') return res.status(200).send({
-                    api: await req.client.utils.github.version('CordXApp/Client', 'development', 'package.json'),
-                    bot: await req.client.utils.github.version('CordXApp/Client', 'development', 'package.json'),
+                    api: await req.client.utils.github.version('CordXApp/Client', 'dev', 'package.json'),
+                    bot: await req.client.utils.github.version('CordXApp/Client', 'dev', 'package.json'),
                     docs: await req.client.utils.github.version('CordXApp/Documentation', 'master', 'package.json'),
                     dns: await req.client.utils.github.version('CordXApp/DNS', 'master', 'package.json'),
                     proxy: await req.client.utils.github.version('CordXApp/Proxy', 'master', 'package.json'),
