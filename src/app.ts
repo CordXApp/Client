@@ -9,6 +9,7 @@ const client: CordX = new CordX({
     intents: config.intents,
     partials: [
         Partials.User,
+        Partials.Message,
         Partials.GuildMember,
         Partials.Channel,
     ],

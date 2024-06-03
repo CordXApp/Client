@@ -36,7 +36,6 @@ const config: IConfig = {
         "DirectMessages",
         "DirectMessageReactions",
         "DirectMessageTyping",
-        "MessageContent",
         "GuildModeration",
     ],
 }
