@@ -16,16 +16,24 @@ export class UserUploads {
             200: {
                 type: 'object',
                 properties: {
-                    Key: { type: 'string' },
-                    LastModified: { type: 'string' },
-                    ETag: { type: 'string' },
-                    Size: { type: 'number' },
-                    StorageClass: { type: 'string' },
-                    Owner: {
-                        type: 'object',
-                        properties: {
-                            DisplayName: { type: 'string' },
-                            ID: { type: 'string' }
+                    uploads: {
+                        type: 'array',
+                        items: {
+                            type: 'object',
+                            properties: {
+                                Key: { type: 'string' },
+                                LastModified: { type: 'string' },
+                                ETag: { type: 'string' },
+                                Size: { type: 'number' },
+                                StorageClass: { type: 'string' },
+                                Owner: {
+                                    type: 'object',
+                                    properties: {
+                                        DisplayName: { type: 'string' },
+                                        ID: { type: 'string' }
+                                    }
+                                }
+                            }
                         }
                     }
                 }

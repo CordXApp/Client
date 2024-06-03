@@ -7,9 +7,15 @@ export class UserProfile {
         description: 'Fetch a users profile information!',
         params: {
             type: 'object',
-            required: ['userId', 'secret'],
+            required: ['userId'],
             properties: {
-                userId: { type: 'string' },
+                userId: { type: 'string' }
+            }
+        },
+        querystring: {
+            type: 'object',
+            required: ['secret'],
+            properties: {
                 secret: { type: 'string' }
             }
         },
@@ -27,6 +33,7 @@ export class UserProfile {
                     banned: { type: 'boolean' },
                     verified: { type: 'boolean' },
                     domain: { type: 'string' },
+                    beta: { type: 'boolean' }
                 }
             },
             400: {
