@@ -74,7 +74,9 @@ export class CallbackHandler {
                 const encodedAuthCode = encodeURIComponent(auth_code);
                 const encodedUser = encodeURIComponent(JSON.stringify(user.data));
 
-                return res.status(302).redirect(`https://${redirect}/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`);
+                const url = env === 'development' ? `http://${redirect}/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}` : `https://${redirect}/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`
+
+                return res.status(302).redirect(url);
             }
         }
     }
