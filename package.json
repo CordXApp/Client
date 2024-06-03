@@ -10,8 +10,8 @@
         "db:create": "prisma generate --schema=./src/prisma/schema.prisma",
         "db:push": "prisma db push --schema=./src/prisma/schema.prisma",
         "dev:node": "nodemon src/app.ts",
-        "dev:build": "nodemon build/app.js",
-        "start:build": "node build/app.js",
+        "dev:build": "nodemon build/src/app.js",
+        "start:build": "node build/src/app.js",
         "start:node": "ts-node src/app.ts"
     },
     "dependencies": {
