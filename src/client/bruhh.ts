@@ -23,7 +23,6 @@ import { Permissions } from "../modules/permissions.module"
 import { FunModule } from "../modules/fun.module"
 
 class CordX extends Client {
-    //public api: API = new API(this)
     public EmbedBuilder: any = CordxEmbed
     public db: DatabaseClient = new DatabaseClient(this)
     public cooldown = new Collection<string, Collection<string, number>>()

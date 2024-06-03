@@ -1,8 +1,7 @@
 {
     "compilerOptions": {
-        "target": "ESNext",
+        "target": "ES2022",
         "moduleResolution": "node",
-        "moduleDetection": "auto",
         "module": "commonjs",
         "resolveJsonModule": true,
         "noImplicitAny": false,
