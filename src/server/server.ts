@@ -3,6 +3,7 @@ import Logger from "../utils/logger.util";
 import CordX from "../client/cordx";
 import fastify, { FastifyInstance } from "fastify";
 import { version } from "../../package.json";
+import { Status } from "discord.js";
 
 export default class CordXServer {
     private client: CordX;
@@ -91,16 +92,18 @@ export default class CordXServer {
 
         this.app.setErrorHandler((error, req, res) => {
 
+            this.app.log.error(error.message);
+            this.app.log.debug(error.stack);
+
             if (error.code === "FST_ERR_CTP_EMPTY_JSON_BODY") return res.status(400).send({
+                status: 'CORDX:BAD_REQUEST',
                 message: 'Please provide a valid JSON request body!',
-                state: 'CORDX:BAD_REQUEST',
                 code: 400
             })
 
             res.status(500).send({
-                message: 'An internal server error occurred. Please try again later.',
-                error: error.message,
-                state: 'CORDX:INTERNAL_SERVER_ERROR',
+                status: 'CORDX:INTERNAL_SERVER_ERROR',
+                message: error.message,
                 code: 500
             })
         });

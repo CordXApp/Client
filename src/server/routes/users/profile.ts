@@ -9,7 +9,7 @@ export default async function (fastify: FastifyInstance) {
 
     const Getter: Router = {
         method: 'GET',
-        url: '/:userId/:secret',
+        url: '/:userId/profile',
         handler: UserProfile.Handler,
         preHandler: UserProfile.PreHandler,
         schema: Profile.Swagger

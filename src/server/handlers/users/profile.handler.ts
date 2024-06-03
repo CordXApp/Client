@@ -7,7 +7,7 @@ export class UserProfileHandler {
 
     public get UserProfile() {
         return {
-            Handler: async (req: FastifyRequest<{ Params: GetDiscordUser }>, res: FastifyReply) => {
+            Handler: async (req: FastifyRequest<{ Params: GetDiscordUser, Querystring: GetDiscordUser }>, res: FastifyReply) => {
                 const user = await req.client.db.user.model.profile(req.params.userId);
 
                 if (!user.success) return res.status(404).send({
@@ -26,12 +26,13 @@ export class UserProfileHandler {
                     cookie: user.data.cookie,
                     banned: user.data.banned,
                     verified: user.data.verified,
-                    domain: user.data.domain
-
+                    domain: user.data.domain,
+                    beta: user.data.beta
                 }))
             },
-            PreHandler: async (req: FastifyRequest<{ Params: GetDiscordUser }>, res: FastifyReply) => {
-                const { userId, secret } = req.params;
+            PreHandler: async (req: FastifyRequest<{ Params: GetDiscordUser, Querystring: GetDiscordUser }>, res: FastifyReply) => {
+                const { userId } = req.params;
+                const { secret } = req.query;
 
                 if (!userId) return res.status(400).send({
                     status: 'NO_USER_ID',
@@ -39,7 +40,7 @@ export class UserProfileHandler {
                     code: 400
                 });
 
-                const test = await req.client.db.user.model.profile(userId);
+                const test = await req.client.db.user.model.fetch(userId);
 
                 if (!test.success) return res.status(500).send({
                     status: 'USER_NOT_FOUND',
@@ -47,9 +48,7 @@ export class UserProfileHandler {
                     code: 500
                 })
 
-                const exists = await req.client.db.secret.model.exists(secret as string);
-
-                if (!secret || !exists) return res.status(400).send({
+                if (!secret && secret !== test.data.secret) return res.status(400).send({
                     status: 'INVALID_SECRET',
                     message: 'Please provide a valid CordX API Secret',
                     code: 400
