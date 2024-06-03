@@ -36,9 +36,14 @@ export class UserUpload {
 
                     return form.parse(req.raw, async function (err: any, fields: any, files: any) {
 
+                        if (!files) return res.status(500).send({
+                            status: 'UPLOAD_FAILED',
+                            message: 'No files were uploaded!'
+                        })
+
                         if (err) return res.status(500).send({
                             status: 'UPLOAD_ERROR',
-                            error: 'An error occurred while processing the upload!'
+                            message: 'An error occurred while processing the upload!'
                         })
 
                         await req.client.spaces.sharex.handleUpload({

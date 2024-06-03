@@ -484,6 +484,12 @@ export class Spaces implements SpacesClient {
             handleUpload: async ({ req, res, files, userid }: HandleUploadParams) => {
 
                 const file = files.cordx;
+
+                if (!file) return res.status(400).send({
+                    status: 'NO_POST_DATA',
+                    message: 'No files were provided with the required "cordx" FileForm',
+                });
+
                 const data = readFileSync(file.path);
                 const mime = file.name.substr(file.name.lastIndexOf('.') + 1);
                 const fileId = await this.sharex.makeId(10);
