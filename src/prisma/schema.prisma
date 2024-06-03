@@ -1,0 +1,213 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("MYSQL_URI")
+}
+
+model users {
+  id          String        @id @default(uuid())
+  avatar      String?
+  banner      String?
+  username    String?
+  globalName  String?
+  userid      String?       @unique
+  secret      String?       @db.Text
+  folder      String?       @db.Text
+  webhook     String?       @db.Text
+  cookie      String?       @db.Text
+  beta        Boolean?      @default(false)
+  banned      Boolean?      @default(false)
+  verified    Boolean?      @default(false)
+  domain      String?       @db.Text
+  domains     domains[]
+  images      images[]
+  key         String?       @unique
+  signature   signatures?   @relation(fields: [key], references: [key])
+  permissions permissions[]
+  orgs        orgs[]
+}
+
+model secrets {
+  id  String @id @default(uuid())
+  key String @db.LongText
+}
+
+model permissions {
+  id    String          @id @default(uuid())
+  name  UserPermissions
+  users users[]
+}
+
+model images {
+  id       String    @id @default(uuid())
+  userid   String
+  fileid   String
+  filename String?
+  name     String?
+  type     String?
+  size     Int?
+  date     DateTime? @db.Date
+  users    users?    @relation(fields: [userid], references: [userid])
+}
+
+model domains {
+  id        String   @id @default(uuid())
+  name      String   @unique @db.VarChar(255)
+  content   String   @db.LongText
+  verified  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  users     users?   @relation(fields: [user], references: [userid])
+  user      String?
+}
+
+model signatures {
+  id   Int    @id @default(autoincrement())
+  key  String @unique @default(uuid())
+  user users?
+}
+
+model webhooks {
+  id      String  @id
+  token   String  @db.LongText
+  name    String  @db.Text
+  enabled Boolean
+}
+
+model errors {
+  id        String    @id @default(uuid())
+  state     ErrStates @default(OPEN)
+  type      ErrTypes  @default(UNKNOWN_ERR)
+  status    String
+  message   String    @db.LongText
+  reporter  String
+  error_obj Json
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+model partners {
+  id     String @id @default(uuid())
+  name   String @db.Text
+  image  String @db.Text
+  bio    String @db.Text
+  url    String @db.Text
+  social String @db.Text
+}
+
+model reports {
+  id        String       @id
+  type      ReportTypes  @default(BUG_REPORT)
+  author    String       @db.Text
+  reason    String       @db.LongText
+  status    ReportStatus @default(OPEN)
+  mod       String?
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+}
+
+model orgs {
+  id          String       @id @unique
+  name        String       @db.VarChar(255)
+  logo        String       @db.VarChar(255)
+  banner      String       @db.LongText
+  links       org_links?
+  description String       @db.LongText
+  members     org_member[]
+  creator     users        @relation(fields: [owner], references: [userid])
+  owner       String       @db.VarChar(255)
+  api_key     String       @unique
+  verified    Boolean      @default(false)
+  banned      Boolean      @default(false)
+  domain      org_domain?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+model org_member {
+  id     String      @id @unique
+  org    orgs        @relation(fields: [id], references: [id])
+  roles  org_roles[]
+  userid String      @unique
+}
+
+model org_links {
+  id        String @id @unique
+  discord   String @db.Text
+  twitter   String @db.Text
+  github    String @db.Text
+  instagram String @db.Text
+  youtube   String @db.Text
+  website   String @db.Text
+  org       orgs   @relation(fields: [id], references: [id])
+}
+
+model org_roles {
+  id     String     @id @unique
+  admin  Boolean    @default(false)
+  editor Boolean    @default(false)
+  reader Boolean    @default(false)
+  guest  Boolean    @default(false)
+  user   org_member @relation(fields: [member], references: [id])
+  member String     @db.VarChar(255)
+}
+
+model org_domain {
+  id        String   @id @unique
+  name      String   @db.Text
+  content   String   @db.LongText
+  verified  Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  org       orgs     @relation(fields: [id], references: [id])
+}
+
+enum UserPermissions {
+  OWNER
+  ADMIN
+  STAFF
+  SUPPORT
+  DEVELOPER
+}
+
+enum ReportTypes {
+  BUG_REPORT
+  FEATURE_REQUEST
+  PARTNER_REQUEST
+  PARTNER_REPORT
+  USER_REPORT
+  IMAGE_REPORT
+  DOMAIN_REPORT
+  WEBHOOK_REPORT
+}
+
+enum ReportStatus {
+  OPEN
+  INVESTIGATING
+  INFO_NEEDED
+  CLOSED
+}
+
+enum ErrTypes {
+  API_ERR
+  AUTH_ERR
+  BUCKET_ERR
+  CACHE_ERR
+  CLIENT_ERR
+  DB_ERR
+  EXTERNAL_ERR
+  INTERNAL_ERR
+  UPLOADS_ERR
+  USER_ERR
+  WEBHOOK_ERR
+  UNKNOWN_ERR
+}
+
+enum ErrStates {
+  OPEN
+  INVESTIGATING
+  RESOLVED
+  IGNORED
+}
