@@ -3,7 +3,7 @@ import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema";
 import { Report } from "../../../../types/database/reports";
 import { reports } from "@prisma/client";
-import type CordX from "../../../cordx";
+import type CordX from "../../../bruhh";
 
 export default class ReportCmd extends SlashBase {
     constructor() {

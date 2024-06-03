@@ -2,7 +2,7 @@ import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { SlashBase } from "../../../../schemas/command.schema";
 import { SubCommandOptions } from "../../../../types/client/utilities";
 import { Partner } from "../../../../types/database/partners";
-import type CordX from "../../../cordx";
+import type CordX from "../../../bruhh";
 
 export default class Partners extends SlashBase {
     constructor() {

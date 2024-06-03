@@ -2,7 +2,7 @@ import { Collection } from "discord.js"
 import { Responses } from "../types/database/index";
 import { CordXSnowflake } from "@cordxapp/snowflake";
 import { Cooldown } from "../types/client/index";
-import type CordX from "../client/cordx"
+import type CordX from "../client/bruhh"
 import Logger from "./logger.util"
 import axios from "axios";
 

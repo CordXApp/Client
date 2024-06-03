@@ -1,4 +1,4 @@
-import type CordX from "../client/cordx"
+import type CordX from "../client/bruhh"
 import { UserConfig } from "../types/database/users";
 import { version } from "../../package.json";
 import Logger from "../utils/logger.util"

@@ -2,7 +2,7 @@ import type { CacheType, ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities"
 import { SlashBase } from "../../../../schemas/command.schema"
 import { Responses } from "../../../../types/database/index";
-import type CordX from "../../../cordx"
+import type CordX from "../../../bruhh"
 
 export default class Purge extends SlashBase {
     constructor() {

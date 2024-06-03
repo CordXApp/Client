@@ -2,7 +2,7 @@ import { type CacheType, type ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities"
 import { SlashBase } from "../../../../schemas/command.schema";
 import { GatePermissions } from "../../../../types/database/users"
-import type CordX from "../../../cordx"
+import type CordX from "../../../bruhh"
 
 export default class aSync extends SlashBase {
     constructor() {

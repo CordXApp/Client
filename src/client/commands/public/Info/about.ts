@@ -1,7 +1,7 @@
 import type { CacheType, ChatInputCommandInteraction } from "discord.js";
 import { SlashBase } from "../../../../schemas/command.schema";
 import PKG from "../../../../../package.json";
-import type CordX from "../../../cordx";
+import type CordX from "../../../bruhh";
 import { version } from "discord.js";
 
 export default class About extends SlashBase {

@@ -1,6 +1,6 @@
 import { ActivityType } from "discord.js"
 import EventBase from "../../../schemas/event.schema"
-import type CordX from "../../cordx"
+import type CordX from "../../bruhh"
 
 export default class Ready extends EventBase {
     constructor() {

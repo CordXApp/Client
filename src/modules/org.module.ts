@@ -2,7 +2,7 @@ import { CordXSnowflake } from "@cordxapp/snowflake";
 import { OrgMethod, Options } from "../types/modules/orgs"
 import { Responses } from "../types/database"
 import Logger from "../utils/logger.util"
-import type CordX from "../client/cordx"
+import type CordX from "../client/bruhh"
 import { randomBytes } from "crypto";
 
 export class OrgModule {

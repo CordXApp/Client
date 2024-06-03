@@ -1,7 +1,7 @@
 import { pagination, ButtonTypes, ButtonStyles } from "@devraelfreeze/discordjs-pagination";
 import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema";
-import type CordX from "../../../cordx";
+import type CordX from "../../../bruhh";
 
 export default class Help extends SlashBase {
     constructor() {

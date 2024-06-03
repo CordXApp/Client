@@ -2,7 +2,7 @@ import type { CacheType, ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema"
 import { User } from "../../../../types/database/users";
-import type CordX from "../../../cordx"
+import type CordX from "../../../bruhh"
 
 export default class Leaderboard extends SlashBase {
     constructor() {

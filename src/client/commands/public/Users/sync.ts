@@ -2,7 +2,7 @@ import { ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, type Cache
 import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SpacesResponse } from "../../../../types/modules/spaces";
 import { SlashBase } from "../../../../schemas/command.schema"
-import type CordX from "../../../cordx"
+import type CordX from "../../../bruhh"
 
 export default class Sync extends SlashBase {
     constructor() {

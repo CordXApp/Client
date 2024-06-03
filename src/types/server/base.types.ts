@@ -1,5 +1,5 @@
 import { HTTPMethods } from "fastify";
-import CordX from "../../client/cordx";
+import CordX from "../../client/bruhh";
 
 export interface Client {
     client: CordX;

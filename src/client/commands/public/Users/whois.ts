@@ -1,7 +1,7 @@
 import type { CacheType, ChatInputCommandInteraction, GuildMember } from "discord.js";
 import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema";
-import type CordX from "../../../cordx";
+import type CordX from "../../../bruhh";
 import moment from "moment";
 
 export default class WhoIs extends SlashBase {
