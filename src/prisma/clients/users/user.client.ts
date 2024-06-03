@@ -48,8 +48,9 @@ export class UserClient {
 
                 if (!check) return { success: false, message: 'Unable to locate that user in our database.' };
 
-                const user = await this.client.db.prisma.users.update({ where: { userid: id }, data: { ...data, permissions: [] as Prisma.permissionsUncheckedCreateNestedManyWithoutUsersInput } });
+                const { permissions, ...updatedData } = data;
 
+                const user = await this.client.db.prisma.users.update({ where: { userid: id }, data: updatedData });
                 if (!user) return { success: false, message: 'Unable to locate that user in our database.' };
 
                 return { success: true, data: user }

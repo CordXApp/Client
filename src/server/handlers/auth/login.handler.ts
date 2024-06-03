@@ -12,7 +12,7 @@ export class LoginHandler {
                 const env: string = req.client.user!.id === '829979197912645652' ? 'development' : 'production';
                 const auth = new OAuth2Client();
 
-                if (redirect && redirect.includes('https://')) return res.status(400).send({
+                if (redirect && redirect.includes('https://') || redirect.includes('http://')) return res.status(400).send({
                     status: 'INVALID_REDIRECT',
                     message: 'You do not need to provide the protocol in the redirect URL!',
                     code: 400

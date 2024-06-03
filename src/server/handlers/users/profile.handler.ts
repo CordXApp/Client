@@ -24,6 +24,7 @@ export class UserProfileHandler {
                     globalName: user.data.globalName,
                     secret: user.data.secret,
                     cookie: user.data.cookie,
+                    webhook: user.data.webhook,
                     banned: user.data.banned,
                     verified: user.data.verified,
                     domain: user.data.domain,

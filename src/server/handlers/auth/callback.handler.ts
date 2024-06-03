@@ -54,9 +54,28 @@ export class CallbackHandler {
                     key: randomBytes(64).toString('hex')
                 })
 
+                else user = await req.client.db.user.model.update(authorized.id as string, {
+                    id: user.data.id,
+                    userid: user.data.userid as string,
+                    avatar: user.data.avatar !== 'https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.png' ? `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.png` : user.data.avatar,
+                    banner: user.data.banner !== 'https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.png' ? `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.png` : user.data.banner,
+                    username: user.data.username !== authorized.username ? authorized.username as string : user.data.username,
+                    globalName: user.data.globalName !== authorized.global_name ? authorized.global_name as string : user.data.globalName,
+                    secret: user.data.secret !== randomBytes(32).toString('hex') ? randomBytes(32).toString('hex') : user.data.secret,
+                    folder: user.data.folder,
+                    webhook: user.data.webhook,
+                    domain: user.data.domain,
+                    cookie: user.data.cookie !== randomBytes(24).toString('hex') ? randomBytes(24).toString('hex') : user.data.cookie,
+                    banned: user.data.banned,
+                    verified: user.data.verified,
+                    key: user.data.Key,
+                    beta: user.data.beta
+                })
+
                 if (!user.success) return res.status(500).send({
                     status: 'INTERNAL_SERVER_ERROR',
-                    message: user.message
+                    message: user.message,
+                    code: 500
                 });
 
                 if (user.data.banned) return res.status(403).send({
@@ -65,7 +84,19 @@ export class CallbackHandler {
                     code: 403
                 });
 
-                return res.status(302).redirect(`https://${redirect}/api/auth/validate?auth_code=${auth_code}`);
+                if (!user.data.beta) return res.status(403).send({
+                    status: 'FORBIDDEN',
+                    message: 'You are not a beta tester!',
+                    code: 403
+                });
+
+                const encodedAuthCode = encodeURIComponent(auth_code);
+                const encodedUser = encodeURIComponent(JSON.stringify(user.data));
+
+                if (redirect.includes('localhost')) redirect = `http://${redirect}/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`;
+                else redirect = `https://${redirect}/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`
+
+                return res.status(302).redirect(`http://localhost:3000/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`);
             }
         }
     }
