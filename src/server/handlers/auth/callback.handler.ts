@@ -39,8 +39,8 @@ export class CallbackHandler {
 
                 // @ts-ignore
                 if (!user.success) user = await req.client.db.user.model.create({
-                    avatar: `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.png`,
-                    banner: `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.png`,
+                    avatar: authorized.avatar?.startsWith('a_') ? `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.gif` : `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.webp`,
+                    banner: authorized.banner?.startsWith('a_') ? `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.gif` : `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.webp`,
                     username: authorized.username as string,
                     globalName: authorized.global_name as string,
                     userid: authorized.id as string,
@@ -57,8 +57,8 @@ export class CallbackHandler {
                 else user = await req.client.db.user.model.update(authorized.id as string, {
                     id: user.data.id,
                     userid: user.data.userid as string,
-                    avatar: user.data.avatar !== 'https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.png' ? `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.png` : user.data.avatar,
-                    banner: user.data.banner !== 'https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.png' ? `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.png` : user.data.banner,
+                    avatar: authorized.avatar?.startsWith('a_') ? `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.gif` : `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.webp`,
+                    banner: authorized.banner?.startsWith('a_') ? `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.gif` : `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.webp`,
                     username: user.data.username !== authorized.username ? authorized.username as string : user.data.username,
                     globalName: user.data.globalName !== authorized.global_name ? authorized.global_name as string : user.data.globalName,
                     secret: user.data.secret !== randomBytes(32).toString('hex') ? randomBytes(32).toString('hex') : user.data.secret,
@@ -96,7 +96,7 @@ export class CallbackHandler {
                 if (redirect.includes('localhost')) redirect = `http://${redirect}/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`;
                 else redirect = `https://${redirect}/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`
 
-                return res.status(302).redirect(`http://localhost:3000/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`);
+                return res.status(302).redirect(redirect);
             }
         }
     }

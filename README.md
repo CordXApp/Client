@@ -1,6 +1,6 @@
 # CordX Client
 
-Official Discord App/Client and API for the CordX Services.
+Official Discord App/Client and API for the CordX Services!
 
 ---
 
