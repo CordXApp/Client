@@ -65,7 +65,16 @@ export class CallbackHandler {
                     code: 403
                 });
 
-                return res.status(302).redirect(`https://${redirect}/api/auth/validate?auth_code=${auth_code}`);
+                if (!user.data.beta) return res.status(403).send({
+                    status: 'FORBIDDEN',
+                    message: 'You are not a beta tester!',
+                    code: 403
+                });
+
+                const encodedAuthCode = encodeURIComponent(auth_code);
+                const encodedUser = encodeURIComponent(JSON.stringify(user.data));
+
+                return res.status(302).redirect(`https://${redirect}/api/auth/validate?user_data=${encodedUser}&auth_code=${encodedAuthCode}`);
             }
         }
     }
