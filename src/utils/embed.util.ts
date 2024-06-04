@@ -18,6 +18,7 @@ export class CordxEmbed extends EmbedBuilder {
         color: HexColorString
         fields?: EmbedField[]
         author?: EmbedAuthorOptions
+        hideTimestamp?: boolean;
         footer?: EmbedFooterOptions
     }) {
         super()
@@ -37,10 +38,13 @@ export class CordxEmbed extends EmbedBuilder {
         )
         this.setColor(data.color)
         if (data.fields) this.setFields(data.fields)
-        this.setTimestamp()
+        if (data.hideTimestamp === false) this.setTimestamp()
         this.setFooter(
             data.footer
-                ? data.footer
+                ? {
+                    text: data.footer + ` © CordX v${version}`,
+                    iconURL: "https://cdn.cordx.space/510065483693817867/uzyA1mLp.png"
+                }
                 : {
                     text: `© Copyright 2023 - CordX v${version}`,
                     iconURL: "https://cdn.cordx.space/510065483693817867/uzyA1mLp.png",

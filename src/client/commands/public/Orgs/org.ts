@@ -189,6 +189,20 @@ export default class Uploads extends SlashBase {
                 else if (view.data.partner) name = `<:partner:1247467408399274037> ${view.data.name}`
                 else name = view.data.name
 
+                const created = new Date(view.data.createdAt);
+                const updated = new Date(view.data.updatedAt);
+
+                const formatAMPM = (date) => {
+                    let hours = date.getHours();
+                    let minutes = date.getMinutes();
+                    const ampm = hours >= 12 ? 'PM' : 'AM';
+
+                    hours = hours % 12;
+                    hours = hours ? hours : 12;
+                    minutes = minutes < 10 ? '0' + minutes : minutes;
+                    return hours + ':' + minutes + ' ' + ampm;
+                }
+
                 return interaction.reply({
                     embeds: [
                         new client.EmbedBuilder({
@@ -196,6 +210,7 @@ export default class Uploads extends SlashBase {
                             color: client.config.EmbedColors.success,
                             thumbnail: view.data.logo,
                             description: `${view.data.description}`,
+                            hideTimestamp: true,
                             fields: [{
                                 name: 'ID',
                                 value: `${view.data.id}`,
@@ -220,7 +235,8 @@ export default class Uploads extends SlashBase {
                                 name: 'Flags',
                                 value: `- <:partner:1247467408399274037> Partner: ${partner}\n- <:verified:1247467391856803860> Verified: ${verified}\n- <:banned:1247467378644881409> Banned: ${banned}`,
                                 inline: true
-                            }]
+                            }],
+                            footer: `Created: ${formatAMPM(created)} | Updated: ${formatAMPM(updated)}`
                         })
                     ]
                 });

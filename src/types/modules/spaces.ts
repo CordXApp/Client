@@ -41,7 +41,7 @@ export interface UpdateContentOpts {
 }
 
 export interface SpacesAction {
-    sync_user(user: string, force: boolean): Promise<{ results: SpacesResponse }>
+    sync_user(user: string, force: boolean): Promise<SpacesResponse>
     //sync_all(): Promise<{ results: SyncAll }>
 }
 

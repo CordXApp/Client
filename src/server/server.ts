@@ -26,7 +26,7 @@ export default class CordXServer {
 
         this.app.register(require('@fastify/cors'), {
             origin: ['*'],
-            allowedHeaders: ['secret', 'userid', 'Authorization', 'authorization', 'Content-Type', 'Content-Disposition', 'Content-Length'],
+            allowedHeaders: ['*'],
             methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
             credentials: true,
             optionsSuccessStatus: 200,
@@ -76,6 +76,7 @@ export default class CordXServer {
             req.client = this.client;
 
             res.header('Access-Control-Allow-Origin', '*');
+            res.header('Access-Control-Allow-Headers', '*');
             res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS');
             res.header('X-Powered-By', 'Infinity Development <https://infinitydev.team>');
             res.header('User-Agent', `CordX v${version}`);
