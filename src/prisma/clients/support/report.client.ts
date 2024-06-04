@@ -96,6 +96,36 @@ export class ReportClient {
                 };
 
                 return { success: true, data: report }
+            },
+            update: async (id: string, data: Report): Promise<Responses> => {
+
+                const check = await this.client.db.prisma.reports.findUnique({ where: { id: id } });
+
+                if (!check) return { success: false, message: 'No report found with that ID!' };
+
+                if (data.notes && data.notes.length > 1) return { success: false, message: 'You can only add one note at a time!' }
+
+                const report = await this.client.db.prisma.reports.update({
+                    where: { id: id },
+                    data: {
+                        type: data.type ? data.type : check.type,
+                        author: check.author,
+                        reason: data.reason ? data.reason : check.reason,
+                        status: data.status ? data.status : check.status,
+                        notes: {
+                            create: data.notes?.map(note => ({
+                                author: note.author as string,
+                                content: note.content as string
+                            }))
+                        },
+                        mod: data.mod ? data.mod : check.mod
+
+                    }
+                })
+
+                if (!report) return { success: false, message: 'Failed to update report!' };
+
+                return { success: true, data: report }
             }
         }
     }

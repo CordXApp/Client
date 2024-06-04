@@ -26,15 +26,6 @@ export default class ReportCmd extends SlashBase {
                     type: SubCommandOptions.String,
                     required: true,
                     choices: [{
-                        name: 'Bug Report',
-                        value: 'BUG_REPORT'
-                    }, {
-                        name: 'Feature Request',
-                        value: 'FEATURE_REQUEST'
-                    }, {
-                        name: 'Partner Request',
-                        value: 'PARTNER_REQUEST'
-                    }, {
                         name: 'Partner Report',
                         value: 'PARTNER_REPORT'
                     }, {

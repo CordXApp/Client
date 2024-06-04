@@ -1,4 +1,4 @@
-import { reports } from "@prisma/client";
+import { reports, notes } from "@prisma/client";
 
 export interface Report {
     id?: string;
@@ -6,6 +6,7 @@ export interface Report {
     author: string;
     reason: string;
     status?: reports['status'];
+    notes?: notes[]
     mod?: string;
     createdAt?: Date;
     updatedAt?: Date;

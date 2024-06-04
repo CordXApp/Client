@@ -10,6 +10,8 @@ export interface UserMethods {
     delete: (id: User['userid']) => Promise<Responses>
     profile: (id: User['userid']) => Promise<Responses>
     staff: () => Promise<Responses>
+    syncRoles: () => Promise<void>
+    syncPerms: () => Promise<void>
 }
 
 export interface WebhookMethods {

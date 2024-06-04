@@ -38,6 +38,9 @@ export default class Ready extends EventBase {
             })
         }, 10000)
 
+        //await client.db.user.model.syncRoles();
+        //await client.db.user.model.syncPerms();
+
         setInterval(async () => {
             await client.db.domain.model.wipeUnverified();
         }, 30000)

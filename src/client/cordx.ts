@@ -5,6 +5,7 @@ import { CordxEmbed } from "../utils/embed.util"
 import { Utilities } from "../utils/helper.util"
 import { DatabaseClient } from "../prisma/prisma.client";
 import { ConfigModule } from "../modules/cfg.module";
+import { OrgModule } from "../modules/org.module";
 import { Client, ClientOptions, Collection } from "discord.js"
 import type { IConfig, IHelpConfig } from "../types/client"
 import { Security } from "../modules/security.module";
@@ -42,6 +43,7 @@ class CordX extends Client {
     public info: Information = new Information(this)
     public webhooks: Webhooks = new Webhooks(this);
     public configs: ConfigModule = new ConfigModule(this)
+    public orgs: OrgModule = new OrgModule(this)
 
     constructor(options: ClientOptions) {
         super(options)

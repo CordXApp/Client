@@ -81,16 +81,6 @@ export default class Uploads extends SlashBase {
                     ]
                 })
 
-                if (!user.data.beta) return interaction.reply({
-                    embeds: [
-                        new client.EmbedBuilder({
-                            title: 'Feature Not Available',
-                            description: 'This feature is only available to our beta testers, you can become a beta tester by grabbing the role from the <id:customize> channel in our [discord server](https://cordximg.host/discord)',
-                            color: client.config.EmbedColors.error
-                        })
-                    ]
-                })
-
                 if (!file) return interaction.reply({
                     embeds: [
                         new client.EmbedBuilder({

@@ -26,6 +26,7 @@ model users {
   images      images[]
   key         String?       @unique
   signature   signatures?   @relation(fields: [key], references: [key])
+  org_members org_member[]
   permissions permissions[]
   orgs        orgs[]
 }
@@ -103,9 +104,19 @@ model reports {
   author    String       @db.Text
   reason    String       @db.LongText
   status    ReportStatus @default(OPEN)
+  notes     notes[]
   mod       String?
   createdAt DateTime     @default(now())
   updatedAt DateTime     @updatedAt
+}
+
+model notes {
+  id        String   @id
+  author    String   @db.Text
+  content   String   @db.LongText
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  report    reports  @relation(fields: [id], references: [id])
 }
 
 model orgs {
@@ -121,16 +132,18 @@ model orgs {
   api_key     String       @unique
   verified    Boolean      @default(false)
   banned      Boolean      @default(false)
+  partner     Boolean      @default(false)
   domain      org_domain?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
 }
 
 model org_member {
-  id     String      @id @unique
-  org    orgs        @relation(fields: [id], references: [id])
-  roles  org_roles[]
-  userid String      @unique
+  id     String @id @unique
+  org    orgs   @relation(fields: [id], references: [id])
+  userid String @unique
+  user   users  @relation(fields: [userid], references: [userid])
+  perms  Json?
 }
 
 model org_links {
@@ -144,16 +157,6 @@ model org_links {
   org       orgs   @relation(fields: [id], references: [id])
 }
 
-model org_roles {
-  id     String     @id @unique
-  admin  Boolean    @default(false)
-  editor Boolean    @default(false)
-  reader Boolean    @default(false)
-  guest  Boolean    @default(false)
-  user   org_member @relation(fields: [member], references: [id])
-  member String     @db.VarChar(255)
-}
-
 model org_domain {
   id        String   @id @unique
   name      String   @db.Text
@@ -162,6 +165,20 @@ model org_domain {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   org       orgs     @relation(fields: [id], references: [id])
+}
+
+enum RoleNamespace {
+  org
+  org_member
+  org_links
+  org_domain
+}
+
+enum RolePermissions {
+  admin
+  create
+  update
+  delete
 }
 
 enum UserPermissions {

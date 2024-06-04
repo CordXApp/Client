@@ -16,6 +16,29 @@ export default class InteractionCreate extends EventBase {
         if (interaction.isCommand()) {
             const command = client.commands.get(interaction.commandName)
             const priv = client.private.get(interaction.commandName)
+            const user = await client.db.user.model.fetch(interaction.user.id)
+
+            if (!user.success) return;
+
+            if (!user.data.beta) return interaction.reply({
+                embeds: [
+                    new client.EmbedBuilder({
+                        title: 'Unauthorized: beta feature',
+                        description: 'Hey there, my features are currently limited to beta members only. If you would like to join the beta program, you can do so by joining the [CordX Discord Server](https://cordximg.host/discord).',
+                        color: client.config.EmbedColors.error
+                    })
+                ]
+            });
+
+            if (user.data.banned) return interaction.reply({
+                embeds: [
+                    new client.EmbedBuilder({
+                        title: 'Unauthorized: you\'ve been beaned!',
+                        description: 'Hold up chief, you got the ban hammer. My services will be unavailable until this is resolved!',
+                        color: client.config.EmbedColors.error
+                    })
+                ]
+            });
 
             const cmd = command || priv
 

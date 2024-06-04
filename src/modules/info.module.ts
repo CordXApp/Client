@@ -30,8 +30,8 @@ export class Information {
                 return message.channel.send({
                     embeds: [
                         new this.client.EmbedBuilder({
-                            title: 'Work in Progress',
-                            description: 'This feature is currently a work in progress, please check back later for updates.',
+                            title: 'CordX: Support Commands',
+                            description: 'Are you feeling stuck? These commands might help you out!',
                             color: this.client.config.EmbedColors.warning
                         })
                     ]
