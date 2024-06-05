@@ -56,7 +56,7 @@ export default class Sync extends SlashBase {
                     ]
                 });
 
-                return Promise.all([client.utils.base.delay(5000), client.spaces.actions.check(interaction.user.id)]).then(async ([, res]) => {
+                return Promise.all([client.utils.base.delay(5000), client.modules.spaces.actions.check(interaction.user.id)]).then(async ([, res]) => {
 
                     if (!res.success) return interaction.editReply({
                         embeds: [
@@ -85,72 +85,36 @@ export default class Sync extends SlashBase {
 
                 const force = interaction.options.getBoolean('force');
 
-                await interaction.reply({
+                const row: any = new ActionRowBuilder()
+                    .addComponents([
+                        new ButtonBuilder().setCustomId('agree').setLabel('🔄 Sync bucket').setStyle(ButtonStyle.Danger),
+                        new ButtonBuilder().setCustomId('disagree').setLabel('❌ Cancel sync').setStyle(ButtonStyle.Secondary)
+                    ])
+
+                const message = await interaction.reply({
                     embeds: [
                         new client.EmbedBuilder({
-                            title: 'Action: sync bucket files',
-                            description: 'Syncing your bucket files! I\'ll send you a DM once it\'s done!',
-                            color: client.config.EmbedColors.warning
+                            title: 'Sync: user bucket',
+                            description: 'Are you sure you want to sync your bucket content? This process can and will take a while!',
+                            color: client.config.EmbedColors.warning,
+                            fields: [{
+                                name: 'Notice',
+                                value: `- This action could result in data loss if anything goes wrong\n- We recommend setting the \`force\` option to false, please go back and make sure you did that!`,
+                                inline: false
+                            }]
                         })
-                    ]
+                    ],
+                    components: [row]
                 });
 
-                await client.spaces.actions.sync_user(interaction.user.id, force as boolean).then(async (res: SpacesResponse) => {
-
-                    if (!res.success) return interaction.editReply({
-                        embeds: [
-                            new client.EmbedBuilder({
-                                title: 'Error: failed to sync bucket files',
-                                description: res.message,
-                                color: client.config.EmbedColors.error
-                            })
-                        ]
-                    });
-
-                    return interaction.user.createDM(true).then(dm => {
-                        return dm.send({
-                            embeds: [
-                                new client.EmbedBuilder({
-                                    title: 'Success: bucket files synced',
-                                    description: res.message,
-                                    color: client.config.EmbedColors.base
-                                })
-                            ]
-                        }).catch((err: Error) => {
-                            client.logs.debug(err.stack as string);
-                            return interaction.editReply({
-                                embeds: [
-                                    new client.EmbedBuilder({
-                                        title: 'Error: failed to notify user!',
-                                        description: "For some reason i was unable to notify you but at this point the action has most likely completed! You can run `/sync check` to verify!",
-                                        color: client.config.EmbedColors.error
-                                    })
-                                ]
-                            });
-                        });
-                    })
-                }).catch((err: Error) => {
-                    client.logs.debug(err.stack as string);
-                    return interaction.editReply({
-                        embeds: [
-                            new client.EmbedBuilder({
-                                title: 'Error: failed to sync bucket files',
-                                description: err.message,
-                                color: client.config.EmbedColors.error
-                            })
-                        ]
-                    });
+                const filter = (i: any) => i.user && i.user.id === interaction.user.id
+                const collector = message.createMessageComponentCollector({
+                    filter,
+                    componentType: ComponentType.Button,
+                    time: 30000
                 });
 
-                return interaction.editReply({
-                    embeds: [
-                        new client.EmbedBuilder({
-                            title: 'Success: bucket files synced',
-                            description: 'Notification sent successfully!',
-                            color: client.config.EmbedColors.base
-                        })
-                    ]
-                })
+                return client.utils.base.handleUserSync(collector, interaction, force as boolean);
             }
         }
     }

@@ -1,7 +1,7 @@
-import type CordX from "../client/cordx"
-import { Responses } from "../types/database/index";
-import { UserConfig } from "../types/database/users";
-import { version } from "../../package.json";
+import type CordX from "@/client/cordx"
+import { Responses } from "@/types/database/index";
+import { UserConfig } from "@/types/database/users";
+import { version } from "../../../package.json";
 
 export class ConfigModule {
     private client: CordX

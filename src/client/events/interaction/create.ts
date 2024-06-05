@@ -48,12 +48,12 @@ export default class InteractionCreate extends EventBase {
 
             if (permissions.gate && permissions.gate.length > 0) {
 
-                const check = await client.perms.user.has({
+                const check = await client.modules.perms.user.has({
                     user: interaction.user.id,
                     perm: permissions.gate
                 })
 
-                const missing = await client.perms.user.missing({
+                const missing = await client.modules.perms.user.missing({
                     user: interaction.user.id,
                     perm: permissions.gate
                 });

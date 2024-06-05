@@ -41,8 +41,9 @@ export interface UpdateContentOpts {
 }
 
 export interface SpacesAction {
-    sync_user(user: string, force: boolean): Promise<SpacesResponse>
-    //sync_all(): Promise<{ results: SyncAll }>
+    sync_user(user: string, force: boolean): Promise<EmitterResponse>
+    sync_all(force: boolean): Promise<EmitterResponse>
+    check(user: string): Promise<SpacesResponse>
 }
 
 export interface File {

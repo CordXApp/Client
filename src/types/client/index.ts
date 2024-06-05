@@ -1,4 +1,5 @@
-import type { BitFieldResolvable, GatewayIntentsString } from "discord.js"
+import type { BitFieldResolvable, CollectorFilter, ComponentType, GatewayIntentsString, MessageComponentInteraction, Message, CacheType } from "discord.js"
+import CordX from "../../client/cordx";
 
 export interface IConfig {
     intents: BitFieldResolvable<GatewayIntentsString, number>
@@ -41,3 +42,21 @@ export interface Cooldown {
     command: string;
     user: string;
 }
+
+export interface CordXCollector {
+    client: CordX;
+    message: any;
+    filter: CollectorFilter<[MessageComponentInteraction<CacheType>]>;
+    options: CollectorOptions;
+}
+
+export interface CollectorOptions {
+    action: ActionType;
+    customIds: ActionCustomIds[];
+    componentType: ComponentType
+    force?: boolean;
+    time: number;
+}
+
+export type ActionType = 'bucketSync' | 'helpMenu';
+export type ActionCustomIds = 'agree' | 'disagree' | 'continue' | 'back' | 'next';

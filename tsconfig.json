@@ -12,7 +12,39 @@
         "esModuleInterop": true,
         "forceConsistentCasingInFileNames": true,
         "strict": true,
-        "skipLibCheck": true
+        "skipLibCheck": true,
+        "paths": {
+            "@/*": [
+                "./src/*"
+            ],
+            "@client/*": [
+                "./src/*"
+            ],
+            "@configs/*": [
+                "./src/configs/*"
+            ],
+            "@managers/*": [
+                "./src/managers/*"
+            ],
+            "@modules/*": [
+                "./src/modules/*"
+            ],
+            "@prisma/*": [
+                "./src/prisma"
+            ],
+            "@schemas/*": [
+                "./src/schemas"
+            ],
+            "@server/*": [
+                "./src/server/*"
+            ],
+            "@types/*": [
+                "./src/types/*"
+            ],
+            "@utils/*": [
+                "./src/utils/*"
+            ]
+        }
     },
     "include": [
         "src",

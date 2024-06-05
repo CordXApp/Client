@@ -1,10 +1,10 @@
-import { HandleUploadParams, HandleDeleteParams } from "../types/server/upload.types";
+import { HandleUploadParams, HandleDeleteParams } from "../../types/server/upload.types";
 import { S3, ListObjectsV2CommandOutput, ObjectCannedACL, PutObjectCommand } from "@aws-sdk/client-s3";
 import { FastifyRequest } from "fastify";
 import { readFileSync } from "fs";
-import type CordX from "../client/cordx"
+import type CordX from "../../client/cordx"
 import { EventEmitter } from "events";
-import Logger from "../utils/logger.util"
+import Logger from "../../utils/logger.util"
 import { randomBytes } from "node:crypto";
 
 import {
@@ -14,7 +14,7 @@ import {
     SpacesClient,
     SpacesResponse,
     UpdateContentOpts
-} from "../types/modules/spaces";
+} from "@/types/modules/spaces";
 import { randomUUID } from "crypto";
 
 export class Spaces implements SpacesClient {
@@ -137,8 +137,16 @@ export class Spaces implements SpacesClient {
             drop: async (opts: DropContentOpts): Promise<SpacesResponse> => {
 
                 let shouldContinue: boolean = true;
+                this.currentPercentage = 0;
+                this.lastPercentage = 0;
 
                 this.logs.info(`Dropping bucket database content for: ${opts.user}`);
+
+                this.emitter.emit('progress', {
+                    message: 'Dropping your database bucket, this will take some time!',
+                    percentage: '0% Complete',
+                    total: '0 files processed'
+                });
 
                 const list = await this.user.list(opts.user);
                 const data = await this.client.db.prisma.images.findMany({ where: { userid: opts.user } });
@@ -166,7 +174,21 @@ export class Spaces implements SpacesClient {
 
                 if (shouldContinue) {
                     for (let i = 0; i < deletedIds.length; i++) {
-                        await this.client.db.prisma.images.delete({ where: { id: deletedIds[i] } }).catch((err: Error) => {
+                        await this.client.db.prisma.images.delete({ where: { id: deletedIds[i] } }).then(() => {
+                            this.currentPercentage = ((i + 1) / deletedIds.length) * 100;
+                            let roundedPercentage = Math.round(this.currentPercentage);
+
+                            if (roundedPercentage % 10 === 0 && roundedPercentage !== this.lastPercentage) {
+                                this.logs.debug(`Bucket database content delete: ${this.currentPercentage.toFixed(0)}% Complete`);
+                                this.lastPercentage = roundedPercentage;
+
+                                this.emitter.emit('progress', {
+                                    message: 'Please note: action progress will be updated in 10% increments',
+                                    percentage: `${this.currentPercentage.toFixed(0)}% Complete`,
+                                    total: `${i + 1} files processed`
+                                })
+                            }
+                        }).catch((err: Error) => {
                             this.logs.error(`Failed to drop bucket content for user: ${opts.user}`);
                             this.logs.debug(`Stack trace: ${err.stack}`);
 
@@ -180,14 +202,28 @@ export class Spaces implements SpacesClient {
 
                 this.logs.ready(`Successfully dropped bucket content for user: ${opts.user}`);
 
+                this.emitter.emit('progress', {
+                    message: opts.force ? 'Successfully wiped your database bucket content, please wait while i start the re-sync operation!' : 'Skipped bucket database content deletion as you have more than 250 files in your bucket and the operation was not forced, please wait while i start the re-sync operation!',
+                    percentage: '100% Complete',
+                    total: opts.force ? '0 files processed' : `${deletedIds.length} files processed`
+                });
+
                 return { success: true }
             },
             update: async (opts: UpdateContentOpts): Promise<SpacesResponse> => {
 
+                this.currentPercentage = 0;
+                this.lastPercentage = 0;
+
                 this.logs.info(`Syncing bucket database content for: ${opts.user}`);
 
+                this.emitter.emit('progress', {
+                    message: 'Uploading bucket content to our database, this will take some time!',
+                    percentage: '0% Complete',
+                    total: '0 files processed'
+                });
+
                 const list = await this.user.list(opts.user);
-                const count = await this.client.db.prisma.images.count({ where: { userid: opts.user } });
 
                 if (!list.success) {
                     this.logs.debug(`Unable to locate bucket for: ${opts.user}, cancelling operation!`);
@@ -223,7 +259,21 @@ export class Spaces implements SpacesClient {
                         size: file?.Size
                     }
 
-                    await this.client.db.prisma.images.create({ data }).catch((err: Error) => {
+                    await this.client.db.prisma.images.create({ data }).then(() => {
+                        this.currentPercentage = ((i + 1) / bucket.length) * 100;
+                        let roundedPercentage = Math.round(this.currentPercentage);
+
+                        if (roundedPercentage % 10 === 0 && roundedPercentage !== this.lastPercentage) {
+                            this.logs.debug(`Bucket database content upload: ${this.currentPercentage.toFixed(0)}% Complete`);
+                            this.lastPercentage = roundedPercentage;
+
+                            this.emitter.emit('progress', {
+                                message: 'Please note: action progress will be updated in 10% increments',
+                                percentage: `${this.currentPercentage.toFixed(0)}% Complete`,
+                                total: `${i + 1} files processed`
+                            })
+                        }
+                    }).catch((err: Error) => {
                         this.logs.error(`Failed to sync bucket content for user: ${opts.user}`);
                         this.logs.debug(`Stack trace: ${err.stack}`);
 
@@ -236,6 +286,12 @@ export class Spaces implements SpacesClient {
 
                 this.logs.ready(`Successfully synchronized bucket content for user: ${opts.user}`);
 
+                this.emitter.emit('progress', {
+                    message: 'Successfully synced your bucket with our database, please wait while i cleanup the process!',
+                    percentage: '100% Complete',
+                    total: `${bucket.length} files processed`
+                })
+
                 return { success: true }
             }
         }
@@ -243,37 +299,62 @@ export class Spaces implements SpacesClient {
 
     public get actions() {
         return {
-            sync_user: async (user: string, force: boolean): Promise<SpacesResponse> => {
+            sync_user: async (user: string, force: boolean): Promise<EmitterResponse> => {
 
                 const check = await this.actions.check(user);
 
-                if (check.success) return { success: false, message: check.message };
+                if (check.success) return {
+                    results: {
+                        success: false,
+                        message: 'Your bucket is already in-sync, cancelling operation!'
+                    }
+                }
 
                 this.logs.info(`Starting bucket sync operation for: ${user}`);
 
                 const list = await this.user.list(user);
 
-                if (!list.success) return { success: false, message: list.message };
+                if (!list.success) return {
+                    results: {
+                        success: false,
+                        message: 'Unable to locate your bucket!'
+                    }
+                }
 
                 const drop: SpacesResponse = await this.bucket_db.drop({ user, force });
 
-                if (!drop.success) return { success: false, message: drop.message };
+                if (!drop.success) return {
+                    results: {
+                        success: false,
+                        message: drop.message
+                    }
+                };
 
                 const update: SpacesResponse = await this.bucket_db.update({ user, force });
 
-                if (!update.success) return { success: false, message: update.message };
+                if (!update.success) return {
+                    results: {
+                        success: false,
+                        message: update.message
+                    }
+                };
 
-                return { success: true, message: 'Your bucket has been synchronized successfully!' }
+                return { results: { success: true } }
             },
             /**
              * Sync all files in the bucket to the database
              * @returns {Promise<SyncAll>}
              */
-            sync_all: async (force: boolean): Promise<SpacesResponse> => {
+            sync_all: async (force: boolean): Promise<EmitterResponse> => {
 
                 const users = await this.client.db.prisma.users.findMany();
 
-                if (!users) return { success: false, message: 'No users found, cancelling!' };
+                if (!users) return {
+                    results: {
+                        success: false,
+                        message: 'Unable to locate any users in the database!'
+                    }
+                };
 
                 this.logs.info(`Starting bucket sync operation for: ${users.length} users`);
 
@@ -285,18 +366,37 @@ export class Spaces implements SpacesClient {
 
                     const list = await this.user.list(user.userid as string);
 
-                    if (!list.success) return { success: false, message: list.message };
+                    if (!list.success) return {
+                        results: {
+                            success: false,
+                            message: 'Unable to locate your bucket!'
+                        }
+                    };
 
                     const drop: SpacesResponse = await this.bucket_db.drop({ user: user.userid as string, force });
 
-                    if (!drop.success) return { success: false, message: drop.message };
+                    if (!drop.success) return {
+                        results: {
+                            success: false,
+                            message: drop.message
+                        }
+                    };
 
                     const update: SpacesResponse = await this.bucket_db.update({ user: user.userid as string, force });
 
-                    if (!update.success) return { success: false, message: update.message };
+                    if (!update.success) return {
+                        results: {
+                            success: false,
+                            message: update.message
+                        }
+                    };
                 }
 
-                return { success: true, message: 'All buckets have been synchronized successfully!' }
+                return {
+                    results: {
+                        success: true
+                    }
+                }
             },
             check: async (user: string): Promise<SpacesResponse> => {
 
@@ -315,7 +415,7 @@ export class Spaces implements SpacesClient {
 
                 return {
                     success: false,
-                    message: 'Your bucket is out of sync with the database, please run the \`/sync bucket\` command to fix this! We recommend you set the \`force\` flag to false when syncing your bucket.'
+                    message: 'Your bucket is out of sync with the database, please run the \`/sync bucket\` command to fix this! **We recommend you set the \`force\` flag to false when syncing your bucket**.'
                 }
             }
         }
@@ -376,7 +476,7 @@ export class Spaces implements SpacesClient {
                 const fileId = await this.sharex.makeId(10);
                 const user = await this.client.db.user.model.fetch(userid as string);
                 const env = req.client.user!.id === '829979197912645652' ? 'development' : 'production';
-                const dev = await req.client.perms.user.has({ user: userid, perm: 'DEVELOPER' });
+                const dev = await req.client.modules.perms.user.has({ user: userid, perm: 'DEVELOPER' });
                 const getBase = (req: FastifyRequest) => `${env === 'development' ? 'http' : 'https'}://${req.headers['x-cordx-host'] || req.headers.host}`;
                 const dom = await req.client.db.domain.model.exists(getBase(req));
 
@@ -435,7 +535,7 @@ export class Spaces implements SpacesClient {
 
                     let replaceHook = user.data.webhook.replace('discord.com', 'proxy.cordx.lol');
 
-                    const { webhooks } = this.client.webhooks;
+                    const { webhooks } = this.client.modules.webhooks;
 
                     await webhooks.send({
                         userid: user.data.userid,

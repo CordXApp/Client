@@ -120,7 +120,7 @@ export default class Uploads extends SlashBase {
                     ]
                 });
 
-                const create = await client.orgs.organization.create({
+                const create = await client.modules.orgs.organization.create({
                     name,
                     description,
                     logo,
@@ -166,7 +166,7 @@ export default class Uploads extends SlashBase {
             case 'view': {
                 const id = interaction.options.getString('id', true);
 
-                const view = await client.orgs.organization.view(id);
+                const view = await client.modules.orgs.organization.view(id);
 
                 if (!view.success) return interaction.reply({
                     embeds: [

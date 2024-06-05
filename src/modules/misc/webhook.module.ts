@@ -1,6 +1,6 @@
-import type CordX from "../client/cordx"
-import Logger from "../utils/logger.util"
-import { HookParams } from "../types/modules/hooks";
+import type CordX from "../../client/cordx"
+import Logger from "../../utils/logger.util"
+import { HookParams } from "../../types/modules/hooks";
 import axios from "axios";
 
 export class Webhooks {

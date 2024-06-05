@@ -12,8 +12,8 @@ export class ConfigHandler {
 
                 let config;
 
-                if (domain) config = await req.client.configs.sharex.generate(userId as string, secret as string, domain as string);
-                else config = await req.client.configs.sharex.generate(userId as string, secret as string);
+                if (domain) config = await req.client.modules.configs.sharex.generate(userId as string, secret as string, domain as string);
+                else config = await req.client.modules.configs.sharex.generate(userId as string, secret as string);
 
                 return res.status(200).send(JSON.stringify(config.data));
             },
@@ -56,8 +56,8 @@ export class ConfigHandler {
 
                 let config;
 
-                if (domain) config = await req.client.configs.sharex.generate(userId as string, secret as string, domain as string);
-                else config = await req.client.configs.sharex.generate(userId as string, secret as string);
+                if (domain) config = await req.client.modules.configs.sharex.generate(userId as string, secret as string, domain as string);
+                else config = await req.client.modules.configs.sharex.generate(userId as string, secret as string);
 
                 if (!config.success) return res.status(500).send({
                     status: 'CONFIG_GENERATION_FAILED',

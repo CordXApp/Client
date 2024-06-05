@@ -4,46 +4,30 @@ import helpConfig from "../config/help.config"
 import { CordxEmbed } from "../utils/embed.util"
 import { Utilities } from "../utils/helper.util"
 import { DatabaseClient } from "../prisma/prisma.client";
-import { ConfigModule } from "../modules/cfg.module";
-import { OrgModule } from "../modules/org.module";
 import { Client, ClientOptions, Collection } from "discord.js"
 import type { IConfig, IHelpConfig } from "../types/client"
-import { Security } from "../modules/security.module";
-import { Spaces } from "../modules/spaces.module";
 import PrivateManager from "../managers/private.manager"
 import CommandManager from "../managers/command.manager"
 import EventManager from "../managers/listener.manager"
 import CordXServer from "../server/server";
 import RestManager from "../managers/restful.manager";
-import { Information } from "../modules/info.module";
-import { Webhooks } from "../modules/webhook.module";
+import { ClientModules } from "../modules/base.module";
 import Logger from "../utils/logger.util";
-
-/** CLIENT MODULES */
-import { Permissions } from "../modules/permissions.module"
-import { FunModule } from "../modules/fun.module"
 
 class CordX extends Client {
     public EmbedBuilder: any = CordxEmbed
     public db: DatabaseClient = new DatabaseClient(this)
     public cooldown = new Collection<string, Collection<string, number>>()
-    public perms: Permissions = new Permissions(this)
     public commands: CommandManager = new CommandManager(this)
+    public modules: ClientModules = new ClientModules(this)
     public private: PrivateManager = new PrivateManager(this)
     public events: EventManager = new EventManager(this)
     public restApi: RestManager = new RestManager(this)
-    public security: Security = new Security(this)
-    public spaces: Spaces = new Spaces(this)
     public utils: Utilities = new Utilities(this)
     public logs: Logger = new Logger("Client")
     public server = new CordXServer(this)
     public help: IHelpConfig = helpConfig
     public config: IConfig = Config
-    public funmod: FunModule = new FunModule(this)
-    public info: Information = new Information(this)
-    public webhooks: Webhooks = new Webhooks(this);
-    public configs: ConfigModule = new ConfigModule(this)
-    public orgs: OrgModule = new OrgModule(this)
 
     constructor(options: ClientOptions) {
         super(options)

@@ -1,9 +1,9 @@
 import { CordXSnowflake } from "@cordxapp/snowflake";
-import { Organizations, Options, AdminOpts, OrganizationMembers, Members, Permissions, ValidPermsConst } from "../types/modules/orgs"
-import type { ValidPerms } from "../types/modules/orgs"
-import { Responses } from "../types/database"
-import Logger from "../utils/logger.util"
-import type CordX from "../client/cordx"
+import { Organizations, Options, AdminOpts, OrganizationMembers, Members, Permissions } from "../../types/modules/orgs"
+import type { ValidPerms } from "../../types/modules/orgs"
+import { Responses } from "../../types/database"
+import Logger from "../../utils/logger.util"
+import type CordX from "../../client/cordx"
 import { randomBytes } from "crypto";
 
 export class OrgModule {

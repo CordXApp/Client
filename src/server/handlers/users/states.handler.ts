@@ -12,7 +12,7 @@ export class UserStates {
                 const { userId } = req.params;
 
                 const user = await req.client.db.user.model.fetch(userId);
-                const perms = await req.client.perms.user.acknowledgments(userId);
+                const perms = await req.client.modules.perms.user.acknowledgments(userId);
 
                 return res.status(200).send({
                     banned: user.data.banned,

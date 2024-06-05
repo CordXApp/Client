@@ -187,7 +187,7 @@ export class UserClient {
 
                     const permsToCreate = perms.filter(perm => !user.permissions.find(p => p.name === perm));
 
-                    const update = await this.client.perms.user.update({
+                    const update = await this.client.modules.perms.user.update({
                         user: user.userid as string,
                         perm: permsToCreate as GatePermissions[]
                     });

@@ -38,7 +38,7 @@ export class DeleteHandler {
                     Key: `${user.data.userid}/${fileid}`
                 }
 
-                await req.client.spaces.bucket.send(new DeleteObjectCommand(params)).catch((err: Error) => {
+                await req.client.modules.spaces.bucket.send(new DeleteObjectCommand(params)).catch((err: Error) => {
                     req.client.logs.error(err.message);
                     req.client.logs.debug(err.stack as string);
 

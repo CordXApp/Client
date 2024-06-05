@@ -8,7 +8,7 @@ const config: IConfig = {
     Cordx: {
         proxy: "https://proxy.cordx.lol",
         domain: "https://cordximg.host",
-        docs: "https://help.cordx.lol",
+        docs: "https://help.cordx.lol"
     },
     Icons: {
         loading:

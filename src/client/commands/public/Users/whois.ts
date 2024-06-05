@@ -98,7 +98,7 @@ export default class WhoIs extends SlashBase {
                         inline: true
                     }, {
                         name: 'Team Roles',
-                        value: `${await client.perms.user.acknowledgments(member.user.id)}`,
+                        value: `${await client.modules.perms.user.acknowledgments(member.user.id)}`,
                         inline: true
                     }, {
                         name: 'Boost Status',

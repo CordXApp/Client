@@ -1,6 +1,6 @@
-import type CordX from "../client/cordx"
-import { Params, Response, PermsClient } from "../types/modules/perms";
-import { GatePermissions } from "../types/database/users";
+import type CordX from "../../client/cordx"
+import { Params, Response, PermsClient } from "../../types/modules/perms";
+import { GatePermissions } from "../../types/database/users";
 
 export class Permissions implements PermsClient {
     private client: CordX
@@ -45,7 +45,7 @@ export class Permissions implements PermsClient {
                 this.acks = [];
 
                 for (const perm of permissions) {
-                    const hasPerm = await this.client.perms.user.has({ user: user, perm: perm as GatePermissions });
+                    const hasPerm = await this.client.modules.perms.user.has({ user: user, perm: perm as GatePermissions });
 
                     if (hasPerm) {
                         this.list[perm].push(user);

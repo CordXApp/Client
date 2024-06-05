@@ -1,8 +1,8 @@
 import { ActionRow, ActionRowBuilder, ButtonBuilder, ButtonStyle, ComponentType, type CacheType, type ChatInputCommandInteraction } from "discord.js"
-import { SpacesResponse } from "../../../types/modules/spaces"
-import { SubCommandOptions } from "../../../types/client/utilities"
-import { SlashBase } from "../../../schemas/command.schema";
-import type CordX from "../../cordx"
+import { EmitterResponse, SpacesResponse } from "../../../../types/modules/spaces"
+import { SubCommandOptions } from "../../../../types/client/utilities"
+import { SlashBase } from "../../../../schemas/command.schema";
+import type CordX from "../../../cordx"
 
 export default class aSync extends SlashBase {
     constructor() {
@@ -224,7 +224,7 @@ export default class aSync extends SlashBase {
                             components: []
                         })
 
-                        client.spaces.emitter.on('progress', async (results) => {
+                        client.modules.spaces.emitter.on('progress', async (results) => {
                             interaction.editReply({
                                 embeds: [
                                     new client.EmbedBuilder({
@@ -246,7 +246,7 @@ export default class aSync extends SlashBase {
                             })
                         })
 
-                        const promise = Promise.all([client.utils.base.delay(300000), client.spaces.actions.sync_all()])
+                        const promise = Promise.all([client.utils.base.delay(300000), client.modules.spaces.actions.sync_all(false)])
                             .then(async ([, res]: [unknown, { results: SpacesResponse }]) => {
 
                                 await interaction.editReply({

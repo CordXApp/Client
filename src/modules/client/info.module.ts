@@ -1,15 +1,11 @@
-import type CordX from "../client/cordx"
+import type CordX from "../../client/cordx";
 import { MessageType, type Message } from "discord.js"
 
 export class Information {
     private client: CordX
-    private url: string;
-    private docs: string;
 
     constructor(client: CordX) {
         this.client = client
-        this.url = client.config.Cordx.domain
-        this.docs = client.config.Cordx.docs
     }
 
     public get reactions() {
@@ -68,15 +64,15 @@ export class Information {
                     embeds: [
                         new this.client.EmbedBuilder({
                             title: 'Information: docs',
-                            description: `You can find our documentation [here](${this.docs}).`,
+                            description: `You can find our documentation [here](https://help.cordx.lol).`,
                             color: this.client.config.EmbedColors.base,
                             fields: [{
                                 name: '👉 Domain Blacklist',
-                                value: `- [more info](${this.docs}/docs/users/blacklist)`,
+                                value: `- [more info](https://help.cordx.lol/docs/users/blacklist)`,
                                 inline: false
                             }, {
                                 name: '👉 Domain Documentation',
-                                value: `- [more info](${this.docs}/docs/users/domains)`,
+                                value: `- [more info](https://help.cordx.lol/docs/users/domains)`,
                                 inline: false
                             }]
                         })
@@ -115,15 +111,15 @@ export class Information {
                             color: this.client.config.EmbedColors.base,
                             fields: [{
                                 name: '👉 Terms of Service',
-                                value: `- [cordximg.host/legal/terms](${this.url}/legal/terms)`,
+                                value: `- [cordximg.host/legal/terms](https://cordximg.host/legal/terms)`,
                                 inline: false
                             }, {
                                 name: '👉 Privacy Policy',
-                                value: `- [cordximg.host/legal/privacy](${this.url}/legal/privacy)`,
+                                value: `- [cordximg.host/legal/privacy](https://cordximg.host/legal/privacy)`,
                                 inline: false
                             }, {
                                 name: '👉 Use License',
-                                value: `- [cordximg.host/legal/license](${this.url}/legal/license)`,
+                                value: `- [cordximg.host/legal/license](https://cordximg.host/legal/license)`,
                             }]
                         })
                     ]

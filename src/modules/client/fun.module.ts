@@ -1,5 +1,5 @@
-import type CordX from "../client/cordx"
-import { FunClient, Response, EightBallMessages } from "../types/modules/fun";
+import type CordX from "../../client/cordx"
+import { FunClient, EightBallMessages } from "../../types/modules/fun";
 
 export class FunModule implements FunClient {
     private client: CordX

@@ -1,10 +1,11 @@
-import { Collection } from "discord.js"
+import { Collection, type CacheType, type ChatInputCommandInteraction } from "discord.js"
 import { Responses } from "../types/database/index";
 import { CordXSnowflake } from "@cordxapp/snowflake";
 import { Cooldown } from "../types/client/index";
 import type CordX from "../client/cordx"
 import Logger from "./logger.util"
 import axios from "axios";
+import { SpacesResponse } from "@/types/modules/spaces";
 
 export class Utilities {
     public client: CordX
@@ -123,6 +124,173 @@ export class Utilities {
                 return {
                     success: true, message: `Successfully purged ${length} messages from channel <#${chan.id}>, please wait while i cleanup the process!`
                 }
+            },
+
+            handleUserSync: async (collector: any, interaction: ChatInputCommandInteraction<CacheType>, force: boolean): Promise<void> => {
+
+                collector.on('collect', async (result: any) => {
+
+                    if (result.customId === 'agree') {
+
+                        await interaction.editReply({
+                            embeds: [
+                                new this.client.EmbedBuilder({
+                                    title: 'Sync: user bucket',
+                                    description: 'Copy that, i will send you a DM and we can complete the action there to prevent spam in chat (yes it can get spammy)!',
+                                    color: this.client.config.EmbedColors.base
+                                })
+                            ],
+                            components: []
+                        })
+
+                        const dmChannel = await interaction.user.createDM(true);
+
+                        await dmChannel.send({
+                            embeds: [
+                                new this.client.EmbedBuilder({
+                                    title: 'Action: user bucket sync',
+                                    description: 'I will now attempt to sync your bucket content, please wait while I process this action!',
+                                    color: this.client.config.EmbedColors.warning,
+                                    fields: [{
+                                        name: 'Notifications',
+                                        value: 'Updates will be sent here everytime that progress of this action reaches a increment of 10%',
+                                        inline: false
+                                    }]
+                                })
+                            ]
+                        }).catch(() => {
+                            return interaction.editReply({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Action: user bucket sync',
+                                        description: 'Failed to send you a DM, please make sure your DM\'s are open and run the action again!',
+                                        color: this.client.config.EmbedColors.error
+                                    })
+                                ]
+                            })
+                        })
+
+                        this.client.modules.spaces.emitter.on('progress', async (res) => {
+                            await dmChannel.send({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Update: progress report!',
+                                        description: res.message,
+                                        thumbnail: this.client.config.Icons.loading,
+                                        color: this.client.config.EmbedColors.warning,
+                                        fields: [{
+                                            name: '⏭️ Progress',
+                                            value: `${res.percentage}`,
+                                            inline: false
+                                        }, {
+                                            name: '🔢  Total',
+                                            value: `${res.total}`,
+                                            inline: false
+                                        }]
+                                    })
+                                ]
+                            }).catch(() => {
+                                return interaction.editReply({
+                                    embeds: [
+                                        new this.client.EmbedBuilder({
+                                            title: 'Action: user bucket sync',
+                                            description: 'Failed to send you a DM, please make sure your DM\'s are open and run the action again!',
+                                            color: this.client.config.EmbedColors.error
+                                        })
+                                    ],
+                                    components: []
+                                })
+                            })
+                        });
+
+                        const syncPromise = this.client.modules.spaces.actions.sync_user(interaction.user.id, force as boolean);
+
+                        syncPromise.then(async (r: { results: SpacesResponse }) => {
+
+                            if (!r.results.success) return interaction.reply({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Failed: user bucket sync',
+                                        description: r.results.message,
+                                        color: this.client.config.EmbedColors.error
+                                    })
+                                ],
+                                components: []
+                            });
+
+                            await this.client.utils.base.delay(60000);
+
+                            await dmChannel.send({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Completed: user bucket sync',
+                                        description: 'I have successfully completed your sync operation!',
+                                        color: this.client.config.EmbedColors.success
+                                    })
+                                ],
+                                components: []
+                            })
+
+                            collector.stop();
+                        }).catch((err: Error) => {
+                            return interaction.reply({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Failed: user bucket sync',
+                                        description: err.message,
+                                        color: this.client.config.EmbedColors.error
+                                    })
+                                ],
+                                components: []
+                            })
+                        });
+
+                        collector.stop();
+                    } else if (result.customId === 'disagree') {
+
+                        await interaction.editReply({
+                            embeds: [
+                                new this.client.EmbedBuilder({
+                                    title: 'Sync: operation cancelled',
+                                    description: 'Cancelled the sync operation (probably a good idea tbh)',
+                                    color: this.client.config.EmbedColors.error
+                                })
+                            ],
+                            components: []
+                        });
+
+                        setTimeout(() => {
+                            interaction.deleteReply();
+                        }, 10000);
+
+                        collector.stop();
+                    }
+
+                    return collector.stop();
+                });
+
+                collector.on('end', collected => {
+                    if (collected.size === 0) {
+                        interaction.editReply({
+                            embeds: [
+                                new this.client.EmbedBuilder({
+                                    title: 'Sync: operation timed out',
+                                    description: 'You took to long to respond, the operation has been cancelled!',
+                                    color: this.client.config.EmbedColors.error,
+                                })
+                            ],
+                            components: []
+                        });
+
+                        setTimeout(() => {
+                            interaction.deleteReply();
+                        }, 10000);
+
+                        collector.stop();
+                    }
+
+                    return collector.stop();
+                })
             }
         }
     }

@@ -46,7 +46,7 @@ export class UserUpload {
                             message: 'An error occurred while processing the upload!'
                         })
 
-                        await req.client.spaces.sharex.handleUpload({
+                        await req.client.modules.spaces.sharex.handleUpload({
                             req: req,
                             res: res,
                             files: files,

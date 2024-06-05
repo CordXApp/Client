@@ -9,7 +9,7 @@ export class UserUploadsHandler {
         return {
             Handler: async (req: FastifyRequest<{ Params: GetDiscordUser }>, res: FastifyReply) => {
 
-                const uploads = await req.client.spaces.user.list(req.params.userId);
+                const uploads = await req.client.modules.spaces.user.list(req.params.userId);
 
                 return res.status(200).send({
                     uploads: uploads.data.splice(Math.floor(Math.random() * uploads.data.length), 9)
@@ -23,7 +23,7 @@ export class UserUploadsHandler {
                     code: 400
                 });
 
-                const test = await req.client.spaces.user.list(req.params.userId);
+                const test = await req.client.modules.spaces.user.list(req.params.userId);
 
                 if (!test.success) return res.status(404).send({
                     status: 'USER_NOT_FOUND',

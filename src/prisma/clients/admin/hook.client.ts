@@ -23,7 +23,7 @@ export class WebhookClient {
 
                 if (check) return { success: false, message: 'Webhook already exists in our database.' };
 
-                const encrypted = await this.client.security.init.encrypt(token).catch((err: Error) => {
+                const encrypted = await this.client.modules.security.init.encrypt(token).catch((err: Error) => {
                     this.client.db.logs.error(err.stack as string)
                     return { success: false, message: err.message }
                 })
@@ -58,7 +58,7 @@ export class WebhookClient {
 
                 if (!webhook) return { success: false, message: 'Whoops, a webhook with the provided ID can not be found!' };
 
-                const partial = await this.client.security.init.partial(webhook?.token).catch((err: Error) => {
+                const partial = await this.client.modules.security.init.partial(webhook?.token).catch((err: Error) => {
                     this.client.db.logs.error(err.stack as any)
                     return { success: false, message: err.message }
                 })

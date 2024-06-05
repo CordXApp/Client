@@ -1,7 +1,7 @@
 import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
-import { SecurityClient } from "../types/modules/security";
-import type CordX from "../client/cordx"
-import Logger from "../utils/logger.util"
+import { SecurityClient } from "../../types/modules/security";
+import type CordX from "../../client/cordx"
+import Logger from "../../utils/logger.util"
 
 export class Security implements SecurityClient {
     private client: CordX
