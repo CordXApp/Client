@@ -10,6 +10,7 @@ import { Responses } from "../database"
 export interface Organizations {
     create(opts: Options): Promise<Responses>
     view(id: string): Promise<Responses>
+    list(user: string): Promise<Responses>
     update(opts: Options): Promise<Responses>
     delete(id: string): Promise<Responses>
     admin(opts: AdminOpts): Promise<Responses>
@@ -113,6 +114,7 @@ export interface Permissions {
     permission: PermNames;
 }
 
+export const AllowedProviders = ['cdn.discord.com', 'i.imgur.com', 'cordx.lol', 'cordximg.host', 'cordx.space', 'cdn.infinitybots.gg', 'cdn.netsocial.app', 'cdn.netsocial.co.in', 'images.topiclist.xyz'];
 export const ValidPermsConst = ['global.*', 'org.update', 'org_member.add', 'org_member.delete', 'org_member.update', 'org_links.add', 'org_links.update', 'org_links.delete', 'org_domain.add', 'org_domain.delete', 'org_domain.update']
 export type ValidPerms = 'global.*' | 'org.update' | 'org_member.add' | 'org_member.delete' | 'org_member.update' | 'org_links.add' | 'org_links.update' | 'org_links.delete' | 'org_domain.add' | 'org_domain.delete' | 'org_domain.update'
 export type Namespaces = 'global' | 'org' | 'org_member' | 'org_links' | 'org_domain'

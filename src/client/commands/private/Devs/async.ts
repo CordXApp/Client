@@ -12,7 +12,7 @@ export default class aSync extends SlashBase {
             category: "Developers",
             cooldown: 5,
             permissions: {
-                gate: ['DEVELOPER'],
+                gate: ['OWNER', 'DEVELOPER'],
                 user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
                 bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
@@ -47,6 +47,12 @@ export default class aSync extends SlashBase {
                     name: 'buckets',
                     description: 'Sync the bucket data for all users.',
                     type: SubCommandOptions.SubCommand,
+                    options: [{
+                        name: 'force',
+                        description: 'Force the sync operation',
+                        required: true,
+                        type: SubCommandOptions.Boolean
+                    }]
                 }
             ],
         })
@@ -177,18 +183,27 @@ export default class aSync extends SlashBase {
                 break;
 
             case 'buckets': {
-                const confirm: any = new ButtonBuilder()
-                    .setCustomId('agree')
-                    .setLabel('🔄 Continue')
-                    .setStyle(ButtonStyle.Danger)
 
-                const cancel: any = new ButtonBuilder()
-                    .setCustomId('disagree')
-                    .setLabel('❌ Cancel')
-                    .setStyle(ButtonStyle.Primary)
+                const force = interaction.options.getBoolean('force');
+
+                if (force === true && !client.modules.perms.user.has({
+                    user: interaction.user.id,
+                    perm: 'OWNER'
+                })) return interaction.reply({
+                    embeds: [
+                        new client.EmbedBuilder({
+                            title: 'Error: access denied',
+                            description: 'Hey there chief, to prevent issues or accidental screw ups forcing this action is only available to my owner(s)',
+                            color: client.config.EmbedColors.base
+                        })
+                    ]
+                })
 
                 const row: any = new ActionRowBuilder()
-                    .addComponents(confirm, cancel)
+                    .addComponents([
+                        new ButtonBuilder().setCustomId('agree').setLabel('🔄 Sync Buckets').setStyle(ButtonStyle.Danger),
+                        new ButtonBuilder().setCustomId('disagree').setLabel('❌ Cancel Sync').setStyle(ButtonStyle.Primary)
+                    ])
 
                 const message = await interaction.reply({
                     embeds: [
@@ -208,106 +223,7 @@ export default class aSync extends SlashBase {
                     time: 15000
                 })
 
-                collector.on('collect', async (result) => {
-
-                    if (result.customId === 'agree') {
-
-                        interaction.editReply({
-                            embeds: [
-                                new client.EmbedBuilder({
-                                    title: 'Sync: user bucket',
-                                    description: 'Please wait while i execute the task at hand!',
-                                    thumbnail: client.config.Icons.loading,
-                                    color: client.config.EmbedColors.warning
-                                })
-                            ],
-                            components: []
-                        })
-
-                        client.modules.spaces.emitter.on('progress', async (results) => {
-                            interaction.editReply({
-                                embeds: [
-                                    new client.EmbedBuilder({
-                                        title: 'Update: still working on it',
-                                        description: `${results.message}`,
-                                        thumbnail: client.config.Icons.loading,
-                                        color: client.config.EmbedColors.warning,
-                                        fields: [{
-                                            name: '⏭️ Progress',
-                                            value: `${results.percentage}`,
-                                            inline: false
-                                        }, {
-                                            name: '🔢  Total',
-                                            value: `${results.total}`,
-                                            inline: false
-                                        }]
-                                    })
-                                ]
-                            })
-                        })
-
-                        const promise = Promise.all([client.utils.base.delay(300000), client.modules.spaces.actions.sync_all(false)])
-                            .then(async ([, res]: [unknown, { results: SpacesResponse }]) => {
-
-                                await interaction.editReply({
-                                    embeds: [
-                                        new client.EmbedBuilder({
-                                            title: 'Admin: bucket sync complete',
-                                            description: `All available bucket data has been synced successfully!`,
-                                            color: client.config.EmbedColors.success,
-                                        })
-                                    ],
-                                    components: []
-                                })
-
-                                collector.stop();
-                            });
-
-                        await promise;
-
-                        collector.stop();
-                    } else if (result.customId === 'disagree') {
-
-                        await interaction.editReply({
-                            embeds: [
-                                new client.EmbedBuilder({
-                                    title: 'Admin: sync all buckets',
-                                    description: `Cancelled the sync opeartion (this was probably a smart idea)`,
-                                    color: client.config.EmbedColors.error
-                                })
-                            ],
-                            components: []
-                        })
-
-                        setTimeout(() => {
-                            interaction.deleteReply();
-                        }, 10000)
-
-                        collector.stop();
-                    }
-                })
-
-                collector.on('end', collected => {
-                    if (collected.size === 0) {
-                        interaction.editReply({
-                            embeds: [
-                                new client.EmbedBuilder({
-                                    title: 'Admin: sync user bucket',
-                                    description: `No reaction was collected, cancelling the bucket sync`,
-                                    color: client.config.EmbedColors.error
-                                })
-                            ]
-                        })
-
-                        setTimeout(() => {
-                            interaction.deleteReply()
-                        }, 15000)
-
-                        collector.stop()
-                    }
-
-                    collector.stop()
-                })
+                return client.utils.base.handleFullSync(collector, interaction, force as boolean);
             }
         }
     }

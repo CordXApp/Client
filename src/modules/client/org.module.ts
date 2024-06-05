@@ -76,6 +76,13 @@ export class OrgModule {
 
                 return { success: true, message: 'Organization fetched successfully!', data: org }
             },
+            list: async (user: string): Promise<Responses> => {
+                const orgs = await this.client.db.prisma.orgs.findMany({ where: { owner: user } });
+
+                if (!orgs) return { success: false, message: 'Whoops, the provided user does not have any organizations!' };
+
+                return { success: true, message: `Organizations for: ${user}`, data: orgs }
+            },
             update: async (opts: Options): Promise<Responses> => {
                 const required = ['id', 'name', 'logo', 'banner', 'description', 'owner', 'api_key']
                 const missing = required.filter((key) => !opts[key])

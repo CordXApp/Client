@@ -362,14 +362,17 @@ export class Spaces implements SpacesClient {
 
                     const check = await this.actions.check(user.userid as string);
 
-                    if (check.success) continue;
+                    if (check.success) {
+                        this.logs.debug(`Skipping user: ${user.userid} as their bucket is already in-sync!`);
+                        continue;
+                    }
 
                     const list = await this.user.list(user.userid as string);
 
                     if (!list.success) return {
                         results: {
                             success: false,
-                            message: 'Unable to locate your bucket!'
+                            message: `Unable to locate a bucket for: ${user.userid}, skipping!`
                         }
                     };
 
@@ -398,6 +401,11 @@ export class Spaces implements SpacesClient {
                     }
                 }
             },
+            /**
+             * Check if a users bucket is in-sync with the database
+             * @param {user} string the user to check
+             * @returns {Promise<SpacesResponse>}
+             */
             check: async (user: string): Promise<SpacesResponse> => {
 
                 const toCheck = await this.client.db.prisma.images.findMany({ where: { userid: user } });

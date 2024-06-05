@@ -291,6 +291,137 @@ export class Utilities {
 
                     return collector.stop();
                 })
+            },
+            handleFullSync: async (collector: any, interaction: ChatInputCommandInteraction<CacheType>, force: boolean): Promise<void> => {
+
+                collector.on('collect', async (result: any) => {
+
+                    if (result.customId === 'agree') {
+
+                        await interaction.editReply({
+                            embeds: [
+                                new this.client.EmbedBuilder({
+                                    title: 'Sync: user buckets',
+                                    description: 'Please wait while i execute the task at hand, progress reports will be sent to your DM\'s!',
+                                    thumbnail: this.client.config.Icons.loading,
+                                    color: this.client.config.EmbedColors.warning
+                                })
+                            ],
+                            components: []
+                        })
+
+                        const dmChannel = await interaction.user.createDM(true);
+
+                        this.client.modules.spaces.emitter.on('progress', async (results: any) => {
+
+                            await dmChannel.send({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Sync: progress report',
+                                        description: results.message,
+                                        thumbnail: this.client.config.Icons.loading,
+                                        color: this.client.config.EmbedColors.warning,
+                                        fields: [{
+                                            name: '⏭️ Progress',
+                                            value: `${results.percentage}`,
+                                            inline: false
+                                        }, {
+                                            name: '🔢  Total',
+                                            value: `${results.total}`,
+                                            inline: false
+                                        }]
+                                    })
+                                ],
+                                components: []
+                            })
+                        });
+
+                        const syncPromise = this.client.modules.spaces.actions.sync_all(false);
+
+                        syncPromise.then(async (r: { results: SpacesResponse }) => {
+
+                            if (!r.results.success) await interaction.editReply({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Failed: unable to sync buckets',
+                                        description: r.results.message,
+                                        color: this.client.config.EmbedColors.error
+                                    })
+                                ],
+                                components: []
+                            });
+
+                            await this.client.utils.base.delay(60000);
+
+                            await interaction.editReply({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Completed: all buckets synced',
+                                        description: 'All done, i have successfully completed the operation!',
+                                        color: this.client.config.EmbedColors.success
+                                    })
+                                ],
+                                components: []
+                            })
+
+                            collector.stop();
+                        }).catch(async (err: Error) => {
+                            await interaction.editReply({
+                                embeds: [
+                                    new this.client.EmbedBuilder({
+                                        title: 'Failed: user bucket sync',
+                                        description: err.message,
+                                        color: this.client.config.EmbedColors.error
+                                    })
+                                ],
+                                components: []
+                            })
+                        });
+
+                        collector.stop()
+                    } else if (result.customId === 'disagree') {
+
+                        await interaction.editReply({
+                            embeds: [
+                                new this.client.EmbedBuilder({
+                                    title: 'Error: operation cancelled',
+                                    description: 'The operation has been cancelled, this message will be deleted shortly!',
+                                    color: this.client.config.EmbedColors.error
+                                })
+                            ],
+                            components: []
+                        })
+
+                        setTimeout(() => {
+                            interaction.deleteReply();
+                        }, 10000);
+
+                        collector.stop();
+                    }
+                });
+
+                collector.on('end', collected => {
+                    if (collected.size === 0) {
+                        interaction.editReply({
+                            embeds: [
+                                new this.client.EmbedBuilder({
+                                    title: 'Sync: operation timed out',
+                                    description: 'You took to long to respond, the operation has been cancelled!',
+                                    color: this.client.config.EmbedColors.error,
+                                })
+                            ],
+                            components: []
+                        });
+
+                        setTimeout(() => {
+                            interaction.deleteReply();
+                        }, 10000);
+
+                        collector.stop();
+                    }
+
+                    return collector.stop();
+                })
             }
         }
     }

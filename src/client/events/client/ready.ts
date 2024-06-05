@@ -14,6 +14,8 @@ export default class Ready extends EventBase {
         client.logs.info(`Logged in as ${client.user?.tag}!`)
 
         const uploads = await client.db.prisma.images.count();
+        const orgs = await client.db.prisma.orgs.count();
+        const users = await client.db.prisma.users.count();
 
         client.server.start().catch((err: Error) => {
             client.logs.error(err.stack as string);
@@ -21,9 +23,21 @@ export default class Ready extends EventBase {
 
         let presences = [
             {
-                name: `${uploads} stored uploads `,
-                type: ActivityType.Watching,
-            }
+                name: 'cordximg.host',
+                type: ActivityType.Watching
+            },
+            {
+                name: `Helping: ${users} users`,
+                type: ActivityType.Custom
+            },
+            {
+                name: `Serving: ${uploads} files`,
+                type: ActivityType.Custom,
+            },
+            {
+                name: `Moderating: ${orgs} orgs`,
+                type: ActivityType.Custom
+            },
         ]
 
         client?.user?.setStatus("idle")
