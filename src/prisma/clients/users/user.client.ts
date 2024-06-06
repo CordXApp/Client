@@ -26,7 +26,7 @@ export class UserClient {
 
                 return { success: true, data: user }
             },
-            exists: async (id: User['userid']): Promise<Boolean> => {
+            exists: async (id: User['userid']): Promise<boolean> => {
 
                 const user = await this.client.db.prisma.users.findUnique({ where: { userid: id } });
 
