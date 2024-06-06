@@ -39,7 +39,8 @@ export class UptimeRobot {
                     if (err instanceof Error) {
                         console.error(err);
                         return res.status(500).send({
-                            message: 'An error occurred while fetching the status of the UptimeRobot API.',
+                            status: 'STATUS_ERROR',
+                            message: 'An error occurred while fetching our uptime robot status.',
                             error: err.message,
                             code: 500
                         })

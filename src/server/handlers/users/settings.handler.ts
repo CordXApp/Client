@@ -7,13 +7,14 @@ export class UserSettings {
 
     public get UpdateSecret() {
         return {
-            Handler: async (req: FastifyRequest<{ Querystring: GetDiscordUser }>, res: FastifyReply) => {
+            Handler: async (req: FastifyRequest<{ Body: { length: number }, Querystring: GetDiscordUser }>, res: FastifyReply) => {
                 const { userId } = req.query;
+                const { length } = req.body;
 
                 const updated = await req.client.db.prisma.users.update({
                     where: { userid: userId },
                     data: {
-                        secret: randomBytes(32).toString('hex')
+                        secret: randomBytes(length).toString('hex')
                     }
                 })
 
@@ -29,9 +30,10 @@ export class UserSettings {
                     code: 200
                 });
             },
-            PreHandler: async (req: FastifyRequest<{ Body: { secret: string }, Querystring: GetDiscordUser }>, res: FastifyReply) => {
+            PreHandler: async (req: FastifyRequest<{ Body: { secret: string, length: number }, Querystring: GetDiscordUser }>, res: FastifyReply) => {
                 const { userId } = req.query;
-                const { secret } = req.body;
+                const { length } = req.body;
+                const { secret } = req.headers;
 
                 if (req.method !== 'PATCH') return res.status(405).send({
                     status: 'METHOD_NOT_ALLOWED',
@@ -48,6 +50,18 @@ export class UserSettings {
                 if (!secret) return res.status(400).send({
                     status: 'NO_SECRET',
                     message: 'No secret provided',
+                    code: 400
+                });
+
+                if (!length) return res.status(400).send({
+                    status: 'NO_LENGTH',
+                    message: 'Please provide a length for your secret (should be between 32 and 64)',
+                    code: 400
+                });
+
+                if (length < 32 || length > 64) return res.status(400).send({
+                    status: 'INVALID_LENGTH',
+                    message: 'Please provide a secret length between 32 and 64',
                     code: 400
                 });
 
@@ -94,11 +108,18 @@ export class UserSettings {
             PreHandler: async (req: FastifyRequest<{ Body: { webhook: string }, Querystring: GetDiscordUser }>, res: FastifyReply) => {
                 const { userId } = req.query;
                 const { webhook } = req.body;
+                const { secret } = req.headers;
 
                 if (req.method !== 'PATCH') return res.status(405).send({
                     status: 'METHOD_NOT_ALLOWED',
                     message: 'This endpoint only supports PATCH requests',
                     code: 405
+                });
+
+                if (!secret) return res.status(400).send({
+                    status: 'NO_SECRET',
+                    message: 'No secret provided',
+                    code: 400
                 });
 
                 if (!userId) return res.status(400).send({
@@ -119,6 +140,12 @@ export class UserSettings {
                     status: 'USER_NOT_FOUND',
                     message: user.message,
                     code: 400
+                });
+
+                if (secret !== user.data.secret) return res.status(401).send({
+                    status: 'UNAUTHORIZED',
+                    message: 'Invalid API Secret provided!',
+                    code: 401
                 });
 
                 if (!webhook.startsWith('https://discord.com/api/webhooks')) return res.status(400).send({

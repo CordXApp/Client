@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { UserUpload } from "../../handlers/uploads/create.handler";
-import { UserUpload as Upload } from "../../schemas/uploads/create.schema";
+import { UserUpload } from "../../handlers/upload/create.handler";
+import { CreateUpload as Upload } from "../../schemas/upload/create.schema";
 import { Router } from "../../../types/server/base.types";
 
 export default async function (fastify: FastifyInstance) {

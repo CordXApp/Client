@@ -1,7 +1,6 @@
 import { Schema } from "../../../types/server/base.types";
-import { version } from "../../../../package.json";
 
-export class UserUpload {
+export class CreateUpload {
     public static Swagger: Schema = {
         tags: ['Upload'],
         summary: 'Upload a file/image',

@@ -27,7 +27,7 @@ export default class CordXServer {
         this.app.register(require('@fastify/cors'), {
             origin: ['*'],
             allowedHeaders: ['*'],
-            methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+            methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
             credentials: true,
             optionsSuccessStatus: 200,
             strictPreflight: true,
@@ -50,8 +50,9 @@ export default class CordXServer {
                     version: version
                 },
                 tags: [
-                    { name: 'Auth', description: 'Authentication endpoints' },
+                    { name: 'Auth', description: 'oAuth endpoints' },
                     { name: 'Client', description: 'Client endpoints' },
+                    { name: 'Status', description: 'Status endpoints' },
                     { name: 'System', description: 'System endpoints' },
                     { name: 'Upload', description: 'Upload endpoints' },
                     { name: 'Users', description: 'User endpoints' }

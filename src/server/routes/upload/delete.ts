@@ -1,6 +1,6 @@
 import { FastifyInstance, FastifyReply, FastifyRequest } from 'fastify';
-import { DeleteHandler } from "../../handlers/uploads/delete.handler";
-import { DeleteUpload as Delete } from "../../schemas/uploads/delete.schema";
+import { DeleteHandler } from "../../handlers/upload/delete.handler";
+import { DeleteUpload as Delete } from "../../schemas/upload/delete.schema";
 import { Router } from "../../../types/server/base.types";
 
 export default async function (fastify: FastifyInstance) {

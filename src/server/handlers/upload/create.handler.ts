@@ -7,7 +7,7 @@ export class UserUpload {
     public get Create() {
         return {
             Handler: async (req: FastifyRequest, res: FastifyReply) => {
-                const { userid, secret } = req.headers;
+                const { userid } = req.headers;
 
                 return new Promise(async (resolve, reject) => {
                     const form = new Formidable.IncomingForm({
