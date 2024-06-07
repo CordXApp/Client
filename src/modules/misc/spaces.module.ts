@@ -16,6 +16,7 @@ import {
     UpdateContentOpts
 } from "@/types/modules/spaces";
 import { randomUUID } from "crypto";
+import { UploadFlag } from "@prisma/client";
 
 export class Spaces implements SpacesClient {
     private client: CordX;
@@ -57,6 +58,10 @@ export class Spaces implements SpacesClient {
              */
             list: async (user: string): Promise<SpacesResponse> => {
                 try {
+                    this.objects = [];
+                    this.marker = '';
+                    this.truncated = true;
+
                     while (this.truncated) {
                         const bucket = await this.bucket.listObjects({ Bucket: 'cordx', Prefix: user, Marker: this.marker });
 
@@ -93,7 +98,7 @@ export class Spaces implements SpacesClient {
                     Key: `${user}/`
                 }
 
-                const database = await this.client.db.prisma.images.findMany({ where: { userid: user } });
+                const database = await this.client.db.prisma.uploads.findMany({ where: { userid: user } });
 
                 const data = await new Promise<ListObjectsV2CommandOutput>((resolve, reject) => {
                     this.bucket.listObjectsV2(params, (err: Error, data?: ListObjectsV2CommandOutput) => {
@@ -135,7 +140,6 @@ export class Spaces implements SpacesClient {
              * @param {opts.force} boolean force the operation if necessary
              */
             drop: async (opts: DropContentOpts): Promise<SpacesResponse> => {
-
                 let shouldContinue: boolean = true;
                 this.currentPercentage = 0;
                 this.lastPercentage = 0;
@@ -149,7 +153,7 @@ export class Spaces implements SpacesClient {
                 });
 
                 const list = await this.user.list(opts.user);
-                const data = await this.client.db.prisma.images.findMany({ where: { userid: opts.user } });
+                const data = await this.client.db.prisma.uploads.findMany({ where: { userid: opts.user } });
 
                 if (!data || !list.success) return {
                     success: false,
@@ -173,9 +177,12 @@ export class Spaces implements SpacesClient {
                 this.logs.debug(`Dropping: ${data.length} files for user: ${opts.user}`);
 
                 if (shouldContinue) {
-                    for (let i = 0; i < deletedIds.length; i++) {
-                        await this.client.db.prisma.images.delete({ where: { id: deletedIds[i] } }).then(() => {
-                            this.currentPercentage = ((i + 1) / deletedIds.length) * 100;
+                    const chunkSize = 20;
+                    for (let i = 0; i < deletedIds.length; i += chunkSize) {
+                        const chunk = deletedIds.slice(i, i + chunkSize);
+                        const deletePromises = chunk.map(id => this.client.db.prisma.uploads.delete({ where: { id } }));
+                        await this.client.db.prisma.$transaction(deletePromises).then(() => {
+                            this.currentPercentage = ((i + chunk.length) / deletedIds.length) * 100;
                             let roundedPercentage = Math.round(this.currentPercentage);
 
                             if (roundedPercentage % 10 === 0 && roundedPercentage !== this.lastPercentage) {
@@ -185,7 +192,7 @@ export class Spaces implements SpacesClient {
                                 this.emitter.emit('progress', {
                                     message: 'Please note: action progress will be updated in 10% increments',
                                     percentage: `${this.currentPercentage.toFixed(0)}% Complete`,
-                                    total: `${i + 1} files processed`
+                                    total: `${i + chunk.length} files processed`
                                 })
                             }
                         }).catch((err: Error) => {
@@ -211,7 +218,6 @@ export class Spaces implements SpacesClient {
                 return { success: true }
             },
             update: async (opts: UpdateContentOpts): Promise<SpacesResponse> => {
-
                 this.currentPercentage = 0;
                 this.lastPercentage = 0;
 
@@ -226,62 +232,83 @@ export class Spaces implements SpacesClient {
                 const list = await this.user.list(opts.user);
 
                 if (!list.success) {
-                    this.logs.debug(`Unable to locate bucket for: ${opts.user}, cancelling operation!`);
+                    this.logs.debug(`Unable to locate bucket for: ${opts.user}, user will be skipped!`);
                     return {
                         success: false,
-                        message: `Unable to locate your bucket, do you have a CordX Account/have you uploaded anything!`
-                    };
+                        message: 'Unable to locate your bucket!'
+                    }
                 }
 
                 const bucket: File[] = list.data;
 
                 this.logs.debug(`Synchronizing: ${bucket.length} files for user: ${opts.user}`);
 
-                for (let i = 0; i < bucket.length; i++) {
+                const chunkSize = 20;
+                for (let i = 0; i < bucket.length; i += chunkSize) {
+                    const chunk = bucket.slice(i, i + chunkSize);
+                    await Promise.all(chunk.map(async (file, j) => {
+                        const check = await this.client.db.prisma.uploads.findFirst({
+                            where: { id: file?.Key.split('/')[1] as string }
+                        });
 
-                    const file = bucket[i];
-
-                    const check = await this.client.db.prisma.images.findFirst({
-                        where: { fileid: file?.Key.split('/')[1] as string }
-                    });
-
-                    if (check) continue;
-                    if (file?.Key.endsWith('.gitkeep')) continue;
-                    if (!file?.Key.includes(opts.user)) continue;
-
-                    const data = {
-                        userid: file?.Key.split('/')[0] as string,
-                        fileid: file?.Key.split('/')[1] as string,
-                        filename: file?.Key.split('/')[1]?.split('.')[0],
-                        date: file?.LastModified,
-                        name: file?.Key.split('/')[1]?.split('.')[0],
-                        type: file?.Key.split('.')[1],
-                        size: file?.Size
-                    }
-
-                    await this.client.db.prisma.images.create({ data }).then(() => {
-                        this.currentPercentage = ((i + 1) / bucket.length) * 100;
-                        let roundedPercentage = Math.round(this.currentPercentage);
-
-                        if (roundedPercentage % 10 === 0 && roundedPercentage !== this.lastPercentage) {
-                            this.logs.debug(`Bucket database content upload: ${this.currentPercentage.toFixed(0)}% Complete`);
-                            this.lastPercentage = roundedPercentage;
-
-                            this.emitter.emit('progress', {
-                                message: 'Please note: action progress will be updated in 10% increments',
-                                percentage: `${this.currentPercentage.toFixed(0)}% Complete`,
-                                total: `${i + 1} files processed`
-                            })
+                        if (check || file?.Key.endsWith('.gitkeep') || !file?.Key.includes(opts.user)) {
+                            return;
                         }
-                    }).catch((err: Error) => {
-                        this.logs.error(`Failed to sync bucket content for user: ${opts.user}`);
-                        this.logs.debug(`Stack trace: ${err.stack}`);
 
-                        return {
-                            success: false,
-                            message: err.message as string
+                        const userId = file?.Key.split('/')[0] as string;
+                        const userExists = await this.client.db.prisma.users.findUnique({ where: { userid: userId } });
+
+                        if (!userExists) {
+                            this.logs.debug(`User: ${userId} does not exist.. Skipping`);
+                            return;
                         }
-                    });
+
+                        const uploadId = file?.Key.split('/')[1]?.split('.')[0];
+                        const uploadExists = await this.client.db.prisma.uploads.findUnique({ where: { id: uploadId } });
+
+                        if (uploadExists) {
+                            this.logs.debug(`Upload with id: ${uploadId} already exists.. Skipping`);
+                            return;
+                        }
+
+                        const data = {
+                            id: uploadId,
+                            flag: 'PUBLIC' as UploadFlag,
+                            key: file?.Key.split('/')[1] as string,
+                            name: uploadId,
+                            createdAt: file?.LastModified,
+                            size: file?.Size,
+                            mime: file?.Key.split('.').pop() as string,
+                            users: {
+                                connect: { userid: userExists.userid as string }
+                            }
+                        }
+
+                        try {
+                            await this.client.db.prisma.uploads.create({ data });
+                            this.currentPercentage = ((i + j + 1) / bucket.length) * 100;
+                            let roundedPercentage = Math.round(this.currentPercentage);
+
+                            if (roundedPercentage % 10 === 0 && roundedPercentage !== this.lastPercentage) {
+                                this.logs.debug(`Bucket database content upload: ${this.currentPercentage.toFixed(0)}% Complete`);
+                                this.lastPercentage = roundedPercentage;
+
+                                this.emitter.emit('progress', {
+                                    message: 'Please note: action progress will be updated in 10% increments',
+                                    percentage: `${this.currentPercentage.toFixed(0)}% Complete`,
+                                    total: `${i + j + 1} files processed`
+                                });
+                            }
+                        } catch (err: any) {
+                            this.logs.error(`Failed to sync bucket content for user: ${opts.user}`);
+                            this.logs.debug(`Stack trace: ${err.stack}`);
+
+                            return {
+                                success: false,
+                                message: err.message as string
+                            }
+                        }
+                    }));
                 }
 
                 this.logs.ready(`Successfully synchronized bucket content for user: ${opts.user}`);
@@ -290,7 +317,7 @@ export class Spaces implements SpacesClient {
                     message: 'Successfully synced your bucket with our database, please wait while i cleanup the process!',
                     percentage: '100% Complete',
                     total: `${bucket.length} files processed`
-                })
+                });
 
                 return { success: true }
             }
@@ -408,7 +435,7 @@ export class Spaces implements SpacesClient {
              */
             check: async (user: string): Promise<SpacesResponse> => {
 
-                const toCheck = await this.client.db.prisma.images.findMany({ where: { userid: user } });
+                const toCheck = await this.client.db.prisma.uploads.findMany({ where: { userid: user } });
                 const bucket = await this.user.list(user);
 
                 if (!bucket.success) return {
@@ -433,13 +460,13 @@ export class Spaces implements SpacesClient {
         return {
             profile: async (user: string): Promise<SpacesResponse> => {
 
-                const data = await this.client.db.prisma.images.findMany({ where: { userid: user } });
+                const data = await this.client.db.prisma.uploads.findMany({ where: { userid: user } });
                 const known: string[] = ['.png', 'gif', 'mp4', '.jpg', '.jpeg']
 
-                const png = data.filter(f => f.fileid.includes('.png'));
-                const gif = data.filter(f => f.fileid.includes('.gif'));
-                const mp4 = data.filter(f => f.fileid.includes('.mp4'));
-                const unk = data.filter(f => !known.some(type => f.fileid.includes(type)));
+                const png = data.filter(f => f.id.includes('.png'));
+                const gif = data.filter(f => f.id.includes('.gif'));
+                const mp4 = data.filter(f => f.id.includes('.mp4'));
+                const unk = data.filter(f => !known.some(type => f.id.includes(type)));
                 const used = await this.user.size(user);
 
                 if (!used.success) return {
@@ -520,16 +547,16 @@ export class Spaces implements SpacesClient {
                 await this.bucket.send(new PutObjectCommand(params)).then(async () => {
                     const dateString = file.lastModifiedDate.toISOString()
 
-                    await req.client.db.prisma.images.create({
+                    await req.client.db.prisma.uploads.create({
                         data: {
-                            id: randomUUID(),
+                            id: fileId as string,
+                            flag: 'PUBLIC',
                             userid: user.data.userid,
-                            fileid: `${fileId}.${mime}`,
-                            filename: file.name,
-                            date: dateString,
-                            name: fileId as string,
+                            key: `${fileId}.${mime}`,
+                            name: file.name,
+                            createdAt: dateString,
                             size: file.size,
-                            type: mime
+                            mime: mime
                         }
                     }).catch((err: Error) => {
                         req.client.logs.error(err.message);

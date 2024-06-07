@@ -6,6 +6,7 @@ import type CordX from "../client/cordx"
 import Logger from "./logger.util"
 import axios from "axios";
 import { SpacesResponse } from "@/types/modules/spaces";
+import { randomBytes } from "node:crypto";
 
 export class Utilities {
     public client: CordX
@@ -422,6 +423,22 @@ export class Utilities {
 
                     return collector.stop();
                 })
+            },
+            syncUploads: async (): Promise<void> => {
+
+                const users = await this.client.db.prisma.users.findMany();
+
+                for (const user of users) {
+
+                    const upload = await this.client.modules.spaces.bucket_db.update({
+                        user: user.userid as string,
+                        force: false
+                    });
+
+                    if (!upload.success) return this.logs.info(`Error: ${upload.message}`);
+                }
+
+                return this.logs.info(`Successfully synced all user buckets!`);
             }
         }
     }

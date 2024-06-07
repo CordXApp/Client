@@ -11,8 +11,8 @@ export class DeleteHandler {
 
                 const user = await req.client.db.user.model.fetch(userid as string);
 
-                const file = await req.client.db.prisma.images.findFirst({
-                    where: { fileid: fileid as string }
+                const file = await req.client.db.prisma.uploads.findFirst({
+                    where: { id: fileid as string }
                 });
 
                 if (!file) return res.status(404).send({
@@ -21,7 +21,7 @@ export class DeleteHandler {
                     code: 404
                 });
 
-                await req.client.db.prisma.images.delete({ where: { id: file.id } }).catch((err: Error) => {
+                await req.client.db.prisma.uploads.delete({ where: { id: file.id } }).catch((err: Error) => {
                     req.client.logs.error(err.message);
                     req.client.logs.debug(err.stack as string);
 

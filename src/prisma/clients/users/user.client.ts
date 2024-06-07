@@ -36,7 +36,7 @@ export class UserClient {
             },
             fetch: async (id: User['userid']): Promise<Responses> => {
 
-                const user = await this.client.db.prisma.users.findUnique({ where: { userid: id } })
+                const user = await this.client.db.prisma.users.findUnique({ where: { userid: id } });
 
                 if (!user) return { success: false, message: 'Unable to locate that user in our database.' };
 

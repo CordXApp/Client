@@ -1,5 +1,6 @@
 import type { CacheType, ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities"
+import type { Entities } from "../../../../types/database/secrets";
 import { SlashBase } from "../../../../schemas/command.schema"
 import type CordX from "../../../cordx"
 
@@ -19,6 +20,32 @@ export default class Sync extends SlashBase {
                 {
                     name: "create",
                     description: "Create a new API Secret for authentication",
+                    type: SubCommandOptions.SubCommand,
+                    options: [{
+                        name: 'entity',
+                        description: 'The entity to create a secret for',
+                        type: SubCommandOptions.String,
+                        required: true
+                    }, {
+                        name: 'maxUses',
+                        description: 'Amount of times the secret can be used per day',
+                        type: SubCommandOptions.Number,
+                        required: true
+                    }, {
+                        name: 'user',
+                        description: 'The user to create a secret for (if entity is User)',
+                        type: SubCommandOptions.User,
+                        required: false
+                    }, {
+                        name: 'org',
+                        description: 'The org to create a secret for (if entity is Organization)',
+                        type: SubCommandOptions.String,
+                        required: false
+                    }]
+                },
+                {
+                    name: "list",
+                    description: "List all of the API Secrets in the database",
                     type: SubCommandOptions.SubCommand,
                 },
                 {
@@ -45,6 +72,37 @@ export default class Sync extends SlashBase {
 
             case 'create': {
 
+                const entity = interaction.options.getString('entity', true);
+                const maxUses = interaction.options.getNumber('maxUses', true);
+                const user = interaction.options.getUser('user', false);
+                const org = interaction.options.getString('org', false);
+
+                let res: Entities;
+
+                if (entity === 'User') res = 'User';
+                else if (entity === 'Organization') res = 'Organization';
+                else res = 'Admin';
+
+                if (res === 'User' && !user) return interaction.reply({
+                    embeds: [
+                        new client.EmbedBuilder({
+                            title: 'Error: missing user',
+                            description: `You need to provide a user to create a secret for!`,
+                            color: client.config.EmbedColors.error
+                        })
+                    ]
+                });
+
+                if (res === 'Organization' && !org) return interaction.reply({
+                    embeds: [
+                        new client.EmbedBuilder({
+                            title: 'Error: missing organization',
+                            description: `You need to provide an organization to create a secret for!`,
+                            color: client.config.EmbedColors.error
+                        })
+                    ]
+                });
+
                 await interaction.reply({
                     embeds: [
                         new client.EmbedBuilder({
@@ -56,7 +114,12 @@ export default class Sync extends SlashBase {
                     ]
                 })
 
-                return Promise.all([client.utils.base.delay(5000), client.db.secret.model.create()])
+                return Promise.all([client.utils.base.delay(5000), client.db.secret.model.create({
+                    entity: res,
+                    maxUses: maxUses,
+                    userId: res === 'User' ? user?.id : undefined,
+                    orgId: res === 'Organization' && org !== null ? org : undefined
+                })])
                     .then(async ([_, res]) => {
 
                         if (!res.success) return interaction.editReply({
@@ -81,9 +144,14 @@ export default class Sync extends SlashBase {
                                             value: `${res.data.id}`,
                                             inline: false
                                         }, {
-                                            name: 'Secret Key',
-                                            value: `${res.data.key}`,
+                                            name: 'Encrypted Key',
+                                            value: `${res.data.encrypted}`,
                                             inline: false
+                                        }, {
+                                            name: 'Decrypted Key',
+                                            value: `${res.data.decrypted}`,
+                                            inline: false
+
                                         }]
                                     })
                                 ]
@@ -96,6 +164,55 @@ export default class Sync extends SlashBase {
                                     title: 'Success: secret generated',
                                     description: `I have generated a new secret for you and sent it to your DM\'s, please do not leak, share or abuse this secret in any way!`,
                                     color: client.config.EmbedColors.success,
+                                })
+                            ]
+                        })
+                    });
+            }
+
+            case 'list': {
+
+                await interaction.reply({
+                    embeds: [
+                        new client.EmbedBuilder({
+                            title: 'Action: list secrets',
+                            description: `Please wait while i fetch all the secrets!`,
+                            thumbnail: client.config.Icons.loading,
+                            color: client.config.EmbedColors.warning
+                        })
+                    ]
+                })
+
+                return Promise.all([client.utils.base.delay(5000), client.db.secret.model.list()])
+                    .then(async ([_, res]) => {
+
+                        if (!res.success) return interaction.editReply({
+                            embeds: [
+                                new client.EmbedBuilder({
+                                    title: "Error: failed to fetch",
+                                    description: `${res.message}`,
+                                    color: client.config.EmbedColors.error,
+                                })
+                            ]
+                        })
+
+                        const secrets = res.data.map((secret: any) => secret.id).join('\n');
+
+                        return interaction.editReply({
+                            embeds: [
+                                new client.EmbedBuilder({
+                                    title: 'Success: secrets fetched',
+                                    description: `Here are the ID\'s of all the secrets saved in the database.`,
+                                    color: client.config.EmbedColors.base,
+                                    fields: [{
+                                        name: 'Secret ID\'s',
+                                        value: `${secrets}`,
+                                        inline: false
+                                    }, {
+                                        name: 'Notice',
+                                        value: 'These are admin api keys, used for interacting within our API\'s admin endpoints, if you are a dev and need one of these keys please ask <@!510065483693817867>',
+                                        inline: false
+                                    }]
                                 })
                             ]
                         })
@@ -139,7 +256,7 @@ export default class Sync extends SlashBase {
                                         color: client.config.EmbedColors.success,
                                         fields: [{
                                             name: 'Secret',
-                                            value: `${await client.db.secret.model.decrypt(res.data.secret)}`,
+                                            value: `${res.data.secret}`,
                                             inline: false
                                         }]
                                     })

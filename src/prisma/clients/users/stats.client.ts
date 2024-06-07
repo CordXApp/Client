@@ -12,7 +12,7 @@ export class StatsClient {
     public get model(): StatsMethods {
         return {
             images: async (): Promise<Responses> => {
-                const images = await this.client.db.prisma.images.findMany();
+                const images = await this.client.db.prisma.uploads.findMany();
 
                 if (!images) return { success: false, message: 'No images found, oh the sadness!' };
 
@@ -39,11 +39,15 @@ export class StatsClient {
 
                     if (amount < 1 || amount > 15) return { success: false, message: 'Whoops, the top uploaders count should be between 1 and 15' }
 
-                    const images = await this.client.db.prisma.images.findMany();
+                    const images = await this.client.db.prisma.uploads.findMany();
                     if (!images) return { success: false, message: 'No images found, oh the sadness! Did someone kill our database again?' };
 
-                    const uploaders = images.reduce((acc, image) => {
-                        acc[image.userid] = (acc[image.userid] || 0) + 1;
+                    const uploaders = images.reduce((acc, upload) => {
+
+                        if (upload.userid) {
+                            acc[upload.userid] = (acc[upload.userid] || 0) + 1;
+                        }
+
                         return acc;
                     }, {} as Record<string, number>);
 

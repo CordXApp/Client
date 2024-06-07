@@ -3,14 +3,14 @@ import Logger from "../utils/logger.util";
 import { ConfigModule } from "./client/cfg.module";
 import { FunModule } from "./client/fun.module";
 import { Information } from "./client/info.module";
-import { OrgModule } from "./client/org.module";
+import { OrgModule } from "./orgs/org.client";
 import { Permissions } from "./client/permissions.module";
 import { Security } from "./misc/security.module";
 import { Spaces } from "./misc/spaces.module";
 import { Webhooks } from "./misc/webhook.module";
 
 
-export class ClientModules {
+export class Modules {
     public client: CordX;
     private logs: Logger;
     public configs: ConfigModule;
@@ -23,7 +23,7 @@ export class ClientModules {
     public webhooks: Webhooks;
 
 
-    constructor(client: CordX) {
+    constructor(client: CordX, prisma: any) {
         this.client = client;
         this.logs = new Logger('[MODULES]');
         this.configs = new ConfigModule(client);

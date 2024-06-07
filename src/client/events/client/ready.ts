@@ -13,7 +13,7 @@ export default class Ready extends EventBase {
 
         client.logs.info(`Logged in as ${client.user?.tag}!`)
 
-        const uploads = await client.db.prisma.images.count();
+        const uploads = await client.db.prisma.uploads.count();
         const orgs = await client.db.prisma.orgs.count();
         const users = await client.db.prisma.users.count();
 
@@ -52,8 +52,8 @@ export default class Ready extends EventBase {
             })
         }, 10000)
 
-        //await client.db.user.model.syncRoles();
-        //await client.db.user.model.syncPerms();
+        await client.db.user.model.syncRoles();
+        await client.db.user.model.syncPerms();
 
         setInterval(async () => {
             await client.db.domain.model.wipeUnverified();

@@ -8,6 +8,7 @@
         "build": "tsc",
         "db:init": "prisma init --schema=./src/prisma/schema.prisma",
         "db:create": "prisma generate --schema=./src/prisma/schema.prisma",
+        "db:migrate": "prisma migrate dev --schema=./src/prisma/schema.prisma",
         "db:push": "prisma db push --schema=./src/prisma/schema.prisma",
         "dev:node": "nodemon src/app.ts",
         "dev:build": "nodemon build/src/app.js",
@@ -37,7 +38,8 @@
         "jsonwebtoken": "^9.0.2",
         "moment": "^2.29.4",
         "node-fetch": "^3.3.2",
-        "prisma": "^5.14.0"
+        "prisma": "^5.14.0",
+        "random-memes": "^3.2.6"
     },
     "devDependencies": {
         "@cordxapp/snowflake": "0.4.18",

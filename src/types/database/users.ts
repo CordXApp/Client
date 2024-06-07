@@ -7,6 +7,7 @@ import {
 import type { PermissionResolvable } from "discord.js"
 
 export interface User extends PrismaUser {
+    id: string;
     avatar: string;
     banner: string;
     username: string;

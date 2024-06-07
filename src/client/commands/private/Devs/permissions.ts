@@ -12,7 +12,7 @@ export default class aSync extends SlashBase {
             category: "Developers",
             cooldown: 5,
             permissions: {
-                gate: ['OWNER', 'DEVELOPER'],
+                //gate: ['OWNER', 'DEVELOPER'],
                 user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
                 bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
@@ -46,7 +46,7 @@ export default class aSync extends SlashBase {
 
                 const user = interaction.options.getUser('user');
                 const perm = interaction.options.getString('perm');
-                const valid = ['ADMIN', 'STAFF', 'SUPPORT', 'DEVELOPER']
+                const valid = ['OWNER', 'ADMIN', 'STAFF', 'SUPPORT', 'DEVELOPER']
 
                 if (!valid.includes(perm as string)) return interaction.reply({
                     embeds: [

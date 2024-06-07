@@ -6,8 +6,9 @@ import type CordX from "../../../client/cordx";
 export class WebhookClient {
     private client: CordX
 
-    constructor(client: CordX) {
+    constructor(client: CordX, prisma: any, logs: any) {
         this.client = client;
+        
     }
 
     public get model(): WebhookMethods {

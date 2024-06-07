@@ -69,7 +69,7 @@ export default class Uploads extends SlashBase {
                 })
 
                 const user = await client.db.user.model.fetch(interaction.user.id);
-                const file = await client.db.prisma.images.findFirst({ where: { fileid: fileId, userid: interaction.user.id } });
+                const file = await client.db.prisma.uploads.findFirst({ where: { id: fileId, userid: interaction.user.id } });
 
                 if (!user) return interaction.reply({
                     embeds: [

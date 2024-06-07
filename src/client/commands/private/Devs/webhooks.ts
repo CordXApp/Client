@@ -59,7 +59,7 @@ export default class Sync extends SlashBase {
 
         switch (interaction.options.getSubcommand()) {
 
-            case 'create': {
+            /**case 'create': {
 
                 const id = interaction.options.getString('id');
                 const token = interaction.options.getString('token');
@@ -93,7 +93,7 @@ export default class Sync extends SlashBase {
                         })
                     ]
                 })
-            }
+            }*/
 
             case 'fetch': {
 

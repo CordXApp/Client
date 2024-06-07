@@ -8,13 +8,14 @@ datasource db {
 }
 
 model users {
-  id          String        @id @default(uuid())
+  id          String        @id @unique
+  userid      String?       @unique
   avatar      String?
   banner      String?
   username    String?
   globalName  String?
-  userid      String?       @unique
-  secret      String?       @db.Text
+  apikey      secrets?      @relation
+  secret      String?       @unique @db.VarChar(128)
   folder      String?       @db.Text
   webhook     String?       @db.Text
   cookie      String?       @db.Text
@@ -23,7 +24,7 @@ model users {
   verified    Boolean?      @default(false)
   domain      String?       @db.Text
   domains     domains[]
-  images      images[]
+  uploads     uploads[]
   key         String?       @unique
   signature   signatures?   @relation(fields: [key], references: [key])
   org_members org_member[]
@@ -32,8 +33,18 @@ model users {
 }
 
 model secrets {
-  id  String @id @default(uuid())
-  key String @db.LongText
+  id        String         @id @default(uuid())
+  key       String         @unique @db.VarChar(128)
+  uses      Int            @default(0)
+  maxUses   Int            @default(500)
+  limited   Boolean        @default(false)
+  entity    SecretEntities
+  createdAt DateTime       @default(now())
+  updatedAt DateTime       @updatedAt
+  orgId     String?        @unique
+  org       orgs?          @relation(fields: [orgId], references: [id])
+  user      users?         @relation(fields: [userId], references: [id])
+  userId    String?        @unique
 }
 
 model permissions {
@@ -42,16 +53,19 @@ model permissions {
   users users[]
 }
 
-model images {
-  id       String    @id @default(uuid())
-  userid   String
-  fileid   String
-  filename String?
-  name     String?
-  type     String?
-  size     Int?
-  date     DateTime? @db.Date
-  users    users?    @relation(fields: [userid], references: [userid])
+model uploads {
+  id        String     @id @default(uuid())
+  key       String
+  name      String
+  flag      UploadFlag
+  userid    String?
+  org       String?
+  mime      String
+  size      Int?
+  createdAt DateTime?  @db.Date
+  updatedAt DateTime?  @updatedAt
+  users     users?     @relation(fields: [userid], references: [userid])
+  orgs      orgs?      @relation(fields: [org], references: [id])
 }
 
 model domains {
@@ -60,21 +74,28 @@ model domains {
   content   String   @db.LongText
   verified  Boolean  @default(false)
   createdAt DateTime @default(now())
-  users     users?   @relation(fields: [user], references: [userid])
+  users     users?   @relation(fields: [user], references: [id])
   user      String?
 }
 
 model signatures {
-  id   Int    @id @default(autoincrement())
-  key  String @unique @default(uuid())
-  user users?
+  id        Int      @id @default(autoincrement())
+  key       String   @unique @default(uuid())
+  user      users?
+  uses      Int?     @default(0)
+  maxUses   Int?     @default(100)
+  expired   Boolean? @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model webhooks {
-  id      String  @id
-  token   String  @db.LongText
-  name    String  @db.Text
-  enabled Boolean
+  id        String   @id
+  token     String   @db.LongText
+  name      String   @db.Text
+  enabled   Boolean
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model errors {
@@ -90,12 +111,15 @@ model errors {
 }
 
 model partners {
-  id     String @id @default(uuid())
-  name   String @db.Text
-  image  String @db.Text
-  bio    String @db.Text
-  url    String @db.Text
-  social String @db.Text
+  id      String  @id @unique
+  name    String  @db.Text
+  logo    String  @db.Text
+  banner  String  @db.Text
+  owner   String  @db.Text
+  about   String  @db.Text
+  discord String  @db.Text
+  website String  @db.Text
+  twitter String? @db.Text
 }
 
 model reports {
@@ -129,20 +153,22 @@ model orgs {
   members     org_member[]
   creator     users        @relation(fields: [owner], references: [userid])
   owner       String       @db.VarChar(255)
-  api_key     String       @unique
+  apikey      secrets?     @relation
+  secret      String       @unique @db.VarChar(64)
   verified    Boolean      @default(false)
   banned      Boolean      @default(false)
   partner     Boolean      @default(false)
   domain      org_domain?
   createdAt   DateTime     @default(now())
   updatedAt   DateTime     @updatedAt
+  uploads     uploads[]
 }
 
 model org_member {
   id     String @id @unique
   org    orgs   @relation(fields: [id], references: [id])
   userid String @unique
-  user   users  @relation(fields: [userid], references: [userid])
+  user   users  @relation(fields: [userid], references: [id])
   perms  Json?
 }
 
@@ -165,6 +191,18 @@ model org_domain {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   org       orgs     @relation(fields: [id], references: [id])
+}
+
+enum UploadFlag {
+  PUBLIC
+  PRIVATE
+  UNLISTED
+}
+
+enum SecretEntities {
+  Admin
+  User
+  Organization
 }
 
 enum RoleNamespace {

@@ -8,7 +8,7 @@ export class SystemStats {
             Handler: async (req: FastifyRequest, res: FastifyReply) => {
 
                 const users = await req.client.db.prisma.users.count();
-                const uploads = await req.client.db.prisma.images.count();
+                const uploads = await req.client.db.prisma.uploads.count();
                 const domains = await req.client.db.prisma.domains.count();
                 const partners = await req.client.db.prisma.partners.count();
                 const reports = await req.client.db.prisma.reports.count();
