@@ -1,28 +1,73 @@
 import { UserMethods, Responses } from "../../../types/database/index"
 import { GatePermissions, User } from "../../../types/database/users";
+import { Constructor } from "../../../types/database/clients";
+import { DatabaseClient } from "../../prisma.client";
+import { Modules } from "../../../modules/base.module";
+import Logger from "../../../utils/logger.util";
 import type CordX from "../../../client/cordx";
-import { Prisma } from "@prisma/client";
+import { users } from "@prisma/client";
+import { randomBytes } from "node:crypto";
 
 export class UserClient {
     private client: CordX;
+    private logs: Logger;
+    private db: DatabaseClient;
+    private mods: Modules;
 
-    constructor(client: CordX) {
-        this.client = client;
+    constructor(data: Constructor) {
+        this.client = data.client;
+        this.logs = data.logs;
+        this.db = data.prisma;
+        this.mods = data.mods;
     }
 
     public get model(): UserMethods {
         return {
+            /**
+             * Create a new CordX user.
+             * @param data User data to create a new user.
+             * @returns Promise<Responses>
+             */
             create: async (data: User): Promise<Responses> => {
-
-                const check = await this.client.db.prisma.users.findUnique({ where: { userid: data.userid as string } });
+                const check = await this.db.prisma.users.findUnique({ where: { userid: data.userid as string } });
 
                 if (check) return { success: false, message: 'User already exists in our database.' };
 
-                const user = await this.client.db.prisma.users.create({
-                    data: { ...data, permissions: [] as Prisma.permissionsUncheckedCreateNestedManyWithoutUsersInput }
-                }).catch((err: Error) => {
-                    return { success: false, message: err.message }
-                });
+                /** GENERATE A NEW CORNFLAKE (SNOWFLAKE) ID */
+                const cornflake = this.db.cornflake.generate();
+
+                const user: users = await this.db.prisma.users.create({
+                    data: {
+                        id: cornflake,
+                        userid: data.userid,
+                        avatar: data.avatar,
+                        banner: data.banner,
+                        username: data.username,
+                        globalName: data.globalName,
+                        folder: data.globalName,
+                        webhook: 'none',
+                        cookie: randomBytes(16).toString('hex'),
+                        beta: false,
+                        banned: false,
+                        verified: false,
+                        domain: 'none'
+                    }
+                })
+
+                const secret = await this.db.secret.model.create({
+                    entity: 'User',
+                    userId: user.id,
+                    maxUses: 5000,
+                })
+
+                if (!secret.success) return { success: false, message: secret.message };
+
+                const update = await this.db.prisma.users.update({
+                    where: { id: cornflake },
+                    data: { secret: secret.data.key }
+                })
+
+                if (!update) return { success: false, message: 'Unable to update user with secret key.' };
 
                 return { success: true, data: user }
             },
@@ -187,7 +232,7 @@ export class UserClient {
 
                     const permsToCreate = perms.filter(perm => !user.permissions.find(p => p.name === perm));
 
-                    const update = await this.client.modules.perms.user.update({
+                    const update = await this.client.db.modules.perms.user.update({
                         user: user.userid as string,
                         perm: permsToCreate as GatePermissions[]
                     });

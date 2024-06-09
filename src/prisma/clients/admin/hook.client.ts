@@ -1,14 +1,24 @@
 import { WebhookMethods, Responses } from "../../../types/database/index"
+import { Constructor } from "../../../types/database/clients";
 import { Webhook } from "../../../types/database/webhooks";
+import { Modules } from "../../../modules/base.module";
+import Logger from "../../../utils/logger.util";
+import { PrismaClient } from '@prisma/client';
 import type CordX from "../../../client/cordx";
 
 
 export class WebhookClient {
     private client: CordX
+    private logs: Logger;
+    private prisma: PrismaClient;
+    private mods: Modules;
 
-    constructor(client: CordX, prisma: any, logs: any) {
+    constructor({ client, prisma, logs, mods }: Constructor) {
         this.client = client;
-        
+        this.prisma = prisma;
+        this.logs = logs;
+        this.mods = mods
+
     }
 
     public get model(): WebhookMethods {
@@ -24,14 +34,12 @@ export class WebhookClient {
 
                 if (check) return { success: false, message: 'Webhook already exists in our database.' };
 
-                const encrypted = await this.client.modules.security.init.encrypt(token).catch((err: Error) => {
-                    this.client.db.logs.error(err.stack as string)
+                const encrypted = await this.mods.security.init.encrypt(token).catch((err: Error) => {
+                    this.logs.error(err.stack as string)
                     return { success: false, message: err.message }
                 })
 
-                console.log(encrypted)
-
-                await this.client.db.prisma.webhooks.create({
+                await this.prisma.webhooks.create({
                     data: {
                         id: id,
                         token: encrypted as string,

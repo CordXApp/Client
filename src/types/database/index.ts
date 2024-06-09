@@ -1,6 +1,6 @@
 import { User } from "./users";
 import { Webhook } from "./webhooks";
-import { Partner } from "./partners";
+import { Params } from "./partners";
 
 export interface UserMethods {
     create: (data: User) => Promise<Responses>
@@ -23,12 +23,7 @@ export interface WebhookMethods {
 }
 
 export interface PartnerMethods {
-    list: () => Promise<Responses>
-    create?: (data: Partner) => Promise<Responses>
-    exists?: (id: Partner['id']) => Promise<Boolean>
-    fetch?: (id: Partner['id']) => Promise<Responses>
-    update?: (id: Partner['id'], data: Partner) => Promise<Responses>
-    delete?: (id: Partner['id']) => Promise<Responses>
+    create?: (data: Params) => Promise<Responses>
 }
 
 export interface StatsMethods {

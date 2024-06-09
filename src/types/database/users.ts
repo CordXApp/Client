@@ -65,6 +65,6 @@ export interface Perms {
     bot: PermissionResolvable[]
 }
 
-export type GatePermissions = 'OWNER' | 'ADMIN' | 'STAFF' | 'SUPPORT' | 'DEVELOPER';
+export type GatePermissions = 'OWNER' | 'ADMIN' | 'STAFF' | 'SUPPORT' | 'DEVELOPER' | 'MEMBER';
 
 export const TOTAL_UPLOADERS = 5;

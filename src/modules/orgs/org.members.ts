@@ -1,4 +1,3 @@
-import { CordXSnowflake } from "@cordxapp/snowflake";
 import { OrganizationMembers, Members, Permissions } from "../../types/modules/orgs"
 import type { ValidPerms } from "../../types/modules/orgs"
 import { Responses } from "../../types/database"
@@ -7,20 +6,11 @@ import type CordX from "../../client/cordx"
 
 export class OrgMembers {
     private client: CordX
-    private snowflake: CordXSnowflake
     private logs: Logger
 
     constructor(client: CordX) {
         this.client = client
         this.logs = new Logger('Orgs')
-        this.snowflake = new CordXSnowflake({
-            workerId: 1,
-            processId: 1,
-            sequence: 5n,
-            increment: 1,
-            epoch: 1609459200000,
-            debug: false
-        })
     }
 
     public get handler(): OrganizationMembers {

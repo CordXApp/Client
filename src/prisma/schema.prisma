@@ -225,6 +225,7 @@ enum UserPermissions {
   STAFF
   SUPPORT
   DEVELOPER
+  MEMBER
 }
 
 enum ReportTypes {

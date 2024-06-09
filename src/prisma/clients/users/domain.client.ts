@@ -1,4 +1,8 @@
 import { Responses } from "../../../types/database/index"
+import { Constructor } from "../../../types/database/clients";
+import { DatabaseClient } from "../../prisma.client";
+import { Modules } from "../../../modules/base.module";
+import Logger from "../../../utils/logger.util";
 import type CordX from "../../../client/cordx";
 import crypto from "node:crypto";
 import dns from "node:dns";
@@ -19,9 +23,15 @@ import {
 
 export class UserDomClient {
     private client: CordX
+    private logs: Logger;
+    private db: DatabaseClient;
+    private mods: Modules;
 
-    constructor(client: CordX) {
-        this.client = client;
+    constructor(data: Constructor) {
+        this.client = data.client;
+        this.logs = data.logs;
+        this.db = data.prisma;
+        this.mods = data.mods;
     }
 
     public get model() {
@@ -34,7 +44,7 @@ export class UserDomClient {
 
                 if (!validate.success) return { success: false, message: validate.message }
 
-                const create = await this.client.db.prisma.domains.create({
+                const create = await this.db.prisma.domains.create({
                     data: {
                         name: dom,
                         content: crypto.randomBytes(15).toString('hex'),
@@ -51,7 +61,7 @@ export class UserDomClient {
             },
             fetch: async (dom: string): Promise<Responses> => {
 
-                const domain = await this.client.db.prisma.domains.findUnique({ where: { name: dom } });
+                const domain = await this.db.prisma.domains.findUnique({ where: { name: dom } });
 
                 if (!domain) return { success: false, message: 'Unable to locate that domain in our database' };
 
@@ -63,7 +73,7 @@ export class UserDomClient {
             },
             exists: async (dom: string): Promise<Responses> => {
 
-                const domain = await this.client.db.prisma.domains.findUnique({ where: { name: dom } });
+                const domain = await this.db.prisma.domains.findUnique({ where: { name: dom } });
 
                 if (!domain) return { success: false, message: 'Unable to locate that domain in our database' }
 
