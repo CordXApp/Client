@@ -2,6 +2,7 @@ import { WebhookMethods, Responses } from "../../../types/database/index"
 import { Constructor } from "../../../types/database/clients";
 import { Webhook } from "../../../types/database/webhooks";
 import { Modules } from "../../../modules/base.module";
+import { DatabaseClient } from "../../prisma.client";
 import Logger from "../../../utils/logger.util";
 import { PrismaClient } from '@prisma/client';
 import type CordX from "../../../client/cordx";
@@ -10,14 +11,14 @@ import type CordX from "../../../client/cordx";
 export class WebhookClient {
     private client: CordX
     private logs: Logger;
-    private prisma: PrismaClient;
+    private db: DatabaseClient;
     private mods: Modules;
 
-    constructor({ client, prisma, logs, mods }: Constructor) {
-        this.client = client;
-        this.prisma = prisma;
-        this.logs = logs;
-        this.mods = mods
+    constructor(data: Constructor) {
+        this.client = data.client;
+        this.db = data.prisma;
+        this.logs = data.logs;
+        this.mods = data.mods
 
     }
 
@@ -39,7 +40,7 @@ export class WebhookClient {
                     return { success: false, message: err.message }
                 })
 
-                await this.prisma.webhooks.create({
+                await this.db.prisma.webhooks.create({
                     data: {
                         id: id,
                         token: encrypted as string,
@@ -47,7 +48,7 @@ export class WebhookClient {
                         enabled: true
                     }
                 }).catch((err: Error) => {
-                    this.client.db.logs.error(err.stack as string)
+                    this.logs.error(err.stack as string)
                     return { success: false, message: err.message }
                 })
 
@@ -55,7 +56,7 @@ export class WebhookClient {
             },
             exists: async (id: Webhook['id']): Promise<Boolean> => {
 
-                const webhook = await this.client.db.prisma.webhooks.findUnique({ where: { id } });
+                const webhook = await this.db.prisma.webhooks.findUnique({ where: { id } });
 
                 if (!webhook) return false;
 
@@ -63,12 +64,12 @@ export class WebhookClient {
             },
             fetch: async (name: Webhook['name']): Promise<Responses> => {
 
-                const webhook = await this.client.db.prisma.webhooks.findFirst({ where: { name: name } });
+                const webhook = await this.db.prisma.webhooks.findFirst({ where: { name: name } });
 
                 if (!webhook) return { success: false, message: 'Whoops, a webhook with the provided ID can not be found!' };
 
-                const partial = await this.client.modules.security.init.partial(webhook?.token).catch((err: Error) => {
-                    this.client.db.logs.error(err.stack as any)
+                const partial = await this.db.modules.security.init.partial(webhook?.token).catch((err: Error) => {
+                    this.logs.error(err.stack as any)
                     return { success: false, message: err.message }
                 })
 
@@ -87,7 +88,7 @@ export class WebhookClient {
 
                 if (!check) return { success: false, message: 'Whoops, a webhook with the provided ID can not be found!' };
 
-                const webhook = await this.client.db.prisma.webhooks.update({ where: { id }, data });
+                const webhook = await this.db.prisma.webhooks.update({ where: { id }, data });
 
                 return {
                     success: true,
@@ -101,7 +102,7 @@ export class WebhookClient {
 
                 if (!check) return { success: false, message: 'Whoops, a webhook with the provided ID can not be found!' };
 
-                await this.client.db.prisma.webhooks.delete({ where: { id } });
+                await this.db.prisma.webhooks.delete({ where: { id } });
 
                 return { success: true, message: 'Webhook deleted successfully' }
             }

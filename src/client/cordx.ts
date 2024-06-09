@@ -3,6 +3,7 @@ import Config from "../config/main.config"
 import helpConfig from "../config/help.config"
 import { CordxEmbed } from "../utils/embed.util"
 import { Utilities } from "../utils/helper.util"
+import { DatabaseClient } from "../prisma/prisma.client";
 import { Client, ClientOptions, Collection } from "discord.js"
 import type { IConfig, IHelpConfig } from "../types/client"
 import PrivateManager from "../managers/private.manager"
@@ -14,6 +15,7 @@ import Logger from "../utils/logger.util";
 
 class CordX extends Client {
     public EmbedBuilder: any = CordxEmbed
+    public db: DatabaseClient = new DatabaseClient(this)
     public cooldown = new Collection<string, Collection<string, number>>()
     public commands: CommandManager = new CommandManager(this)
     public private: PrivateManager = new PrivateManager(this)

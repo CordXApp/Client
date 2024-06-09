@@ -7,13 +7,11 @@ import Logger from "../../../utils/logger.util";
 import type CordX from "../../../client/cordx";
 
 export class PartnerClient {
-    private client: CordX
     private logs: Logger;
     private db: DatabaseClient;
     private mods: Modules;
 
     constructor({ client, prisma, logs, mods }: Constructor) {
-        this.client = client;
         this.db = prisma;
         this.logs = logs;
         this.mods = mods

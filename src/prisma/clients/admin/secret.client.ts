@@ -1,14 +1,21 @@
 import { randomBytes, createCipheriv, createDecipheriv } from "node:crypto";
+import { DatabaseClient } from "../../prisma.client";
+import { Constructor } from "../../../types/database/clients";
+import { Modules } from "../../../modules/base.module";
+import Logger from "../../../utils/logger.util";
 import { Responses } from "../../../types/database/index"
 import { Create } from "../../../types/database/secrets";
-import type CordX from "../../../client/cordx";
 
 
 export class SecretClient {
-    private client: CordX
+    private logs: Logger;
+    private db: DatabaseClient;
+    private mods: Modules;
 
-    constructor(client: CordX) {
-        this.client = client;
+    constructor(data: Constructor) {
+        this.logs = data.logs;
+        this.db = data.prisma;
+        this.mods = data.mods;
     }
 
     public get model() {
@@ -32,12 +39,12 @@ export class SecretClient {
                 switch (entity) {
 
                     case 'User': {
-                        this.client.logs.info(`Creating a new ${entity} API Secret`);
+                        this.logs.info(`Creating a new ${entity} API Secret`);
                         update = await this.model.newSecret(secret, opts).catch((err: Error) => {
-                            this.client.logs.debug(err.stack as string)
+                            this.logs.debug(err.stack as string)
                             return { success: false, message: `${err.message}` }
                         });
-                        entityUpdate = await this.client.db.prisma.users.update({
+                        entityUpdate = await this.db.prisma.users.update({
                             where: { id: opts.userId },
                             data: { secret: update.key }
                         })
@@ -46,12 +53,12 @@ export class SecretClient {
                         break;
 
                     case 'Organization': {
-                        this.client.logs.info(`Creating a new ${entity} API Secret`);
+                        this.logs.info(`Creating a new ${entity} API Secret`);
                         update = await this.model.newSecret(secret, opts).catch((err: Error) => {
-                            this.client.logs.debug(err.stack as string)
+                            this.logs.debug(err.stack as string)
                             return { success: false, message: `${err.message}` }
                         });
-                        entityUpdate = await this.client.db.prisma.orgs.update({
+                        entityUpdate = await this.db.prisma.orgs.update({
                             where: { id: opts.orgId },
                             data: { secret: update.key }
                         })
@@ -60,9 +67,9 @@ export class SecretClient {
                         break;
 
                     default: {
-                        this.client.logs.info(`Creating a new ${entity} API Secret`);
+                        this.logs.info(`Creating a new ${entity} API Secret`);
                         update = await this.model.newSecret(secret, opts).catch((err: Error) => {
-                            this.client.logs.debug(err.stack as string)
+                            this.logs.debug(err.stack as string)
                             return { success: false, message: `${err.message}` }
                         });
                     }
@@ -86,7 +93,7 @@ export class SecretClient {
             },
             view: async (id: string): Promise<Responses> => {
 
-                const secret = await this.client.db.prisma.secrets.findUnique({ where: { id } });
+                const secret = await this.db.prisma.secrets.findUnique({ where: { id } });
 
                 if (!secret) return { success: false, message: 'Unable to locate a secret with the provided Secret ID' };
 
@@ -98,7 +105,7 @@ export class SecretClient {
             },
             list: async (): Promise<Responses> => {
 
-                const secrets = await this.client.db.prisma.secrets.findMany();
+                const secrets = await this.db.prisma.secrets.findMany();
 
                 if (!secrets || secrets.length === 0) return { success: false, message: 'No secrets found in the database' };
 
@@ -114,7 +121,7 @@ export class SecretClient {
             },
             exists: async (key: string): Promise<Boolean> => {
 
-                const secrets = await this.client.db.prisma.secrets.findMany();
+                const secrets = await this.db.prisma.secrets.findMany();
 
                 if (!secrets || secrets.length === 0) return false;
 
@@ -125,7 +132,7 @@ export class SecretClient {
                 return keys.includes(key) ? true : false;
             },
             limited: async (key: string): Promise<boolean> => {
-                const secrets = await this.client.db.prisma.secrets.findMany();
+                const secrets = await this.db.prisma.secrets.findMany();
 
                 const secret = secrets.find(secret => this.model.decrypt(secret.key) === key);
 
@@ -134,7 +141,7 @@ export class SecretClient {
                 }
 
                 if (secret.uses >= (secret.maxUses ?? Infinity)) {
-                    await this.client.db.prisma.secrets.update({
+                    await this.db.prisma.secrets.update({
                         where: { id: secret.id },
                         data: { limited: true },
                     });
@@ -155,7 +162,7 @@ export class SecretClient {
                 return decrypted.toString('utf8');
             },
             newSecret: async (secret: string, opts: Create): Promise<any> => {
-                return await this.client.db.prisma.secrets.create({
+                return await this.db.prisma.secrets.create({
                     data: {
                         key: this.model.encrypt(secret),
                         maxUses: opts.maxUses,
@@ -164,8 +171,8 @@ export class SecretClient {
                         orgId: opts.orgId ? opts.orgId : undefined
                     }
                 }).catch((err: Error) => {
-                    this.client.db.logs.error(`Failed to create secret for entity: ${opts.entity}`)
-                    return this.client.db.logs.debug(`${err.stack}`);
+                    this.db.logs.error(`Failed to create secret for entity: ${opts.entity}`)
+                    return this.db.logs.debug(`${err.stack}`);
                 })
             }
         }

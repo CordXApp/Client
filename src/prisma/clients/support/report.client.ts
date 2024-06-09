@@ -1,13 +1,23 @@
 import { Responses } from "../../../types/database/index"
 import { Report } from "../../../types/database/reports";
+import { Constructor } from "../../../types/database/clients";
+import { Modules } from "../../../modules/base.module";
+import { DatabaseClient } from "../../prisma.client";
+import Logger from "../../../utils/logger.util";
 import type CordX from "../../../client/cordx";
 import { TextChannel } from "discord.js";
 
 export class ReportClient {
     private client: CordX
+    private logs: Logger;
+    private db: DatabaseClient;
+    private mods: Modules;
 
-    constructor(client: CordX) {
-        this.client = client;
+    constructor(data: Constructor) {
+        this.client = data.client;
+        this.logs = data.logs;
+        this.db = data.prisma;
+        this.mods = data.mods;
     }
 
     public get model() {
@@ -24,9 +34,9 @@ export class ReportClient {
                 const guild = await this.client.guilds.cache.get('871204257649557604');
                 const channel = await guild?.channels.fetch('1235836201559134259');
 
-                this.client.db.logs.debug(JSON.stringify(data));
+                this.logs.debug(JSON.stringify(data));
 
-                const report = await this.client.db.prisma.reports.create({
+                const report = await this.db.prisma.reports.create({
                     data: {
                         id: id as string,
                         type: data.type,
@@ -36,8 +46,8 @@ export class ReportClient {
                         mod: null,
                     }
                 }).catch((err: Error) => {
-                    this.client.db.logs.error(`Failed to create report: ${err.message}`);
-                    this.client.db.logs.debug(`Stack trace: ${err.stack}`);
+                    this.logs.error(`Failed to create report: ${err.message}`);
+                    this.logs.debug(`Stack trace: ${err.stack}`);
                     return { success: false, message: err.message }
                 })
 
@@ -73,7 +83,7 @@ export class ReportClient {
             },
             list: async (author: string): Promise<Responses> => {
 
-                const reports = await this.client.db.prisma.reports.findMany({ where: { author: author } });
+                const reports = await this.db.prisma.reports.findMany({ where: { author: author } });
 
                 if (!reports) return { success: false, message: 'No reports found for that user!' };
 
@@ -81,9 +91,9 @@ export class ReportClient {
             },
             fetch: async (id: string, user: string): Promise<Responses> => {
 
-                const report = await this.client.db.prisma.reports.findUnique({ where: { id: id } });
+                const report = await this.db.prisma.reports.findUnique({ where: { id: id } });
 
-                const db_user = await this.client.db.prisma.users.findUnique({
+                const db_user = await this.db.prisma.users.findUnique({
                     where: { userid: user },
                     include: { permissions: true }
                 });
@@ -99,13 +109,13 @@ export class ReportClient {
             },
             update: async (id: string, data: Report): Promise<Responses> => {
 
-                const check = await this.client.db.prisma.reports.findUnique({ where: { id: id } });
+                const check = await this.db.prisma.reports.findUnique({ where: { id: id } });
 
                 if (!check) return { success: false, message: 'No report found with that ID!' };
 
                 if (data.notes && data.notes.length > 1) return { success: false, message: 'You can only add one note at a time!' }
 
-                const report = await this.client.db.prisma.reports.update({
+                const report = await this.db.prisma.reports.update({
                     where: { id: id },
                     data: {
                         type: data.type ? data.type : check.type,
