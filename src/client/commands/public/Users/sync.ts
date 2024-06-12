@@ -56,7 +56,7 @@ export default class Sync extends SlashBase {
                     ]
                 });
 
-                return Promise.all([client.utils.base.delay(5000), client.modules.spaces.actions.check(interaction.user.id)]).then(async ([, res]) => {
+                return Promise.all([client.utils.base.delay(5000), client.db.modules.spaces.actions.check(interaction.user.id)]).then(async ([, res]) => {
 
                     if (!res.success) return interaction.editReply({
                         embeds: [

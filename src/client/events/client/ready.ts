@@ -17,9 +17,9 @@ export default class Ready extends EventBase {
         const orgs = await client.db.prisma.orgs.count();
         const users = await client.db.prisma.users.count();
 
-        client.server.start().catch((err: Error) => {
-            client.logs.error(err.stack as string);
-        });
+        //client.server.start().catch((err: Error) => {
+        //    client.logs.error(err.stack as string);
+        //});
 
         let presences = [
             {
@@ -52,8 +52,8 @@ export default class Ready extends EventBase {
             })
         }, 10000)
 
-        await client.db.user.model.syncRoles();
-        await client.db.user.model.syncPerms();
+        //await client.db.user.model.syncRoles();
+        //await client.db.user.model.syncPerms();
 
         setInterval(async () => {
             await client.db.domain.model.wipeUnverified();

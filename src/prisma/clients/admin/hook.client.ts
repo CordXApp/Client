@@ -11,12 +11,14 @@ import type CordX from "../../../client/cordx";
 export class WebhookClient {
     private client: CordX
     private logs: Logger;
+    private prisma: PrismaClient;
     private db: DatabaseClient;
     private mods: Modules;
 
     constructor(data: Constructor) {
         this.client = data.client;
-        this.db = data.prisma;
+        this.prisma = data.prisma;
+        this.db = data.db;
         this.logs = data.logs;
         this.mods = data.mods
 

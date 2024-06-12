@@ -170,7 +170,7 @@ export default class ReportCmd extends SlashBase {
                 })
 
                 const author = await client.users.fetch(report.data.author);
-                const perms = await client.modules.perms.user.has({
+                const perms = await client.db.modules.perms.user.has({
                     user: interaction.user.id,
                     perm: ['SUPPORT', 'DEVELOPER']
                 })

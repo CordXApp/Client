@@ -20,17 +20,20 @@ import {
     PROTOCOL_ERROR,
     SUCCESS_MESSAGE
 } from "../../../types/database/domains"
+import { PrismaClient } from "@prisma/client";
 
 export class UserDomClient {
     private client: CordX
     private logs: Logger;
+    private prisma: PrismaClient;
     private db: DatabaseClient;
     private mods: Modules;
 
     constructor(data: Constructor) {
         this.client = data.client;
         this.logs = data.logs;
-        this.db = data.prisma;
+        this.prisma = data.prisma;
+        this.db = data.db;
         this.mods = data.mods;
     }
 

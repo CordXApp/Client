@@ -24,7 +24,8 @@ export interface ISlashCommandProps {
     category: string
     cooldown: number
     permissions: Perms
-    options?: SlashCommandOptions[]
+    options?: SlashCommandOptions[];
+    attachment?: Attachment;
 }
 
 export interface SlashCommandOptions {
@@ -36,4 +37,10 @@ export interface SlashCommandOptions {
     choices?: any[]
     required?: boolean
     type: number
+}
+
+export interface Attachment {
+    name: string;
+    description: string;
+    required: boolean;
 }

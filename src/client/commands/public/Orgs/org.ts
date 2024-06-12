@@ -59,7 +59,12 @@ export default class Uploads extends SlashBase {
                     name: 'id',
                     description: 'The ID of the organization',
                     type: SubCommandOptions.String,
-                    required: true
+                    required: false
+                }, {
+                    name: 'name',
+                    description: 'The name of the organization',
+                    type: SubCommandOptions.String,
+                    required: false
                 }]
             }, {
                 name: 'list',
@@ -223,18 +228,26 @@ export default class Uploads extends SlashBase {
                     });
                 }
 
-                const create = await client.modules.orgs.organization.create({
-                    name,
-                    description,
-                    logo,
-                    banner,
-                    owner: interaction.user.id
+                const cornflake = client.db.cornflake.generate();
+
+                const create = await client.db.entity.create({
+                    entity: 'Organization',
+                    org: {
+                        id: cornflake,
+                        name: name,
+                        logo: logo,
+                        banner: banner,
+                        description: description,
+                        owner: interaction.user.id,
+                        webhook: 'none',
+                        domain: 'none'
+                    }
                 });
 
                 if (!create.success) return interaction.reply({
                     embeds: [
                         new client.EmbedBuilder({
-                            title: 'Error creating organization',
+                            title: 'Error: failed to create org',
                             description: create.message,
                             color: client.config.EmbedColors.error,
                         })
@@ -244,8 +257,8 @@ export default class Uploads extends SlashBase {
                 return interaction.reply({
                     embeds: [
                         new client.EmbedBuilder({
-                            title: 'Organization created',
-                            description: 'Your organization has been created successfully!',
+                            title: 'Success: org created',
+                            description: 'Note: this is just the basic info, you can add and control more via our [website](https://cordximg.host)!',
                             thumbnail: create.data.logo,
                             color: client.config.EmbedColors.success,
                             fields: [{
@@ -267,14 +280,28 @@ export default class Uploads extends SlashBase {
             }
 
             case 'view': {
-                const id = interaction.options.getString('id', true);
+                const id = interaction.options.getString('id', false);
+                const orgName = interaction.options.getString('name', false);
 
-                const view = await client.modules.orgs.organization.view(id);
+                if (!id && !orgName) return interaction.reply({
+                    embeds: [
+                        new client.EmbedBuilder({
+                            title: 'Error: missing parameters',
+                            description: 'You must provide either the ID or the name of the organization',
+                            color: client.config.EmbedColors.error,
+                        })
+                    ]
+                });
+
+                const view = await client.db.entity.getOrg({
+                    id: id ? id : undefined,
+                    name: orgName ? orgName : undefined
+                })
 
                 if (!view.success) return interaction.reply({
                     embeds: [
                         new client.EmbedBuilder({
-                            title: 'Error fetching organization',
+                            title: 'Error: failed to fetch org',
                             description: view.message,
                             color: client.config.EmbedColors.error,
                         })
@@ -310,13 +337,13 @@ export default class Uploads extends SlashBase {
                     embeds: [
                         new client.EmbedBuilder({
                             title: `${name}`,
-                            color: client.config.EmbedColors.success,
+                            color: client.config.EmbedColors.base,
                             thumbnail: view.data.logo,
-                            description: `${view.data.description}`,
+                            description: view.data.description,
                             hideTimestamp: true,
                             fields: [{
                                 name: 'ID',
-                                value: `${view.data.id}`,
+                                value: view.data.id,
                                 inline: true
                             }, {
                                 name: 'Owner',
@@ -332,7 +359,7 @@ export default class Uploads extends SlashBase {
                                 inline: true
                             }, {
                                 name: 'Domain',
-                                value: `${view.data.domain ? view.data.domain.name : 'No domain available!'}`,
+                                value: `${view.data.domain !== 'none' ? view.data.domain.name : 'No domain available!'}`,
                                 inline: true
                             }, {
                                 name: 'Flags',
@@ -342,28 +369,25 @@ export default class Uploads extends SlashBase {
                             footer: `Created: ${formatAMPM(created)} | Updated: ${formatAMPM(updated)}`
                         })
                     ]
-                });
+                })
             }
 
             case 'list': {
+                const user = interaction.options.getUser('user', false) || interaction.user;
 
-                const user = await interaction.options.getUser('user', false) || interaction.user;
+                const orgs = await client.db.user.model.listOrgs(user.id);
 
-                const list = await client.modules.orgs.organization.list(user.id);
-
-                if (!list.success) return interaction.reply({
+                if (!orgs.success) return interaction.reply({
                     embeds: [
                         new client.EmbedBuilder({
                             title: 'Error: failed to fetch orgs',
-                            description: list.message,
+                            description: `${orgs.message}`,
                             color: client.config.EmbedColors.error
                         })
                     ]
                 });
 
-                client.logs.debug(`Orgs: ${list.data}`)
-
-                const orgs = list.data.map((org) => {
+                const fields = orgs.data.map((org) => {
                     let name: string;
 
                     if (org.banned) name = `<:banned:1247467378644881409> ${org.name}`
@@ -372,11 +396,11 @@ export default class Uploads extends SlashBase {
                     else name = org.name
 
                     return {
-                        name: `${name}`,
+                        name: name,
                         value: `ID: ${org.id}`,
                         inline: true
                     }
-                });
+                })
 
                 return interaction.reply({
                     embeds: [
@@ -384,10 +408,10 @@ export default class Uploads extends SlashBase {
                             title: `Organizations for: ${user.globalName}`,
                             description: 'Here is all the users organizations :eyes:',
                             color: client.config.EmbedColors.success,
-                            fields: [...orgs]
+                            fields: [...fields]
                         })
                     ]
-                });
+                })
             }
         }
     }

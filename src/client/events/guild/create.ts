@@ -10,7 +10,10 @@ export default class GuildCreate extends EventBase {
     public async execute(client: CordX, guild: Guild): Promise<any> {
 
         const user = await guild.fetchOwner();
-        const owner = await client.db.user.model.fetch(user.id);
+        const owner = await client.db.entity.fetch({
+            userid: user.id,
+            entity: 'User'
+        })
 
         if (!owner.success) return;
 

@@ -104,7 +104,10 @@ export default class Profile extends SlashBase {
 
                 }
 
-                const user = await client.db.user.model.fetch(interaction.user.id);
+                const user = await client.db.entity.fetch({
+                    userid: interaction.user.id,
+                    entity: 'User'
+                })
 
                 if (!user.success) return interaction.reply({
                     embeds: [
@@ -126,7 +129,7 @@ export default class Profile extends SlashBase {
                     ]
                 })
 
-                const config = await client.modules.configs.sharex.generate(user.data?.userid, user.data?.secret, user.data?.domain);
+                const config = await client.db.modules.configs.sharex.generate(user.data?.userid, user.data?.secret, user.data?.domain);
                 const cfgString = JSON.stringify(config.data, null, 2);
 
                 if (!config.success) return interaction.reply({

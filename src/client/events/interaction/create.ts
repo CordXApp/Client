@@ -16,7 +16,10 @@ export default class InteractionCreate extends EventBase {
         if (interaction.isCommand()) {
             const command = client.commands.get(interaction.commandName)
             const priv = client.private.get(interaction.commandName)
-            const user = await client.db.user.model.fetch(interaction.user.id)
+            const user = await client.db.entity.fetch({
+                userid: interaction.user.id,
+                entity: 'User'
+            })
 
             if (!user.success) return;
 
@@ -48,12 +51,12 @@ export default class InteractionCreate extends EventBase {
 
             if (permissions.gate && permissions.gate.length > 0) {
 
-                const check = await client.modules.perms.user.has({
+                const check = await client.db.modules.perms.user.has({
                     user: interaction.user.id,
                     perm: permissions.gate
                 })
 
-                const missing = await client.modules.perms.user.missing({
+                const missing = await client.db.modules.perms.user.missing({
                     user: interaction.user.id,
                     perm: permissions.gate
                 });

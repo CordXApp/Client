@@ -3,18 +3,21 @@ import { DatabaseClient } from "../../prisma.client";
 import { Params } from "../../../types/database/partners";
 import { Constructor } from "../../../types/database/clients";
 import { Modules } from "../../../modules/base.module";
+import { PrismaClient } from '@prisma/client';
 import Logger from "../../../utils/logger.util";
 import type CordX from "../../../client/cordx";
 
 export class PartnerClient {
     private logs: Logger;
+    private prisma: PrismaClient;
     private db: DatabaseClient;
     private mods: Modules;
 
-    constructor({ client, prisma, logs, mods }: Constructor) {
-        this.db = prisma;
-        this.logs = logs;
-        this.mods = mods
+    constructor(data: Constructor) {
+        this.prisma = data.prisma;
+        this.db = data.db;
+        this.logs = data.logs;
+        this.mods = data.mods
     }
 
     public get model(): PartnerMethods {

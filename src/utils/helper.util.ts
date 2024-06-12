@@ -2,11 +2,11 @@ import { Collection, type CacheType, type ChatInputCommandInteraction } from "di
 import { Responses } from "../types/database/index";
 import { CordXSnowflake } from "@cordxapp/snowflake";
 import { Cooldown } from "../types/client/index";
-import type CordX from "../client/cordx"
-import Logger from "./logger.util"
-import axios from "axios";
 import { SpacesResponse } from "@/types/modules/spaces";
 import { randomBytes } from "node:crypto";
+import type CordX from "../client/cordx";
+import Logger from "./logger.util"
+import axios from "axios";
 
 export class Utilities {
     public client: CordX
@@ -53,6 +53,9 @@ export class Utilities {
                 timestamp?.set(user, now);
 
                 setTimeout(() => timestamp?.delete(user), timeout);
+            },
+            newHex: (length: number): string => {
+                return randomBytes(length).toString('hex')
             },
             update_msg: async (msg: string, interaction: any): Promise<void> => {
                 while (true) {
@@ -171,7 +174,7 @@ export class Utilities {
                             })
                         })
 
-                        this.client.modules.spaces.emitter.on('progress', async (res) => {
+                        this.client.db.modules.spaces.emitter.on('progress', async (res) => {
                             await dmChannel.send({
                                 embeds: [
                                     new this.client.EmbedBuilder({
@@ -204,7 +207,7 @@ export class Utilities {
                             })
                         });
 
-                        const syncPromise = this.client.modules.spaces.actions.sync_user(interaction.user.id, force as boolean);
+                        const syncPromise = this.client.db.modules.spaces.actions.sync_user(interaction.user.id, force as boolean);
 
                         syncPromise.then(async (r: { results: SpacesResponse }) => {
 
@@ -313,7 +316,7 @@ export class Utilities {
 
                         const dmChannel = await interaction.user.createDM(true);
 
-                        this.client.modules.spaces.emitter.on('progress', async (results: any) => {
+                        this.client.db.modules.spaces.emitter.on('progress', async (results: any) => {
 
                             await dmChannel.send({
                                 embeds: [
@@ -337,7 +340,7 @@ export class Utilities {
                             })
                         });
 
-                        const syncPromise = this.client.modules.spaces.actions.sync_all(false);
+                        const syncPromise = this.client.db.modules.spaces.actions.sync_all(false);
 
                         syncPromise.then(async (r: { results: SpacesResponse }) => {
 
@@ -430,7 +433,7 @@ export class Utilities {
 
                 for (const user of users) {
 
-                    const upload = await this.client.modules.spaces.bucket_db.update({
+                    const upload = await this.client.db.modules.spaces.bucket_db.update({
                         user: user.userid as string,
                         force: false
                     });

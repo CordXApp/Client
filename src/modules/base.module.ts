@@ -3,7 +3,6 @@ import Logger from "../utils/logger.util";
 import { ConfigModule } from "./client/cfg.module";
 import { FunModule } from "./client/fun.module";
 import { Information } from "./client/info.module";
-import { OrgModule } from "./orgs/org.client";
 import { Permissions } from "./client/permissions.module";
 import { Security } from "./misc/security.module";
 import { Spaces } from "./misc/spaces.module";
@@ -16,7 +15,6 @@ export class Modules {
     public configs: ConfigModule;
     public funmod: FunModule;
     public info: Information;
-    public orgs: OrgModule;
     public perms: Permissions;
     public security: Security;
     public spaces: Spaces;
@@ -29,7 +27,6 @@ export class Modules {
         this.configs = new ConfigModule(client);
         this.funmod = new FunModule(client);
         this.info = new Information(client);
-        this.orgs = new OrgModule(client);
         this.perms = new Permissions(client);
         this.security = new Security(client);
         this.spaces = new Spaces(client);

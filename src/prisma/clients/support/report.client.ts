@@ -6,17 +6,20 @@ import { DatabaseClient } from "../../prisma.client";
 import Logger from "../../../utils/logger.util";
 import type CordX from "../../../client/cordx";
 import { TextChannel } from "discord.js";
+import { PrismaClient } from "@prisma/client";
 
 export class ReportClient {
     private client: CordX
     private logs: Logger;
+    private prisma: PrismaClient;
     private db: DatabaseClient;
     private mods: Modules;
 
     constructor(data: Constructor) {
         this.client = data.client;
         this.logs = data.logs;
-        this.db = data.prisma;
+        this.prisma = data.prisma;
+        this.db = data.db;
         this.mods = data.mods;
     }
 

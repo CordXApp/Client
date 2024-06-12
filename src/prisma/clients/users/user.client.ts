@@ -5,111 +5,26 @@ import { DatabaseClient } from "../../prisma.client";
 import { Modules } from "../../../modules/base.module";
 import Logger from "../../../utils/logger.util";
 import type CordX from "../../../client/cordx";
-import { users } from "@prisma/client";
+import { PrismaClient, users } from "@prisma/client";
 import { randomBytes } from "node:crypto";
 
 export class UserClient {
     private client: CordX;
     private logs: Logger;
+    private prisma: PrismaClient;
     private db: DatabaseClient;
     private mods: Modules;
 
     constructor(data: Constructor) {
         this.client = data.client;
         this.logs = data.logs;
-        this.db = data.prisma;
+        this.prisma = data.prisma;
+        this.db = data.db;
         this.mods = data.mods;
     }
 
     public get model(): UserMethods {
         return {
-            /**
-             * Create a new CordX user.
-             * @param data User data to create a new user.
-             * @returns Promise<Responses>
-             */
-            create: async (data: User): Promise<Responses> => {
-                const check = await this.db.prisma.users.findUnique({ where: { userid: data.userid as string } });
-
-                if (check) return { success: false, message: 'User already exists in our database.' };
-
-                /** GENERATE A NEW CORNFLAKE (SNOWFLAKE) ID */
-                const cornflake = this.db.cornflake.generate();
-
-                const user: users = await this.db.prisma.users.create({
-                    data: {
-                        id: cornflake,
-                        userid: data.userid,
-                        avatar: data.avatar,
-                        banner: data.banner,
-                        username: data.username,
-                        globalName: data.globalName,
-                        folder: data.globalName,
-                        webhook: 'none',
-                        cookie: randomBytes(16).toString('hex'),
-                        beta: false,
-                        banned: false,
-                        verified: false,
-                        domain: 'none'
-                    }
-                })
-
-                const secret = await this.db.secret.model.create({
-                    entity: 'User',
-                    userId: user.id,
-                    maxUses: 5000,
-                })
-
-                if (!secret.success) return { success: false, message: secret.message };
-
-                const update = await this.db.prisma.users.update({
-                    where: { id: cornflake },
-                    data: { secret: secret.data.key }
-                })
-
-                if (!update) return { success: false, message: 'Unable to update user with secret key.' };
-
-                return { success: true, data: user }
-            },
-            exists: async (id: User['userid']): Promise<boolean> => {
-
-                const user = await this.client.db.prisma.users.findUnique({ where: { userid: id } });
-
-                if (!user) return false;
-
-                return true;
-            },
-            fetch: async (id: User['userid']): Promise<Responses> => {
-
-                const user = await this.client.db.prisma.users.findUnique({ where: { userid: id } });
-
-                if (!user) return { success: false, message: 'Unable to locate that user in our database.' };
-
-                return { success: true, message: 'User found', data: user }
-            },
-            update: async (id: User['userid'], data: User): Promise<Responses> => {
-
-                const check = await this.client.db.prisma.users.findUnique({ where: { userid: id } });
-
-                if (!check) return { success: false, message: 'Unable to locate that user in our database.' };
-
-                const { permissions, ...updatedData } = data;
-
-                const user = await this.client.db.prisma.users.update({ where: { userid: id }, data: updatedData });
-                if (!user) return { success: false, message: 'Unable to locate that user in our database.' };
-
-                return { success: true, data: user }
-            },
-            delete: async (id: User['userid']): Promise<Responses> => {
-
-                const check = await this.client.db.prisma.users.findUnique({ where: { userid: id } });
-
-                if (!check) return { success: false, message: 'Unable to locate that user in our database.' };
-
-                const user = await this.client.db.prisma.users.delete({ where: { userid: id } });
-
-                return { success: true, data: user }
-            },
             profile: async (id: User['userid']): Promise<Responses> => {
 
                 const user = await this.client.db.prisma.users.findUnique({
@@ -247,6 +162,17 @@ export class UserClient {
                 }
 
                 return this.client.logs.ready(`Permissions have been synced for all users!`);
+            },
+            listOrgs: async (userid: string): Promise<Responses> => {
+
+                const user = await this.prisma.users.findUnique({
+                    where: { userid },
+                    include: { orgs: true }
+                });
+
+                if (!user) return { success: false, message: 'User does not have any orgs' }
+
+                return { success: true, data: user.orgs }
             }
         }
     }

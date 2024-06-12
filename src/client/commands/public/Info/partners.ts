@@ -30,11 +30,11 @@ export default class Partners extends SlashBase {
         interaction: ChatInputCommandInteraction<CacheType>
     ): Promise<any> {
 
-        switch (interaction.options.getSubcommand()) {
+        /**switch (interaction.options.getSubcommand()) {
 
             case 'list': {
 
-                const list = await client.db.partner.model.list();
+                const list = await client.db.partner;
 
                 if (!list.success) return interaction.reply({
                     embeds: [
@@ -65,6 +65,6 @@ export default class Partners extends SlashBase {
                     ]
                 })
             }
-        }
+        }*/
     }
 }

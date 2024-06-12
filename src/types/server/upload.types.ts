@@ -1,14 +1,23 @@
 import { FastifyReply, FastifyRequest } from "fastify";
+import { Entities } from "../database/entities";
 
 export interface HandleUploadParams {
     req: FastifyRequest;
     res: FastifyReply;
-    files: any;
+    file?: any;
+    files?: any;
     secret?: string;
-    userid: string;
+    entity?: Entities;
+    userId?: string;
+    orgId?: string;
+    fileId?: string;
+    mime?: string;
+    data?: any;
 }
 
 export interface HandleDeleteParams {
+    req: FastifyRequest;
+    res: FastifyReply;
     userid: string;
     secret: string;
     fileid: string;

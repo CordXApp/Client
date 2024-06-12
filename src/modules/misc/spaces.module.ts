@@ -1,4 +1,4 @@
-import { HandleUploadParams, HandleDeleteParams } from "../../types/server/upload.types";
+import { HandleUploadParams } from "../../types/server/upload.types";
 import { S3, ListObjectsV2CommandOutput, ObjectCannedACL, PutObjectCommand } from "@aws-sdk/client-s3";
 import { FastifyRequest } from "fastify";
 import { readFileSync } from "fs";
@@ -461,12 +461,12 @@ export class Spaces implements SpacesClient {
             profile: async (user: string): Promise<SpacesResponse> => {
 
                 const data = await this.client.db.prisma.uploads.findMany({ where: { userid: user } });
-                const known: string[] = ['.png', 'gif', 'mp4', '.jpg', '.jpeg']
+                const known: string[] = ['.png', '.gif', '.mp4', '.jpg', '.jpeg']
 
-                const png = data.filter(f => f.id.includes('.png'));
-                const gif = data.filter(f => f.id.includes('.gif'));
-                const mp4 = data.filter(f => f.id.includes('.mp4'));
-                const unk = data.filter(f => !known.some(type => f.id.includes(type)));
+                const png = data.filter(f => f.key.includes('.png'));
+                const gif = data.filter(f => f.key.includes('.gif'));
+                const mp4 = data.filter(f => f.key.includes('.mp4'));
+                const unk = data.filter(f => !known.some(type => f.key.includes(type)));
                 const used = await this.user.size(user);
 
                 if (!used.success) return {
@@ -497,7 +497,11 @@ export class Spaces implements SpacesClient {
 
     public get sharex() {
         return {
-            handleUpload: async ({ req, res, files, userid }: HandleUploadParams) => {
+            /**
+             * Handle a file and upload it to a entities bucket/uploads db
+             * 
+             */
+            entityUploader: async ({ req, res, files, entity, userId, orgId }: HandleUploadParams) => {
 
                 const file = files.cordx;
 
@@ -508,55 +512,72 @@ export class Spaces implements SpacesClient {
 
                 const data = readFileSync(file.path);
                 const mime = file.name.substr(file.name.lastIndexOf('.') + 1);
-                const fileId = await this.sharex.makeId(10);
-                const user = await this.client.db.user.model.fetch(userid as string);
+                const fileId = this.sharex.makeId(10);
                 const env = req.client.user!.id === '829979197912645652' ? 'development' : 'production';
-                const dev = await req.client.modules.perms.user.has({ user: userid, perm: 'DEVELOPER' });
                 const getBase = (req: FastifyRequest) => `${env === 'development' ? 'http' : 'https'}://${req.headers['x-cordx-host'] || req.headers.host}`;
                 const dom = await req.client.db.domain.model.exists(getBase(req));
 
-                if (!file) return res.status(400).send({
-                    status: 'NO_POST_DATA',
-                    message: 'No files were provided with the required "cordx" FileForm',
+                if (dom.success && !(await this.client.db.domain.model.verified(getBase(req)))) return res.status(401).send({
+                    status: 'DOMAIN_NOT_VERIFIED',
+                    message: 'Your domain is not verified, please visit our docs for more info: https://help.cordx.lol/docs/users/domains/verification!',
                 });
 
-                if (req.headers.host!.includes('dev.cordx.lol') && !dev) return res.status(400).send({
-                    status: 'DEVELOPER_NOT_ENABLED',
-                    message: 'You must be a developer to upload to our development domain ;)',
+                switch (entity) {
+                    case 'User':
+                        return await this.sharex.handleUserUpload({ req, res, userId, file, fileId, mime, data });
+                    case 'Organization':
+                        return await this.sharex.handleOrgUpload({ req, res, orgId, file, fileId, mime, data });
+                    default:
+                        return res.status(500).send({
+                            status: 'INVALID_ENTITY',
+                            message: 'Please provide a valid entity'
+                        })
+                }
+            },
+            handleUserUpload: async ({ req, res, userId, file, fileId, mime, data }: HandleUploadParams) => {
+                const env = req.client.user!.id === '829979197912645652' ? 'development' : 'production';
+                const getBase = (req: FastifyRequest) => `${env === 'development' ? 'http' : 'https'}://${req.headers['x-cordx-host'] || req.headers.host}`;
+
+                const user = await this.client.db.entity.fetch({
+                    userid: userId,
+                    entity: 'User'
+                });
+
+                if (!user.success) return res.status(404).send({
+                    status: 'USER_NOT_FOUND',
+                    message: 'Unable to locate a user with the provided ID',
                 })
 
-                if (req.headers.host!.includes('beta.cordx.lol') && !user.data.beta) return res.status(400).send({
-                    status: 'BETA_NOT_ENABLED',
-                    message: 'You must be a beta tester to upload to our beta domain ;)',
+                if (!user.data.beta) return res.status(401).send({
+                    status: 'UNAUTHORIZED',
+                    message: 'You must be a beta tester to upload to this API!'
                 });
 
-                if (dom.success && !(await this.client.db.domain.model.verified(getBase(req)))) return res.status(400).send({
-                    status: 'DOMAIN_NOT_VERIFIED',
-                    message: 'Your domain is not verified, please verify your domain before uploading!',
-                });
-
-                const formattedSize = await this.sharex.formatSize(file.size);
+                const formattedSize = this.sharex.formatSize(file.size);
 
                 const params = {
                     Bucket: 'cordx',
                     ACL: 'public-read' as ObjectCannedACL,
-                    Key: `${user.data.userid}/${fileId}.${mime}`,
+                    Key: `${userId}/${fileId}.${mime}`,
                     Body: data
                 }
 
                 await this.bucket.send(new PutObjectCommand(params)).then(async () => {
-                    const dateString = file.lastModifiedDate.toISOString()
+                    const dateString = file.lastModifiedDate.toISOString();
 
                     await req.client.db.prisma.uploads.create({
                         data: {
                             id: fileId as string,
                             flag: 'PUBLIC',
                             userid: user.data.userid,
-                            key: `${fileId}.${mime}`,
+                            key: `${userId}/${fileId}.${mime}`,
                             name: file.name,
                             createdAt: dateString,
                             size: file.size,
-                            mime: mime
+                            mime: mime as string,
+                            users: {
+                                connect: { userid: userId }
+                            }
                         }
                     }).catch((err: Error) => {
                         req.client.logs.error(err.message);
@@ -568,38 +589,126 @@ export class Spaces implements SpacesClient {
                         })
                     });
 
-                    let replaceHook = user.data.webhook.replace('discord.com', 'proxy.cordx.lol');
+                    if (user.data.webhook !== 'none') {
+                        const proxy = user.data.webhook.replace('discord.com', 'proxy.cordx.lol');
+                        const { webhooks } = this.client.db.modules.webhooks;
 
-                    const { webhooks } = this.client.modules.webhooks;
+                        await webhooks.send({
+                            userid: user.data.userid,
+                            webhook: proxy,
+                            link: `${req.client.config.Cordx.domain}/api/user/${userId}/${fileId}.${mime}`,
+                            type: mime,
+                            info: {
+                                size: formattedSize,
+                                name: file.name,
+                                date: file.lastModifiedDate.toDateString()
+                            }
+                        }).catch((err: Error) => {
+                            req.client.logs.error(err.message);
+                            req.client.logs.debug(err.stack as string);
 
-                    await webhooks.send({
-                        userid: user.data.userid,
-                        webhook: replaceHook,
-                        link: `${req.client.config.Cordx.domain}/api/user/${userid}/${fileId}.${mime}`,
-                        type: mime,
-                        info: {
-                            size: formattedSize,
-                            name: file.name,
-                            date: file.lastModifiedDate.toDateString()
-                        }
-                    });
-                }).catch((err: Error) => {
-                    req.client.logs.error(err.message);
-                    req.client.logs.debug(err.stack as string);
-
-                    return res.status(500).send({
-                        status: 'UPLOAD_ERROR',
-                        message: err.message
-                    })
+                            return res.status(500).send({
+                                status: 'UPLOAD_ERROR',
+                                message: err.message
+                            })
+                        });
+                    }
                 })
 
                 return res.status(200).send({
                     status: 'OK',
                     message: 'Successfully uploaded your file!',
-                    url: `${getBase(req)}/users/${userid}/${fileId}.${mime}`
-                })
+                    url: `${getBase(req)}/users/${userId}/${fileId}.${mime}`
+                });
             },
-            makeId: async (length: number): Promise<string> => {
+            handleOrgUpload: async ({ req, res, orgId, file, fileId, mime, data }: HandleUploadParams) => {
+                const env = req.client.user!.id === '829979197912645652' ? 'development' : 'production';
+                const getBase = (req: FastifyRequest) => `${env === 'development' ? 'http' : 'https'}://${req.headers['x-cordx-host'] || req.headers.host}`;
+
+                const org = await this.client.db.entity.fetch({
+                    userid: orgId,
+                    entity: 'Organization'
+                });
+
+                if (!org.success) return res.status(404).send({
+                    status: 'USER_NOT_FOUND',
+                    message: 'Unable to locate a org with the provided ID',
+                })
+
+                if (!org.data.beta) return res.status(401).send({
+                    status: 'UNAUTHORIZED',
+                    message: 'The provided org does not have access to our beta features!'
+                });
+
+                const formattedSize = this.sharex.formatSize(file.size);
+
+                const params = {
+                    Bucket: 'cordx',
+                    ACL: 'public-read' as ObjectCannedACL,
+                    Key: `${orgId}/${fileId}.${mime}`,
+                    Body: data
+                }
+
+                await this.bucket.send(new PutObjectCommand(params)).then(async () => {
+                    const dateString = file.lastModifiedDate.toISOString();
+
+                    await req.client.db.prisma.uploads.create({
+                        data: {
+                            id: fileId as string,
+                            flag: 'PUBLIC',
+                            userid: org.data.id,
+                            key: `${orgId}/${fileId}.${mime}`,
+                            name: file.name,
+                            createdAt: dateString,
+                            size: file.size,
+                            mime: mime as string,
+                            orgs: {
+                                connect: { id: orgId }
+                            }
+                        }
+                    }).catch((err: Error) => {
+                        req.client.logs.error(err.message);
+                        req.client.logs.debug(err.stack as string);
+
+                        return res.status(500).send({
+                            status: 'UPLOAD_ERROR',
+                            message: err.message
+                        })
+                    });
+
+                    if (org.data.webhook !== 'none') {
+                        const proxy = org.data.webhook.replace('discord.com', 'proxy.cordx.lol');
+                        const { webhooks } = this.client.db.modules.webhooks;
+
+                        await webhooks.send({
+                            userid: org.data.userid,
+                            webhook: proxy,
+                            link: `${req.client.config.Cordx.domain}/api/org/${orgId}/${fileId}.${mime}`,
+                            type: mime,
+                            info: {
+                                size: formattedSize,
+                                name: file.name,
+                                date: file.lastModifiedDate.toDateString()
+                            }
+                        }).catch((err: Error) => {
+                            req.client.logs.error(err.message);
+                            req.client.logs.debug(err.stack as string);
+
+                            return res.status(500).send({
+                                status: 'UPLOAD_ERROR',
+                                message: err.message
+                            })
+                        });
+                    }
+                })
+
+                return res.status(200).send({
+                    status: 'OK',
+                    message: 'Successfully uploaded your file!',
+                    url: `${getBase(req)}/org/${orgId}/${fileId}.${mime}`
+                });
+            },
+            makeId: (length: number): string => {
                 return randomBytes(length).toString('hex');
             },
             formatSize: async (bytes: number): Promise<string> => {

@@ -1,4 +1,5 @@
 import { UserClient } from "./clients/users/user.client";
+import { EntityClient } from "./clients/entities/entity.client";
 import { StatsClient } from "./clients/users/stats.client";
 import { UserDomClient } from "./clients/users/domain.client";
 import { WebhookClient } from "./clients/admin/hook.client";
@@ -10,6 +11,7 @@ import { Modules } from "../modules/base.module";
 import { PrismaClient } from '@prisma/client';
 import type CordX from "../client/cordx";
 import Logger from "../utils/logger.util";
+import { randomBytes } from "node:crypto";
 
 const prismaClient = new PrismaClient();
 
@@ -19,6 +21,7 @@ export class DatabaseClient {
     public cornflake: CordXSnowflake;
     public prisma: PrismaClient
     public user: UserClient
+    public entity: EntityClient
     public stats: StatsClient
     public domain: UserDomClient
     public webhook: WebhookClient
@@ -38,28 +41,47 @@ export class DatabaseClient {
         this.modules = new Modules(this.client, this.prisma);
 
         /**
-         * User Database Client
+         * Entity Database Client
          */
-        this.user = new UserClient({
+        this.entity = new EntityClient({
             client: this.client,
+            db: this,
             prisma: this.prisma,
             logs: this.logs,
             mods: this.modules
         });
 
         /**
+         * User Database Client
+         */
+        this.user = new UserClient({
+            client: this.client,
+            db: this,
+            prisma: this.prisma,
+            logs: this.logs,
+            mods: this.modules
+        })
+
+        /**
          * User Stats Database Client
          */
         this.stats = new StatsClient({
             client: this.client,
+            db: this,
             prisma: this.prisma,
             logs: this.logs,
             mods: this.modules
         });
 
+        /**
+         * User Domain Database Client
+         */
         this.domain = new UserDomClient({
             client: this.client,
-            prisma: this.prisma
+            db: this,
+            prisma: this.prisma,
+            logs: this.logs,
+            mods: this.modules
         });
 
         /**
@@ -67,20 +89,40 @@ export class DatabaseClient {
          */
         this.webhook = new WebhookClient({
             client: this.client,
+            db: this,
             prisma: this.prisma,
             logs: this.logs,
             mods: this.modules
         });
 
-        this.secret = new SecretClient({ client: this.client, prisma: this.prisma });
+        /**
+         * Entity Secret Database Client
+         */
+        this.secret = new SecretClient({
+            client: this.client,
+            db: this,
+            prisma: this.prisma,
+            logs: this.logs,
+            mods: this.modules
+        });
 
-        this.report = new ReportClient({ client: this.client, prisma: this.prisma });
+        /**
+         * Report Database Client
+         */
+        this.report = new ReportClient({
+            client: this.client,
+            db: this,
+            prisma: this.prisma,
+            logs: this.logs,
+            mods: this.modules
+        });
 
         /**
          * Partners Database Client
          */
         this.partner = new PartnerClient({
             client: this.client,
+            db: this,
             prisma: this.prisma,
             logs: this.logs,
             mods: this.modules

@@ -117,8 +117,7 @@ export default class Sync extends SlashBase {
                 return Promise.all([client.utils.base.delay(5000), client.db.secret.model.create({
                     entity: res,
                     maxUses: maxUses,
-                    userId: res === 'User' ? user?.id : undefined,
-                    orgId: res === 'Organization' && org !== null ? org : undefined
+                    entityId: res === 'Organization' && org !== null ? org : user?.id as string
                 })])
                     .then(async ([_, res]) => {
 

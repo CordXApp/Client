@@ -3,18 +3,21 @@ import { DatabaseClient } from "../../prisma.client";
 import { Constructor } from "../../../types/database/clients";
 import { Modules } from "../../../modules/base.module";
 import Logger from "../../../utils/logger.util";
+import { PrismaClient } from '@prisma/client';
 import { Responses } from "../../../types/database/index"
 import { Create } from "../../../types/database/secrets";
 
 
 export class SecretClient {
     private logs: Logger;
+    private prisma: PrismaClient;
     private db: DatabaseClient;
     private mods: Modules;
 
     constructor(data: Constructor) {
         this.logs = data.logs;
-        this.db = data.prisma;
+        this.prisma = data.prisma;
+        this.db = data.db;
         this.mods = data.mods;
     }
 
@@ -24,69 +27,62 @@ export class SecretClient {
              * Create a new secret for the provided entity
              * @param opts - The options for creating a new secret
              * @param opts.entity - The entity to create the secret for
-             * @param opts.userId - The user ID to create the secret for
-             * @param opts.orgId - The organization ID to create the secret for
+             * @param opts.entityId - The Snowflake/Cornflake for the entity
              * @param opts.maxUses - The maximum amount of times the secret can be used
              * @returns The response from the database
              */
             create: async (opts: Create): Promise<Responses> => {
                 const secret = randomBytes(32).toString('hex');
 
+                let apikey;
                 let update;
-                let entityUpdate;
                 const entity = opts.entity;
 
                 switch (entity) {
-
-                    case 'User': {
-                        this.logs.info(`Creating a new ${entity} API Secret`);
-                        update = await this.model.newSecret(secret, opts).catch((err: Error) => {
+                    case 'User':
+                        this.logs.info(`Creating a new ${entity} API Secret!`);
+                        apikey = await this.model.newSecret(secret, opts).catch((err: Error) => {
+                            this.logs.error(`Error creating ${entity} secret: ${err.message}`)
                             this.logs.debug(err.stack as string)
-                            return { success: false, message: `${err.message}` }
+                            return { success: false, message: err.message }
                         });
-                        entityUpdate = await this.db.prisma.users.update({
-                            where: { id: opts.userId },
-                            data: { secret: update.key }
+                        update = await this.db.prisma.users.update({
+                            where: { id: opts.entityId },
+                            data: { secret: apikey.key }
                         })
-                    }
-
                         break;
-
-                    case 'Organization': {
+                    case 'Organization':
+                        this.logs.info(`Creating a new ${entity} API Secret!`);
+                        apikey = await this.model.newSecret(secret, opts).catch((err: Error) => {
+                            this.logs.error(`Error creating ${entity} secret: ${err.message}`)
+                            this.logs.debug(err.stack as string)
+                            return { success: false, message: err.message }
+                        });
+                        update = await this.db.prisma.orgs.update({
+                            where: { id: opts.entityId },
+                            data: { secret: apikey.key }
+                        });
+                        break;
+                    default:
                         this.logs.info(`Creating a new ${entity} API Secret`);
                         update = await this.model.newSecret(secret, opts).catch((err: Error) => {
                             this.logs.debug(err.stack as string)
                             return { success: false, message: `${err.message}` }
                         });
-                        entityUpdate = await this.db.prisma.orgs.update({
-                            where: { id: opts.orgId },
-                            data: { secret: update.key }
-                        })
-                    }
-
-                        break;
-
-                    default: {
-                        this.logs.info(`Creating a new ${entity} API Secret`);
-                        update = await this.model.newSecret(secret, opts).catch((err: Error) => {
-                            this.logs.debug(err.stack as string)
-                            return { success: false, message: `${err.message}` }
-                        });
-                    }
                 }
 
-                if (!update) return { success: false, message: `Failed to create a new ${entity} API Secret` };
-                if (entityUpdate && !entityUpdate) return { success: false, message: `Failed to update: ${entity} with the new API Secret` };
+                if (!apikey) return { success: false, message: apikey.message };
+                if (!update) return { success: false, message: `Failed to update: ${entity} with the new API Secret` };
 
                 return {
                     success: true,
                     message: `Here is your new ${entity} Secret!`,
                     data: {
-                        id: update.id,
-                        cornflake: opts.userId ? opts.userId : opts.orgId ? opts.orgId : null,
-                        encrypted: update.key,
+                        id: apikey.id,
+                        cornflake: update.id,
+                        encrypted: apikey.key,
                         decrypted: secret,
-                        maxUses: opts.maxUses,
+                        maxUses: apikey.maxUses,
                         entity: entity,
                     }
                 }
@@ -167,8 +163,8 @@ export class SecretClient {
                         key: this.model.encrypt(secret),
                         maxUses: opts.maxUses,
                         entity: opts.entity,
-                        userId: opts.userId ? opts.userId : undefined,
-                        orgId: opts.orgId ? opts.orgId : undefined
+                        userId: opts.entity === 'User' ? opts.entityId : undefined,
+                        orgId: opts.entity === 'Organization' ? opts.entityId : undefined
                     }
                 }).catch((err: Error) => {
                     this.db.logs.error(`Failed to create secret for entity: ${opts.entity}`)

@@ -45,7 +45,7 @@ export class Permissions implements PermsClient {
                 this.acks = [];
 
                 for (const perm of permissions) {
-                    const hasPerm = await this.client.modules.perms.user.has({ user: user, perm: perm as GatePermissions });
+                    const hasPerm = await this.client.db.modules.perms.user.has({ user: user, perm: perm as GatePermissions });
 
                     if (hasPerm) {
                         this.list[perm].push(user);

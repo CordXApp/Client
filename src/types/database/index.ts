@@ -3,15 +3,11 @@ import { Webhook } from "./webhooks";
 import { Params } from "./partners";
 
 export interface UserMethods {
-    create: (data: User) => Promise<Responses>
-    exists: (id: User['userid']) => Promise<Boolean>
-    fetch: (id: User['userid']) => Promise<Responses>
-    update: (id: User['userid'], data: User) => Promise<Responses>
-    delete: (id: User['userid']) => Promise<Responses>
     profile: (id: User['userid']) => Promise<Responses>
     staff: () => Promise<Responses>
     syncRoles: () => Promise<void>
     syncPerms: () => Promise<void>
+    listOrgs: (userid: string) => Promise<Responses>
 }
 
 export interface WebhookMethods {

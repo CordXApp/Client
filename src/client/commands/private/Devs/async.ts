@@ -186,7 +186,7 @@ export default class aSync extends SlashBase {
 
                 const force = interaction.options.getBoolean('force');
 
-                if (force === true && !client.modules.perms.user.has({
+                if (force === true && !client.db.modules.perms.user.has({
                     user: interaction.user.id,
                     perm: 'OWNER'
                 })) return interaction.reply({
