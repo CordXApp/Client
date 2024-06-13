@@ -501,7 +501,7 @@ export class Spaces implements SpacesClient {
              * Handle a file and upload it to a entities bucket/uploads db
              * 
              */
-            entityUploader: async ({ req, res, files, entity, userId, orgId }: HandleUploadParams) => {
+            entityUploader: async ({ req, res, files, entity, entityId }: HandleUploadParams) => {
 
                 const file = files.cordx;
 
@@ -524,9 +524,9 @@ export class Spaces implements SpacesClient {
 
                 switch (entity) {
                     case 'User':
-                        return await this.sharex.handleUserUpload({ req, res, userId, file, fileId, mime, data });
+                        return await this.sharex.handleUserUpload({ req, res, entityId, file, fileId, mime, data });
                     case 'Organization':
-                        return await this.sharex.handleOrgUpload({ req, res, orgId, file, fileId, mime, data });
+                        return await this.sharex.handleOrgUpload({ req, res, entityId, file, fileId, mime, data });
                     default:
                         return res.status(500).send({
                             status: 'INVALID_ENTITY',
@@ -534,12 +534,12 @@ export class Spaces implements SpacesClient {
                         })
                 }
             },
-            handleUserUpload: async ({ req, res, userId, file, fileId, mime, data }: HandleUploadParams) => {
+            handleUserUpload: async ({ req, res, entityId, file, fileId, mime, data }: HandleUploadParams) => {
                 const env = req.client.user!.id === '829979197912645652' ? 'development' : 'production';
                 const getBase = (req: FastifyRequest) => `${env === 'development' ? 'http' : 'https'}://${req.headers['x-cordx-host'] || req.headers.host}`;
 
                 const user = await this.client.db.entity.fetch({
-                    userid: userId,
+                    entityId: entityId,
                     entity: 'User'
                 });
 
@@ -558,7 +558,7 @@ export class Spaces implements SpacesClient {
                 const params = {
                     Bucket: 'cordx',
                     ACL: 'public-read' as ObjectCannedACL,
-                    Key: `${userId}/${fileId}.${mime}`,
+                    Key: `${entityId}/${fileId}.${mime}`,
                     Body: data
                 }
 
@@ -570,13 +570,13 @@ export class Spaces implements SpacesClient {
                             id: fileId as string,
                             flag: 'PUBLIC',
                             userid: user.data.userid,
-                            key: `${userId}/${fileId}.${mime}`,
+                            key: `${entityId}/${fileId}.${mime}`,
                             name: file.name,
                             createdAt: dateString,
                             size: file.size,
                             mime: mime as string,
                             users: {
-                                connect: { userid: userId }
+                                connect: { userid: entityId }
                             }
                         }
                     }).catch((err: Error) => {
@@ -596,7 +596,7 @@ export class Spaces implements SpacesClient {
                         await webhooks.send({
                             userid: user.data.userid,
                             webhook: proxy,
-                            link: `${req.client.config.Cordx.domain}/api/user/${userId}/${fileId}.${mime}`,
+                            link: `${req.client.config.Cordx.domain}/api/user/${entityId}/${fileId}.${mime}`,
                             type: mime,
                             info: {
                                 size: formattedSize,
@@ -618,15 +618,15 @@ export class Spaces implements SpacesClient {
                 return res.status(200).send({
                     status: 'OK',
                     message: 'Successfully uploaded your file!',
-                    url: `${getBase(req)}/users/${userId}/${fileId}.${mime}`
+                    url: `${getBase(req)}/users/${entityId}/${fileId}.${mime}`
                 });
             },
-            handleOrgUpload: async ({ req, res, orgId, file, fileId, mime, data }: HandleUploadParams) => {
+            handleOrgUpload: async ({ req, res, entityId, file, fileId, mime, data }: HandleUploadParams) => {
                 const env = req.client.user!.id === '829979197912645652' ? 'development' : 'production';
                 const getBase = (req: FastifyRequest) => `${env === 'development' ? 'http' : 'https'}://${req.headers['x-cordx-host'] || req.headers.host}`;
 
                 const org = await this.client.db.entity.fetch({
-                    userid: orgId,
+                    entityId: entityId,
                     entity: 'Organization'
                 });
 
@@ -645,7 +645,7 @@ export class Spaces implements SpacesClient {
                 const params = {
                     Bucket: 'cordx',
                     ACL: 'public-read' as ObjectCannedACL,
-                    Key: `${orgId}/${fileId}.${mime}`,
+                    Key: `${entityId}/${fileId}.${mime}`,
                     Body: data
                 }
 
@@ -657,13 +657,13 @@ export class Spaces implements SpacesClient {
                             id: fileId as string,
                             flag: 'PUBLIC',
                             userid: org.data.id,
-                            key: `${orgId}/${fileId}.${mime}`,
+                            key: `${entityId}/${fileId}.${mime}`,
                             name: file.name,
                             createdAt: dateString,
                             size: file.size,
                             mime: mime as string,
                             orgs: {
-                                connect: { id: orgId }
+                                connect: { id: entityId }
                             }
                         }
                     }).catch((err: Error) => {
@@ -683,7 +683,7 @@ export class Spaces implements SpacesClient {
                         await webhooks.send({
                             userid: org.data.userid,
                             webhook: proxy,
-                            link: `${req.client.config.Cordx.domain}/api/org/${orgId}/${fileId}.${mime}`,
+                            link: `${req.client.config.Cordx.domain}/api/org/${entityId}/${fileId}.${mime}`,
                             type: mime,
                             info: {
                                 size: formattedSize,
@@ -705,7 +705,7 @@ export class Spaces implements SpacesClient {
                 return res.status(200).send({
                     status: 'OK',
                     message: 'Successfully uploaded your file!',
-                    url: `${getBase(req)}/org/${orgId}/${fileId}.${mime}`
+                    url: `${getBase(req)}/org/${entityId}/${fileId}.${mime}`
                 });
             },
             makeId: (length: number): string => {

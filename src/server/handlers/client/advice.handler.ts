@@ -6,7 +6,7 @@ export class Advice {
     public static async Handler(req: FastifyRequest, reply: FastifyReply) {
         reply.header('Content-Type', 'application/json');
 
-        const response = await req.client.modules.funmod.generate.Advice();
+        const response = await req.client.db.modules.funmod.generate.Advice();
 
         return reply.code(200).send({ response });
     }

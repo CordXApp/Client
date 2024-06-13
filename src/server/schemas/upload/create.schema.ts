@@ -7,9 +7,10 @@ export class CreateUpload {
         description: `Upload a file/image to our servers (requires a FileForm Name of "cordx")!`,
         headers: {
             type: 'object',
-            required: ['secret', 'userid'],
+            required: ['entity', 'entityId', 'secret'],
             properties: {
-                userid: { type: 'string' },
+                entity: { type: 'string' },
+                entityId: { type: 'string' },
                 secret: { type: 'string' }
             }
         },

@@ -17,7 +17,7 @@ export default class InteractionCreate extends EventBase {
             const command = client.commands.get(interaction.commandName)
             const priv = client.private.get(interaction.commandName)
             const user = await client.db.entity.fetch({
-                userid: interaction.user.id,
+                entityId: interaction.user.id,
                 entity: 'User'
             })
 

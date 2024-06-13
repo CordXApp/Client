@@ -13,7 +13,7 @@ export default class GuildMemberUpdate extends EventBase {
 
         const oldRoles = oldMember.roles.cache;
         const newRoles = newMember.roles.cache;
-        const user = await client.db.entity.fetch({ userid: newMember.user.id, entity: 'User' });
+        const user = await client.db.entity.fetch({ entityId: newMember.user.id, entity: 'User' });
         const logs = newMember.guild.channels.cache.get("871275187377688628") as TextChannel;
 
         const betaMember = newMember.guild.roles.cache.find(role => role.name === 'Beta Member', { force: true });

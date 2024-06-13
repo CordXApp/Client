@@ -11,7 +11,7 @@ export default class GuildCreate extends EventBase {
 
         const user = await guild.fetchOwner();
         const owner = await client.db.entity.fetch({
-            userid: user.id,
+            entityId: user.id,
             entity: 'User'
         })
 

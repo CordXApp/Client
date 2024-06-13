@@ -105,7 +105,7 @@ export default class Profile extends SlashBase {
                 }
 
                 const user = await client.db.entity.fetch({
-                    userid: interaction.user.id,
+                    entityId: interaction.user.id,
                     entity: 'User'
                 })
 

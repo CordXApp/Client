@@ -17,9 +17,9 @@ export default class Ready extends EventBase {
         const orgs = await client.db.prisma.orgs.count();
         const users = await client.db.prisma.users.count();
 
-        //client.server.start().catch((err: Error) => {
-        //    client.logs.error(err.stack as string);
-        //});
+        client.server.start().catch((err: Error) => {
+            client.logs.error(err.stack as string);
+        });
 
         let presences = [
             {

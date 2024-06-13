@@ -1,17 +1,19 @@
-import path from "node:path";
-import Logger from "../utils/logger.util";
-import CordX from "../client/cordx";
+import { DatabaseClient } from "../prisma/prisma.client";
 import fastify, { FastifyInstance } from "fastify";
 import { version } from "../../package.json";
-import { Status } from "discord.js";
+import Logger from "../utils/logger.util";
+import CordX from "../client/cordx";
+import path from "node:path";
 
 export default class CordXServer {
     private client: CordX;
+    private db: DatabaseClient;
     public logger: Logger;
     public app: FastifyInstance;
 
     constructor(client: CordX) {
         this.client = client;
+        this.db = new DatabaseClient(client)
         this.logger = new Logger('API');
         this.app = fastify({
             logger: false
@@ -52,6 +54,7 @@ export default class CordXServer {
                 tags: [
                     { name: 'Auth', description: 'oAuth endpoints' },
                     { name: 'Client', description: 'Client endpoints' },
+                    { name: 'Entities', description: 'Entity endpoints' },
                     { name: 'Status', description: 'Status endpoints' },
                     { name: 'System', description: 'System endpoints' },
                     { name: 'Upload', description: 'Upload endpoints' },
@@ -75,6 +78,7 @@ export default class CordXServer {
 
         this.app.addHook("preHandler", (req, res, done) => {
             req.client = this.client;
+            req.db = this.db;
 
             res.header('Access-Control-Allow-Origin', '*');
             res.header('Access-Control-Allow-Headers', '*');
@@ -138,5 +142,6 @@ declare module "fastify" {
 declare module "fastify" {
     export interface FastifyRequest {
         client: CordX;
+        db: DatabaseClient;
     }
 }

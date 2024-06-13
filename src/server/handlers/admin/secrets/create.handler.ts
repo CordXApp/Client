@@ -16,6 +16,7 @@ export class AdminSecrets {
 
                         const secret = await req.client.db.secret.model.create({
                             entity: 'Admin',
+                            entityId: '',
                             maxUses: 5000
                         });
 

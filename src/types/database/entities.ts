@@ -27,12 +27,6 @@ export interface Handler {
      */
     delete: (entity: Entities, id: string) => Promise<Responses>
     /**
-     * Fetch an organization
-     * @param id The Cornflake of the organization to fetch
-     * @returns { Promise<Responses> }
-     */
-    getOrg: (params: GetOrgParams) => Promise<Responses>
-    /**
      * Check if an entity exists
      * @param entity The entity to validate (User, Organization)
      * @param id The Cornflake of the entity to validate
@@ -66,9 +60,14 @@ export interface EntityParams {
 }
 
 export interface AdditionalParams {
+    entity: Entities;
+    entityId?: string;
+    entityData?: any;
+}
+
+export interface Query {
     id?: string;
     userid?: string;
-    entity: Entities;
 }
 
 export interface User {
@@ -79,6 +78,7 @@ export interface User {
     username?: string;
     globalName?: string;
     folder?: string;
+    cookie?: string;
     webhook?: string;
     domain?: string;
 }

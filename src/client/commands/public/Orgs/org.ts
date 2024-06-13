@@ -59,12 +59,7 @@ export default class Uploads extends SlashBase {
                     name: 'id',
                     description: 'The ID of the organization',
                     type: SubCommandOptions.String,
-                    required: false
-                }, {
-                    name: 'name',
-                    description: 'The name of the organization',
-                    type: SubCommandOptions.String,
-                    required: false
+                    required: true
                 }]
             }, {
                 name: 'list',
@@ -281,21 +276,10 @@ export default class Uploads extends SlashBase {
 
             case 'view': {
                 const id = interaction.options.getString('id', false);
-                const orgName = interaction.options.getString('name', false);
 
-                if (!id && !orgName) return interaction.reply({
-                    embeds: [
-                        new client.EmbedBuilder({
-                            title: 'Error: missing parameters',
-                            description: 'You must provide either the ID or the name of the organization',
-                            color: client.config.EmbedColors.error,
-                        })
-                    ]
-                });
-
-                const view = await client.db.entity.getOrg({
-                    id: id ? id : undefined,
-                    name: orgName ? orgName : undefined
+                const view = await client.db.entity.fetch({
+                    entity: 'Organization',
+                    entityId: id as string
                 })
 
                 if (!view.success) return interaction.reply({

@@ -8,8 +8,7 @@ export interface HandleUploadParams {
     files?: any;
     secret?: string;
     entity?: Entities;
-    userId?: string;
-    orgId?: string;
+    entityId?: string;
     fileId?: string;
     mime?: string;
     data?: any;

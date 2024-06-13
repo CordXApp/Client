@@ -22,7 +22,7 @@ export class Webhooks {
                 if (!type) return this.logs.error(`Failed to send webhook: no type provided`);
                 if (!info) return this.logs.error(`Failed to send webhook: no info provided`);
 
-                const user = await this.client.db.entity.fetch({ userid, entity: 'User' });
+                const user = await this.client.db.entity.fetch({ entityId: userid, entity: 'User' });
                 const embed = await this.embeds.generate({ user, type, info, link });
                 const files = type !== 'mp4' ? [] : [{ name: info.name as string, attachment: link as string }];
 

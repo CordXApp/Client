@@ -69,10 +69,10 @@ export default class Uploads extends SlashBase {
                 })
 
                 const user = await client.db.entity.fetch({
-                    userid: interaction.user.id,
-                    entity: 'User'
+                    entity: 'User',
+                    entityId: interaction.user.id
                 });
-                
+
                 const file = await client.db.prisma.uploads.findFirst({ where: { id: fileId, userid: interaction.user.id } });
 
                 if (!user) return interaction.reply({

@@ -35,41 +35,34 @@ export class CallbackHandler {
 
                 const auth_code = createHash('sha256').update(`${randomUUID()}_${randomUUID()}`.replace(/-/g, "")).digest('hex');
 
-                let user = await req.client.db.user.model.fetch(authorized.id);
+                let user = await req.client.db.entity.fetch({ entity: 'User', entityId: authorized.id });
 
-                // @ts-ignore
-                if (!user.success) user = await req.client.db.user.model.create({
-                    avatar: authorized.avatar?.startsWith('a_') ? `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.gif` : `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.webp`,
-                    banner: authorized.banner?.startsWith('a_') ? `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.gif` : `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.webp`,
-                    username: authorized.username as string,
-                    globalName: authorized.global_name as string,
-                    userid: authorized.id as string,
-                    secret: randomBytes(32).toString('hex'),
-                    folder: authorized.id as string,
-                    webhook: 'none',
-                    domain: 'none',
-                    cookie: randomBytes(24).toString('hex'),
-                    banned: false,
-                    verified: false,
-                    key: randomBytes(64).toString('hex')
+                let avatarUrl: string = authorized.avatar?.startsWith('a_') ? `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.gif` : `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.webp`;
+                let bannerUrl: string = authorized.banner?.startsWith('a_') ? `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.gif` : `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.webp`;
+
+                if (!user.success) user = await req.client.db.entity.create({
+                    entity: 'User',
+                    user: {
+                        id: req.client.db.cornflake.generate(),
+                        userid: authorized.id as string,
+                        avatar: avatarUrl,
+                        banner: bannerUrl,
+                        username: authorized.username as string,
+                        globalName: authorized.global_name as string,
+                        folder: authorized.id as string,
+                        cookie: randomBytes(16).toString('hex')
+                    }
                 })
 
-                else user = await req.client.db.user.model.update(authorized.id as string, {
-                    id: user.data.id,
-                    userid: user.data.userid as string,
-                    avatar: authorized.avatar?.startsWith('a_') ? `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.gif` : `https://cdn.discordapp.com/avatars/${authorized.id}/${authorized.avatar}.webp`,
-                    banner: authorized.banner?.startsWith('a_') ? `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.gif` : `https://cdn.discordapp.com/banners/${authorized.id}/${authorized.banner}.webp`,
-                    username: user.data.username !== authorized.username ? authorized.username as string : user.data.username,
-                    globalName: user.data.globalName !== authorized.global_name ? authorized.global_name as string : user.data.globalName,
-                    secret: user.data.secret !== randomBytes(32).toString('hex') ? randomBytes(32).toString('hex') : user.data.secret,
-                    folder: user.data.folder,
-                    webhook: user.data.webhook,
-                    domain: user.data.domain,
-                    cookie: user.data.cookie !== randomBytes(24).toString('hex') ? randomBytes(24).toString('hex') : user.data.cookie,
-                    banned: user.data.banned,
-                    verified: user.data.verified,
-                    key: user.data.Key,
-                    beta: user.data.beta
+                else user = await req.client.db.entity.update({
+                    entity: 'User',
+                    user: {
+                        userid: authorized.id,
+                        avatar: avatarUrl,
+                        banner: bannerUrl,
+                        username: authorized.username as string,
+                        globalName: authorized.global_name as string
+                    }
                 })
 
                 if (!user.success) return res.status(500).send({

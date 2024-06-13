@@ -7,7 +7,22 @@ export class UserUpload {
     public get Create() {
         return {
             Handler: async (req: FastifyRequest, res: FastifyReply) => {
-                const { userid } = req.headers;
+                const { entity, entityId } = req.headers;
+
+                if (entity !== 'User' && entity !== 'Organization') return res.status(400).send({
+                    status: 'INVALID_ENTITY',
+                    error: 'Entity header should be one of: User, Organization'
+                })
+
+                if (entity === 'User' && !entityId) return res.status(400).send({
+                    status: 'INVALID_HEADERS',
+                    error: 'Please provide a valid Discord User ID in the "userId" header'
+                })
+
+                if (entity === 'Organization' && !entityId) return res.status(400).send({
+                    status: 'INVALID_HEADERS',
+                    message: 'Please provide a valid CordX Organization ID in the "orgId" header'
+                })
 
                 return new Promise(async (resolve, reject) => {
                     const form = new Formidable.IncomingForm({
@@ -19,7 +34,7 @@ export class UserUpload {
                     form.on('aborted', () => {
                         reject(res.status(400).send({
                             status: 'UPLOAD_FAILED',
-                            error: 'Client aborted the upload request!'
+                            message: 'Client aborted the upload request!'
                         }))
                     })
 
@@ -30,7 +45,7 @@ export class UserUpload {
 
                         reject(res.status(400).send({
                             status: 'UPLOAD_ERROR',
-                            error: err.message
+                            message: err.message
                         }))
                     })
 
@@ -46,38 +61,43 @@ export class UserUpload {
                             message: 'An error occurred while processing the upload!'
                         })
 
-                        await req.client.modules.spaces.sharex.handleUpload({
+                        await req.client.db.modules.spaces.sharex.entityUploader({
                             req: req,
                             res: res,
                             files: files,
-                            userid: userid as string
+                            entity: entity,
+                            entityId: entityId as string
                         })
                     })
                 })
             },
             PreHandler: async (req: FastifyRequest, res: FastifyReply) => {
-                const { userid, secret } = req.headers;
+                const { entity, entityId, secret } = req.headers;
+                let test;
 
-                if (!userid || !secret) return res.status(400).send({
+                if (!entity || !entityId || !secret) return res.status(400).send({
                     status: 'INVALID_HEADERS',
-                    error: 'Missing required headers!'
+                    message: 'Missing required headers!'
                 })
 
-                const user = await req.client.db.user.model.fetch(userid as string);
+                if (entity === 'User') test = await req.client.db.entity.fetch({ entity: 'User', entityId: entityId as string })
+                else if (entity === 'Organization') test = await req.client.db.entity.fetch({ entity: 'Organization', entityId: entityId as string });
 
-                if (!user.success) return res.status(404).send({
-                    status: 'INVALID_USER',
-                    error: 'No user with the provided ID was found!'
+                if (!test.success) return res.status(404).send({
+                    status: 'INVALID_ENTITY',
+                    message: test.message as string
                 })
 
-                if (user.data.secret !== secret) return res.status(401).send({
+                const decryptedSecret = await req.client.db.secret.model.decrypt(test.data.secret);
+
+                if (decryptedSecret !== secret) return res.status(401).send({
                     status: 'INVALID_SECRET',
-                    error: 'Invalid user secret provided!'
+                    message: 'Whoops, the secret you provided does not match the one that belongs to this entity!'
                 })
 
-                if (user.data.banned) return res.status(403).send({
-                    status: 'USER_BANNED',
-                    error: 'User is banned from uploading!'
+                if (test.data.banned) return res.status(403).send({
+                    status: 'ENTITY_BANNED',
+                    message: 'Entity is banned from uploading, please contact support at: https://cordximg.host/discord'
                 })
             }
         }
