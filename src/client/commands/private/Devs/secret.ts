@@ -1,3 +1,4 @@
+import { pagination, ButtonTypes, ButtonStyles } from "@devraelfreeze/discordjs-pagination";
 import type { CacheType, ChatInputCommandInteraction } from "discord.js"
 import { SubCommandOptions } from "../../../../types/client/utilities"
 import type { Entities } from "../../../../types/database/secrets";
@@ -27,7 +28,7 @@ export default class Sync extends SlashBase {
                         type: SubCommandOptions.String,
                         required: true
                     }, {
-                        name: 'maxUses',
+                        name: 'uses',
                         description: 'Amount of times the secret can be used per day',
                         type: SubCommandOptions.Number,
                         required: true
@@ -185,6 +186,8 @@ export default class Sync extends SlashBase {
                 return Promise.all([client.utils.base.delay(5000), client.db.secret.model.list()])
                     .then(async ([_, res]) => {
 
+                        let relation;
+
                         if (!res.success) return interaction.editReply({
                             embeds: [
                                 new client.EmbedBuilder({
@@ -195,23 +198,85 @@ export default class Sync extends SlashBase {
                             ]
                         })
 
-                        const secrets = res.data.map((secret: any) => secret.id).join('\n');
+                        const secrets = res.data.map((secret: any) => {
+
+                            if (secret.entity === 'User') relation = `${secret.userId}`;
+                            else if (secret.entity = 'Organization') relation = `${secret.orgId}`;
+                            else relation = 'No active relation'
+
+                            return new client.EmbedBuilder({
+                                title: `ID: ${secret.id}`,
+                                description: 'Here is some basic info for this secret.',
+                                color: client.config.EmbedColors.base,
+                                fields: [{
+                                    name: 'Entity',
+                                    value: `${secret.entity}`,
+                                    inline: true
+                                }, {
+                                    name: 'Secret',
+                                    value: `**${secret.key.replace(secret.key, 'REDACTED')}**`,
+                                    inline: true
+                                }, {
+                                    name: 'Total Uses',
+                                    value: `${secret.uses}`,
+                                    inline: true
+                                }, {
+                                    name: 'Max Uses',
+                                    value: `${secret.maxUses}`,
+                                    inline: true
+                                }, {
+                                    name: 'Restricted',
+                                    value: `${secret.limited}`,
+                                    inline: true
+                                }, {
+                                    name: 'Relation',
+                                    value: `${relation}`,
+                                    inline: true
+                                }, {
+                                    name: 'Created',
+                                    value: `${secret.createdAt}`,
+                                    inline: true
+                                }, {
+                                    name: 'Updated',
+                                    value: `${secret.updatedAt}`,
+                                    inline: true
+                                }]
+                            })
+                        })
+
+                        return pagination({
+                            interaction: interaction,
+                            embeds: [...secrets],
+                            author: interaction.user,
+                            disableButtons: true,
+                            fastSkip: true,
+                            ephemeral: false,
+                            time: 60000,
+                            buttons: [{
+                                type: ButtonTypes.previous,
+                                label: 'Previous',
+                                style: ButtonStyles.Secondary,
+                                emoji: '⬅️'
+                            }, {
+                                type: ButtonTypes.next,
+                                label: 'Next',
+                                style: ButtonStyles.Primary,
+                                emoji: '➡️'
+                            }],
+                            max: 500
+                        })
+
+
+                    }).catch((err: Error) => {
+                        client.logs.error(`Error listing secrets: ${err.message}`);
+                        client.logs.debug(err.stack as string);
 
                         return interaction.editReply({
                             embeds: [
                                 new client.EmbedBuilder({
-                                    title: 'Success: secrets fetched',
-                                    description: `Here are the ID\'s of all the secrets saved in the database.`,
-                                    color: client.config.EmbedColors.base,
-                                    fields: [{
-                                        name: 'Secret ID\'s',
-                                        value: `${secrets}`,
-                                        inline: false
-                                    }, {
-                                        name: 'Notice',
-                                        value: 'These are admin api keys, used for interacting within our API\'s admin endpoints, if you are a dev and need one of these keys please ask <@!510065483693817867>',
-                                        inline: false
-                                    }]
+                                    title: 'Error: failed to fetch secrets',
+                                    description: "```json\n" + err.stack + "\n```",
+                                    color: client.config.EmbedColors.error,
                                 })
                             ]
                         })

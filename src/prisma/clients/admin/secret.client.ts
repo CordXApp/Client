@@ -105,14 +105,10 @@ export class SecretClient {
 
                 if (!secrets || secrets.length === 0) return { success: false, message: 'No secrets found in the database' };
 
-                const data = secrets.map((secret: any) => {
-                    return { id: secret.id }
-                })
-
                 return {
                     success: true,
                     message: 'Here are the ID\'s of all the secrets/admin keys saved in our database.',
-                    data
+                    data: secrets
                 }
             },
             exists: async (key: string): Promise<Boolean> => {

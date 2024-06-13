@@ -163,9 +163,13 @@ class RestManager {
                 `${this.client.private.all.size} guild only commands are registered!`,
             )
         } catch (e: unknown) {
-            this.logger.error(
-                `Error while registering guild only commands: ${e}`,
-            )
+
+            if (e instanceof Error) {
+                this.logger.error(`Error while registering guild only commands: ${e.message}`);
+                this.logger.debug(e.stack as string)
+            }
+
+            this.logger.error(`Error while registering guild only commands: ${e}`)
         }
     }
 

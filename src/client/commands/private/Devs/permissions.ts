@@ -12,7 +12,7 @@ export default class aSync extends SlashBase {
             category: "Developers",
             cooldown: 5,
             permissions: {
-                //gate: ['OWNER', 'DEVELOPER'],
+                gate: ['OWNER', 'DEVELOPER'],
                 user: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands'],
                 bot: ['SendMessages', 'EmbedLinks', 'UseApplicationCommands']
             },
