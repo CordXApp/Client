@@ -27,7 +27,13 @@ jobs:
           git config --local user.name "Toxic Dev"
 
       - name: Version bump
-        run: npm version ${{ github.event.inputs.semver }} -m "Bump version to %s"
+        run: |
+          # Get the current version
+          current_version=$(node -p "require('./package.json').version")
+          # Extract the prerelease identifier
+          preid=$(echo $current_version | grep -o -E "[-]([a-zA-Z0-9]+)[.]" | grep -o -E "([a-zA-Z0-9]+)")
+          # Bump the version with prerelease identifier retained
+          npm version ${{ github.event.inputs.semver }} --preid=$preid -m "Bump version to %s"
 
       - name: Push changes
         uses: ad-m/github-push-action@master
