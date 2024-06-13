@@ -5,17 +5,20 @@ import { Modules } from "../../../modules/base.module";
 import Logger from "../../../utils/logger.util";
 import { PrismaClient } from '@prisma/client';
 import { Responses } from "../../../types/database/index"
+import type CordX from "../../../client/cordx";
 import axios from "axios";
 
 
 export class ErrorClient {
     private logs: Logger;
+    private client: CordX;
     private prisma: PrismaClient;
     private db: DatabaseClient;
     private mods: Modules;
 
     constructor(data: Constructor) {
         this.logs = data.logs;
+        this.client = data.client;
         this.prisma = data.prisma;
         this.db = data.db;
         this.mods = data.mods;
@@ -64,7 +67,7 @@ export class ErrorClient {
                 error.reporter = params.opts.reporter;
                 error.error_obj = params.opts.error_obj;
 
-                await this.error.create({
+                const create = await this.error.create({
                     message: error.message,
                     opts: {
                         state: error.state,
@@ -76,14 +79,16 @@ export class ErrorClient {
                     }
                 });
 
+                if (!create.success) throw new Error(`${create.message}`).stack
 
                 await this.error.webhook({
-                    id: params.opts.id as string,
+                    id: create.data.id,
                     state: params.opts.state,
                     type: params.opts.type,
                     status: params.opts.status,
                     reporter: params.opts.reporter,
-                    message: params.opts.message
+                    message: params.opts.message,
+                    error_obj: params.opts.error_obj
                 })
 
                 throw error;
@@ -91,14 +96,18 @@ export class ErrorClient {
             webhook: async (params: WebhookParams): Promise<void> => {
                 try {
                     return await axios.post(`https://proxy.cordx.lol/api/webhooks/${process.env.HookChannel}/${process.env.HookToken}`, {
-                        content: `A new error/diagnostics report has been generated!`,
+                        content: this.client.user?.id === '829979197912645652' ? '' : `<@&871275407134040064>`,
                         embeds: [{
                             title: "Snaily: error logger",
-                            description: `You can view this report using the: \`\`/snaily\`\` command.`,
+                            description: "A new error/diagnostics report has been generated! You can interact with/view it using the \`/snaily\` command",
                             color: 0xff0000,
                             fields: [{
                                 name: 'ID',
                                 value: `${params.id}`,
+                                inline: true
+                            }, {
+                                name: 'Name',
+                                value: `${params.error_obj.info}`,
                                 inline: true
                             }, {
                                 name: 'State',

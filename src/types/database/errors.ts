@@ -41,4 +41,5 @@ export interface WebhookParams {
     status: string;
     reporter: string;
     message: string;
+    error_obj: ErrorObject
 }

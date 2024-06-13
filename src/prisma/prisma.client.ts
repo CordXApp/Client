@@ -12,7 +12,6 @@ import { Modules } from "../modules/base.module";
 import { PrismaClient } from '@prisma/client';
 import type CordX from "../client/cordx";
 import Logger from "../utils/logger.util";
-import { randomBytes } from "node:crypto";
 
 const prismaClient = new PrismaClient();
 

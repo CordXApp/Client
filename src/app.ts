@@ -12,9 +12,10 @@ const client: CordX = new CordX({
         Partials.Message,
         Partials.GuildMember,
         Partials.Channel,
+        Partials.Reaction
     ],
     allowedMentions: {
-        parse: ["users", "roles"],
+        parse: ["users", "roles", "everyone"],
         repliedUser: true
     },
 })

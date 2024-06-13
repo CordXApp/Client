@@ -103,7 +103,7 @@ class CordX extends Client {
     private async reportErrorToDatabase(eventType: string, error: Error | any): Promise<void> {
         const errorObj = {
             info: error.name,
-            trace: error.stack,
+            trace: new Error().stack as string,
             stack: error.stack
         };
 

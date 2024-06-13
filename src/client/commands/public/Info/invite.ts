@@ -23,7 +23,7 @@ export default class Invite extends SlashBase {
     ): Promise<any> {
 
         return interaction.reply({
-            content: `Woahh, you want to invite me to your server? Thats\'s awesome! You can do that [here](https://discord.com/oauth2/authorize?client_id=${client.user?.id})`
+            content: `Woahh, you want to invite me to your server? Thats\'s awesome! You can do that [here](https://discord.com/oauth2/authorize?client_id=${client.user?.id}&permissions=1708085811735783&integration_type=&scope=bot+application.commands)`
         })
     }
 }
