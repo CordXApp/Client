@@ -13,7 +13,10 @@ const client: CordX = new CordX({
         Partials.GuildMember,
         Partials.Channel,
     ],
-    allowedMentions: { parse: ["users", "roles"], repliedUser: true },
+    allowedMentions: {
+        parse: ["users", "roles"],
+        repliedUser: true
+    },
 })
 
 client.authenticate(process.env.TOKEN!)

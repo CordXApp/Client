@@ -12,8 +12,8 @@ const config: IConfig = {
     },
     Icons: {
         loading:
-            "https://mir-s3-cdn-cf.behance.net/project_modules/disp/35771931234507.564a1d2403b3a.gif",
-        eightBall: "https://cdn.discordapp.com/attachments/653733403841134600/1088241600133607515/ezgifcom-gif-maker_8.7b86d9b5eefc.gif"
+            "https://cdn.cordx.space/assets/loading.gif",
+        eightBall: "https://cdn.cordx.space/assets/8ball.gif"
     },
     Discord: {
         mainToken: `${process.env.PROD_TOKEN}`,

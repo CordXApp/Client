@@ -34,7 +34,7 @@ export class CordxEmbed extends EmbedBuilder {
         this.setThumbnail(
             data.thumbnail
                 ? data.thumbnail
-                : "https://cdn.cordx.space/510065483693817867/uzyA1mLp.png",
+                : "https://cdn.cordx.space/assets/logo-trans-white.png",
         )
         this.setColor(data.color)
         if (data.fields) this.setFields(data.fields)
@@ -43,11 +43,11 @@ export class CordxEmbed extends EmbedBuilder {
             data.footer
                 ? {
                     text: data.footer + ` © CordX v${version}`,
-                    iconURL: "https://cdn.cordx.space/510065483693817867/uzyA1mLp.png"
+                    iconURL: "https://cdn.cordx.space/assets/logo-trans-white.png"
                 }
                 : {
                     text: `© Copyright 2023 - CordX v${version}`,
-                    iconURL: "https://cdn.cordx.space/510065483693817867/uzyA1mLp.png",
+                    iconURL: "https://cdn.cordx.space/assets/logo-trans-white.png",
                 }
         )
     }

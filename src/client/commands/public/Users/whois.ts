@@ -70,9 +70,6 @@ export default class WhoIs extends SlashBase {
             ]
         })
 
-        const presence = member.presence ? member.presence.status : 'OFFLINE';
-        client.logs.debug(`Presence: ${member}`);
-
         return interaction.reply({
             embeds: [
                 new client.EmbedBuilder({

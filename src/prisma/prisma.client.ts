@@ -7,6 +7,7 @@ import { PartnerClient } from "./clients/admin/partner.client";
 import { SecretClient } from "./clients/admin/secret.client";
 import { ReportClient } from "./clients/support/report.client";
 import { CordXSnowflake } from "@cordxapp/snowflake";
+import { ErrorClient } from "./clients/admin/error.client";
 import { Modules } from "../modules/base.module";
 import { PrismaClient } from '@prisma/client';
 import type CordX from "../client/cordx";
@@ -29,6 +30,7 @@ export class DatabaseClient {
     public secret: SecretClient
     public report: ReportClient
     public modules: Modules;
+    public snaily: ErrorClient;
 
     constructor(client: CordX) {
         this.client = client;
@@ -127,6 +129,14 @@ export class DatabaseClient {
             logs: this.logs,
             mods: this.modules
         });
+
+        this.snaily = new ErrorClient({
+            client: this.client,
+            db: this,
+            prisma: this.prisma,
+            logs: this.logs,
+            mods: this.modules
+        })
 
         /**
          * Cornflake (Snowflake) ID Generator

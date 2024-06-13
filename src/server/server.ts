@@ -55,6 +55,7 @@ export default class CordXServer {
                     { name: 'Auth', description: 'oAuth endpoints' },
                     { name: 'Client', description: 'Client endpoints' },
                     { name: 'Entities', description: 'Entity endpoints' },
+                    { name: 'Organizations', description: 'Organization endpoints' },
                     { name: 'Status', description: 'Status endpoints' },
                     { name: 'System', description: 'System endpoints' },
                     { name: 'Upload', description: 'Upload endpoints' },

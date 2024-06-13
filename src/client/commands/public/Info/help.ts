@@ -1,4 +1,4 @@
-import { pagination, ButtonTypes, ButtonStyles } from "@devraelfreeze/discordjs-pagination";
+const { pagination, ButtonTypes, ButtonStyles } = require("@devraelfreeze/discordjs-pagination")
 import { SubCommandOptions } from "../../../../types/client/utilities";
 import { SlashBase } from "../../../../schemas/command.schema";
 import type CordX from "../../../cordx";
