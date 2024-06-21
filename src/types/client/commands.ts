@@ -1,15 +1,15 @@
 import type {
     ApplicationCommand,
     ApplicationCommandData,
-    PermissionResolvable,
     Interaction,
+    CacheType
 } from "discord.js"
 import type CordXClient from "../../client/cordx"
 import { Perms } from "../database/users";
 
 export interface ISlashCommand {
     props: ISlashCommandProps
-    execute: (client: CordXClient, interaction: Interaction, args: any) => void
+    execute: (client: CordXClient, interaction: Interaction<CacheType>, args: any) => void
     discord?: {
         ApplicationCommand: ApplicationCommand
         ApplicationCommandData: ApplicationCommandData
